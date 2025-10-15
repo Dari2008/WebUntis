@@ -1,0 +1,27 @@
+@use "./Variables.scss" as *;
+
+#loadingAnimation {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    // background: $gray-800;
+    z-index: 1000;
+    border-radius: 20px;
+    width: 20vh;
+    height: 20vh;
+    overflow: hidden;
+    background: transparent;
+
+    embed {
+        width: 100%;
+        height: 100%;
+    }
+
+}
+
+#loadingAnimation::backdrop {
+    // background: rgba($gray-800, 0.5);
+    backdrop-filter: blur(5px);
+    pointer-events: all;
+}

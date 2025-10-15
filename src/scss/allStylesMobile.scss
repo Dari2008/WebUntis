@@ -1,0 +1,171 @@
+@use "./clamp.scss" as *;
+
+$defaultBorder: lighten(#000000, 30%);
+
+@media (width < 1px) {
+
+    .schedule .lessonTime.break .start {
+        left: 1px !important;
+    }
+
+
+    .schedule .lessonTime.break .end {
+        right: 1px !important;
+    }
+
+    .schedule .lessonTime {
+        font-size: clampW(0.5em, 0.7em, 100px, 500px) !important;
+        // font-size: 60% !important;
+    }
+
+}
+
+@media (width < 450px) {
+    .breakLabel {
+        display: none !important;
+    }
+}
+
+@media (width < 650px) {
+    .lesson {
+        margin-inline: 1px !important;
+        margin-block: 1px !important;
+    }
+}
+
+@media (width < 550px) {
+    .lesson {
+        padding: 1px !important;
+    }
+}
+
+@media (width < 450px) {
+    .lesson {
+        padding: 2px !important;
+        border: 2px solid $defaultBorder !important;
+    }
+}
+
+@media (width < 800px) {
+    .lesson {
+        grid-column-gap: 0px !important;
+
+        .room {
+            text-align: right !important;
+        }
+
+        .teacher {
+            text-align: left !important;
+        }
+
+    }
+}
+
+@media (height < 650px) and (width < 375px) {
+    .schedule {
+        // --minutesToDisplayOnScreen: calc(var(--totalMinutes) / 1.5) !important;
+
+        --pixelPerMinute: var(--windowWidth)/(var(--totalMinutes)/1.5) !important;
+    }
+}
+
+@media (width < 400px) {
+    .lesson.infoTextHidden {
+        display: grid;
+        grid-template-columns: 1fr !important;
+        grid-template-rows: repeat(3, 1fr) !important;
+        grid-column-gap: 0px !important;
+        grid-row-gap: 0px !important;
+
+        .subjectShort {
+            grid-area: 1 / 1 / 2 / 2 !important;
+            font-size: clampW(0.1em, 0.6em, 10px, 500px) !important;
+        }
+
+        .teacher {
+            grid-area: 2 / 1 / 3 / 2 !important;
+            text-align: center !important;
+            font-size: clampW(0.1em, 0.6em, 10px, 500px) !important;
+        }
+
+        .room {
+            grid-area: 3 / 1 / 4 / 2 !important;
+            text-align: center !important;
+            font-size: clampW(0.1em, 0.6em, 10px, 500px) !important;
+        }
+
+    }
+}
+
+
+@container lessonContainer (width < 100px) {
+    .subject {
+        display: none !important;
+    }
+
+    .subjectShort {
+        display: block !important;
+    }
+}
+
+@container lessonTimeContainer (width < 120px) {
+    .start {
+        left: 5px !important;
+    }
+
+    .end {
+        right: 5px !important;
+    }
+}
+
+@container lessonTimeContainer (width < 80px) {
+    .start {
+        top: 25% !important;
+        left: 5px !important;
+    }
+
+    .end {
+        top: 75% !important;
+        right: 5px !important;
+    }
+}
+
+
+@media (width < 500px) {
+    .header {
+        .shortName {
+            display: inline !important;
+        }
+
+        .longName {
+            display: none !important;
+        }
+    }
+}
+
+@media (height < 600px) {
+    #titleBar {
+        --titleBarHeight: 8vh !important;
+        height: 8vh !important;
+    }
+
+    #timeSchedule {
+        --titleBarHeight: 8vh !important;
+    }
+}
+
+@media (height < 700px) {
+    #timeSchedule {
+        height: calc(100vh - var(--titleBarHeight) - 5px) !important;
+    }
+}
+
+@media (width < 500px) {
+    #timeSchedule {
+        width: 100% !important;
+    }
+
+    body {
+        padding: 0px !important;
+    }
+}

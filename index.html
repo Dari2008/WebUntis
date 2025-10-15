@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Untis Filter</title>
+    <script type="module" src="/src/ts/index.ts"></script>
+    <link rel="stylesheet" href="./src/scss/allStyles.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+
+<body class="dark">
+
+
+    <div id="settingsDialog">
+        <div class="overflow">
+            <div id="settingsList">
+
+            </div>
+        </div>
+        <div class="overflow">
+            <div id="contents">
+            </div>
+        </div>
+        <button id="closeSettings" class="close">
+            <svg viewBox="0 0 24 24" fill="none" id="closeImg">
+                <path d="M6 18L18 6M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round"></path>
+            </svg>
+        </button>
+    </div>
+
+    <div id="titleBar">
+        <button id="prevWeek">Previous Week</button>
+        <span>Untis Schedule Combiner</span>
+        <button id="nextWeek">Next Week</button>
+        <button id="settingsOpenBtn">
+            <img src="./imgs/settings.svg" alt="Settings">
+        </button>
+    </div>
+
+    <dialog id="teacherViewer">
+        <table id="teacherViewerTable">
+            <thead>
+                <td>Short</td>
+                <td>First Name</td>
+                <td>Surname</td>
+                <td>Subjects</td>
+            </thead>
+            <tbody id="teacherViewerTableBody">
+
+            </tbody>
+        </table>
+    </dialog>
+
+    <div id="popupInformation" class="popupInformation">
+        <div id="insidePopInfo">
+            <span class="key teacherShortNameKey">Abbreviation</span>
+            <span class="teacherShortName"></span>
+            <button class="teacherShortNameMultiple seeAllTeachers">All Teachers</button>
+
+            <span class="key roomKey">Room</span>
+            <span class="room"></span>
+
+            <span class="key subjectKey">Subject</span>
+            <span class="subject"></span>
+
+            <span class="key infoTextKey">Info</span>
+            <span class="infoText"></span>
+
+            <span class="key roomFullNameKey">Full Room Name</span>
+            <span class="roomFullName"></span>
+
+            <span class="key teacherFullNameKey">Full Teacher Name</span>
+            <span class="teacherFullName"></span>
+            <button class="teacherFullNameMultiple seeAllTeachers">All Teachers</button>
+
+            <span class="key subjectsKey">Subjects</span>
+            <div class="teacherSubjects">
+                <ul class="teacherSubjectList">
+                </ul>
+            </div>
+            <button class="teacherSubjectsMultiple seeAllTeachers">All Teachers</button>
+
+            <!-- Multiple Lessons in one Slot -->
+
+            <div class="moreLessonsDiv"></div>
+        </div>
+    </div>
+
+    <dialog id="loadingAnimation">
+        <embed src="./imgs/LoadingAnimation.html" type="image/svg+xml" />
+    </dialog>
+
+    <div id="timeSchedule">
+        <div class="schedule currentSchedule" id="schedule"></div>
+        <div class="schedule nextSchedule" id="nextSchedule"></div>
+        <div class="schedule previousSchedule" id="previousSchedule"></div>
+    </div>
+</body>
+
+</html>

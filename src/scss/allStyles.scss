@@ -1,0 +1,1269 @@
+@use "./Variables.scss" as *;
+@use "./allStylesMobile.scss" as *;
+@use "./loadingAnimation.scss" as *;
+@use "./clamp.scss" as *;
+@use "./settings/settings.scss" as *;
+@use "./settings/spinner.scss" as *;
+@use "./settings/settingsLanguage.scss" as *;
+@use "../../node_modules/toastify-js/src/toastify.css" as *;
+
+$canceledBorderColor: darken(#FF0000, 10%);
+$substitutionBorderColor: darken(#0000FF, 10%);
+$absenceBorderColor: darken(#FF00FF, 10%);
+$roomSubstitutionBorderColor: darken(#00FF00, 10%);
+$defaultBorder: lighten(#000000, 30%);
+$additionalLessonBorderColor: darken(#2300eb, 10%);
+$examColor: darken(#FFA500, 30%);
+$titleBarHeight: var(--titleBarHeight, 4vh);
+$marginKeys: 5%;
+
+:root {
+    --canceledBorderColor: #{$canceledBorderColor};
+    --substitutionBorderColor: #{$substitutionBorderColor};
+    --absenceBorderColor: #{$absenceBorderColor};
+    --roomSubstitutionBorderColor: #{$roomSubstitutionBorderColor};
+    --defaultBorder: #{$defaultBorder};
+    --additionalLessonBorderColor: #{$additionalLessonBorderColor};
+    --examColor: #{$examColor};
+}
+
+body {
+    padding-inline: 20px;
+}
+
+#titleBar {
+    height: $titleBarHeight;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr) max(5%, 30px);
+    grid-template-rows: 1fr;
+    grid-column-gap: 0px;
+    grid-row-gap: 0px;
+}
+
+#timeSchedule {
+    --titleBarHeight: 4vh;
+    height: calc(100vh - var(--titleBarHeight) - 40px);
+    overflow-y: auto;
+    position: absolute;
+    width: calc(100% - 40px);
+    overflow-x: hidden;
+}
+
+#titleBar span {
+    grid-area: 1 / 2 / 2 / 3;
+    text-align: center;
+    color: white;
+    font-weight: bold;
+    font: 2em sans-serif;
+    font-size: clampW(0.3em, 2em, 100px, 2000px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: $titleBarHeight;
+}
+
+#nextWeek.disabled,
+#prevWeek.disabled {
+    filter: brightness(50%);
+    cursor: default;
+}
+
+#titleBar #nextWeek {
+    grid-area: 1 / 3 / 2 / 4;
+    height: $titleBarHeight;
+}
+
+#titleBar #prevWeek {
+    grid-area: 1 / 1 / 2 / 2;
+    height: $titleBarHeight;
+}
+
+#titleBar #settingsOpenBtn {
+    grid-area: 1 / 4 / 2 / 5;
+    max-height: 100%;
+    max-width: 100%;
+    background: transparent;
+    width: 100%;
+    height: $titleBarHeight;
+    padding: 5px;
+    cursor: pointer;
+
+    img {
+        max-width: 100%;
+        max-height: 100%;
+        width: 100%;
+        height: 100%;
+        aspect-ratio: 1/1;
+        background: transparent;
+    }
+
+}
+
+$borderRadius: 15px;
+$borderWidth: 5px;
+
+.lesson:not(.cancelled):not(.teacherSubstitution):not(.teacherAbsent):not(.roomSubstitution):not(.additional) {
+    border: $borderWidth solid $defaultBorder;
+    border-radius: $borderRadius;
+}
+
+.lesson.cancelled {
+    border: $borderWidth solid var(--canceledBorderColor);
+    border-radius: $borderRadius;
+}
+
+.lesson.teacherSubstitution {
+    border: $borderWidth solid var(--substitutionBorderColor);
+    border-radius: $borderRadius;
+}
+
+.lesson.teacherAbsent {
+    border: $borderWidth solid var(--absenceBorderColor);
+    border-radius: $borderRadius;
+}
+
+.lesson.roomSubstitution {
+    border: $borderWidth solid var(--roomSubstitutionBorderColor);
+    border-radius: $borderRadius;
+}
+
+.lesson.additional {
+    border: $borderWidth solid var(--additionalLessonBorderColor);
+    border-radius: $borderRadius;
+}
+
+$rowGap: 20px;
+$colGap: 20px;
+$margin: 5px;
+$padding: 10px;
+
+.lesson:not(.infoTextHidden) {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    grid-column-gap: $colGap;
+    grid-row-gap: $rowGap;
+    margin-inline: $margin;
+    margin-block: $margin;
+    padding: $padding;
+    cursor: pointer;
+
+    .teacher {
+        grid-area: 1 / 1 / 2 / 2;
+        text-align: center;
+        font-size: clampW(0.4em, 1em, 100px, 2000px);
+        height: max-content;
+    }
+
+    .room {
+        grid-area: 1 / 2 / 2 / 3;
+        text-align: center;
+        font-size: clampW(0.4em, 1em, 100px, 2000px);
+        height: max-content;
+    }
+
+    .subject,
+    .subjectShort {
+        grid-area: 2 / 1 / 3 / 3;
+        text-align: center;
+        font-size: clampW(0.4em, 1.3em, 100px, 2000px);
+        height: max-content;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow-x: hidden;
+    }
+
+    .subject.unknown {
+        display: none;
+    }
+
+    .subject.unknown~.infoText {
+        grid-area: 2 / 1 / 3 / 3;
+    }
+
+    .subjectShort {
+        display: none;
+    }
+
+    .subject:not(.unknown)~.infoText {
+        display: none;
+    }
+
+    .infoText {
+        grid-area: 3 / 1 / 4 / 3;
+        text-align: center;
+        font-size: clampW(0.4em, 1.3em, 100px, 2000px);
+        height: max-content;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow-x: hidden;
+    }
+
+
+}
+
+.popupInformation.visible {
+    transition: opacity 0.3s;
+    opacity: 1;
+    pointer-events: all;
+}
+
+.popupInformation {
+    background-color: rgba(0, 0, 0, 0.2);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 100000;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+}
+
+#insidePopInfo.exam {
+    background-color: var(--examColor) !important;
+}
+
+.popupInformation[data-status="regular"] #insidePopInfo {
+    border: $borderWidth solid var(--defaultBorder);
+    border-radius: $borderRadius;
+}
+
+.popupInformation[data-status="cancelled"] #insidePopInfo {
+    border: $borderWidth solid var(--canceledBorderColor);
+    border-radius: $borderRadius;
+}
+
+.popupInformation[data-status="teacherSubstitution"] #insidePopInfo {
+    border: $borderWidth solid var(--substitutionBorderColor);
+    border-radius: $borderRadius;
+}
+
+.popupInformation[data-status="teacherAbsent"] #insidePopInfo {
+    border: $borderWidth solid var(--absenceBorderColor);
+    border-radius: $borderRadius;
+}
+
+.popupInformation[data-status="roomSubstitution"] #insidePopInfo {
+    border: $borderWidth solid var(--roomSubstitutionBorderColor);
+    border-radius: $borderRadius;
+}
+
+.popupInformation[data-status="additional"] #insidePopInfo {
+    border: $borderWidth solid var(--additionalLessonBorderColor);
+    border-radius: $borderRadius;
+}
+
+.popupInformation[data-status="moreLessons"] {
+
+    .teacherShortName,
+    .teacherShortNameMultiple,
+    .room,
+    .subject,
+    .infoText,
+    .roomFullName,
+    .teacherFullName,
+    .teacherFullNameMultiple,
+    .teacherSubjects,
+    .teacherSubjectsMultiple,
+    .infoText,
+    .key {
+        &:not(.content *) {
+            display: none !important;
+        }
+    }
+}
+
+.popupInformation[data-status="moreLessons"] #insidePopInfo {
+
+    .moreLessonsDiv {
+        display: block;
+        width: 100%;
+        height: 100%;
+        border-radius: $borderRadius;
+        overflow: hidden;
+
+        .tabs {
+            width: 100%;
+            height: 10%;
+            display: flex;
+            overflow-x: auto;
+            overflow-y: hidden;
+            scrollbar-width: thin;
+            scrollbar-color: $gray-800 transparent;
+        }
+
+        .tab.exam {
+            background-color: var(--examColor) !important;
+        }
+
+        .tab {
+            width: max(calc(100% / var(--tabCount)), 10%);
+            min-width: min-content;
+            padding-inline: 5%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-right: 2px solid $gray-900;
+            color: white;
+            background-color: $gray-700;
+            font-size: clampW(0.6em, 1.2em, 100px, 2000px);
+            user-select: none;
+            cursor: pointer;
+        }
+
+
+        .tab.selected {
+            background-color: inherit;
+        }
+
+        .tab:not(.selected):hover {
+            background-color: $gray-500;
+        }
+
+        .tab:not(.selected):active {
+            background-color: $gray-800;
+        }
+
+        .tab:last-of-type {
+            border-right: none;
+        }
+
+        $underlineThickness: 2px;
+        $underlineOffset: 4px;
+
+        .tab[data-status="regular"] {
+            text-decoration: underline transparent $underlineThickness;
+            text-underline-offset: $underlineOffset;
+        }
+
+        .tab[data-status="cancelled"] {
+            text-decoration: underline $canceledBorderColor $underlineThickness;
+            text-underline-offset: $underlineOffset;
+        }
+
+        .tab[data-status="teacherSubstitution"] {
+            text-decoration: underline $substitutionBorderColor $underlineThickness;
+            text-underline-offset: $underlineOffset;
+        }
+
+        .tab[data-status="teacherAbsent"] {
+            text-decoration: underline $absenceBorderColor $underlineThickness;
+            text-underline-offset: $underlineOffset;
+        }
+
+        .tab[data-status="roomSubstitution"] {
+            text-decoration: underline $roomSubstitutionBorderColor $underlineThickness;
+            text-underline-offset: $underlineOffset;
+        }
+
+        .tab[data-status="additional"] {
+            text-decoration: underline $additionalLessonBorderColor $underlineThickness;
+            text-underline-offset: $underlineOffset;
+        }
+
+
+
+        .tabs:has(.tab.selected[data-status="regular"])~.content {
+            border: 5px solid var(--defaultBorder);
+            border-radius: $borderRadius;
+        }
+
+        .tabs:has(.tab.selected[data-status="cancelled"])~.content {
+            border: 5px solid var(--canceledBorderColor);
+            border-radius: $borderRadius;
+        }
+
+        .tabs:has(.tab.selected[data-status="teacherSubstitution"])~.content {
+            border: 5px solid var(--substitutionBorderColor);
+            border-radius: $borderRadius;
+        }
+
+        .tabs:has(.tab.selected[data-status="teacherAbsent"])~.content {
+            border: 5px solid var(--absenceBorderColor);
+            border-radius: $borderRadius;
+        }
+
+        .tabs:has(.tab.selected[data-status="roomSubstitution"])~.content {
+            border: 5px solid var(--roomSubstitutionBorderColor);
+            border-radius: $borderRadius;
+        }
+
+        .tabs:has(.tab.selected[data-status="additional"])~.content {
+            border: 5px solid var(--additionalLessonBorderColor);
+            border-radius: $borderRadius;
+        }
+
+        .content {
+            width: 100%;
+            height: calc(100% - 10%);
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(12, auto);
+            grid-column-gap: 0px;
+            grid-row-gap: 0px;
+        }
+
+        .content {
+            .keyContent {
+                font-size: 75%;
+                display: flex;
+                justify-content: left;
+                align-items: start;
+                margin-left: $marginKeys;
+                border-top: 1px solid white;
+                width: 50%;
+                justify-self: start;
+            }
+
+            .roomKeyContent {
+                justify-content: right;
+                text-align: right;
+                margin-left: 0;
+                margin-right: $marginKeys;
+                justify-self: right;
+            }
+
+            .roomContent {
+                justify-content: right;
+                text-align: right;
+                margin-left: 0;
+                margin-right: $marginKeys;
+            }
+
+            &:has(.infoTextContent.unknown) {
+                grid-template-rows: repeat(10, auto);
+
+                .infoTextContent.unknown,
+                .infoTextKeyContent {
+                    display: none !important;
+                }
+
+                .roomFullNameContent {
+                    grid-area: 5 / 1 / 6 / 3 !important;
+                }
+
+                .teacherFullNameContent {
+                    grid-area: 7 / 1 / 8 / 3 !important;
+
+                }
+
+                .teacherSubjectsContent {
+                    grid-area: 9 / 1 / 10 / 3 !important;
+                }
+
+                .roomFullNameKeyContent {
+                    grid-area: 6 / 1 / 7 / 3 !important;
+                }
+
+                .teacherFullNameKeyContent {
+                    grid-area: 8 / 1 / 9 / 3 !important;
+                }
+
+                .subjectsKeyContent {
+                    grid-area: 10 / 1 / 11 / 3 !important;
+                }
+
+            }
+
+            .teacherShortNameContent {
+                grid-area: 1 / 1 / 2 / 2;
+            }
+
+            .roomContent {
+                grid-area: 1 / 2 / 2 / 3;
+            }
+
+            .subjectContent {
+                grid-area: 3 / 1 / 4 / 3;
+            }
+
+            .infoTextContent {
+                grid-area: 5 / 1 / 6 / 3;
+            }
+
+            .roomFullNameContent {
+                grid-area: 7 / 1 / 8 / 3;
+            }
+
+            .teacherFullNameContent {
+                grid-area: 9 / 1 / 10 / 3;
+            }
+
+            .teacherSubjectsContent {
+                grid-area: 11 / 1 / 12 / 3;
+                display: flex;
+                justify-content: end;
+                align-items: start;
+                flex-direction: column;
+            }
+
+
+            .teacherShortNameKeyContent {
+                grid-area: 2 / 1 / 3 / 2;
+            }
+
+            .roomKeyContent {
+                grid-area: 2 / 2 / 3 / 3;
+            }
+
+            .subjectKeyContent {
+                grid-area: 4 / 1 / 5 / 3;
+            }
+
+            .infoTextKeyContent {
+                grid-area: 6 / 1 / 7 / 3;
+            }
+
+            .roomFullNameKeyContent {
+                grid-area: 8 / 1 / 9 / 3;
+            }
+
+            .teacherFullNameKeyContent {
+                grid-area: 10 / 1 / 11 / 3;
+            }
+
+            .subjectsKeyContent {
+                grid-area: 12 / 1 / 13 / 3;
+            }
+        }
+
+    }
+
+    border-radius: $borderRadius;
+    display: block;
+
+}
+
+.teacherFullNameMultiple,
+.teacherSubjectsMultiple,
+.teacherShortNameMultiple {
+    justify-self: left;
+    align-self: end;
+    padding: 0px;
+    margin-left: $marginKeys;
+    background-color: transparent;
+    color: white;
+    cursor: pointer;
+    // font-size: ;
+}
+
+.teacherFullNameMultiple:hover,
+.teacherSubjectsMultiple:hover,
+.teacherShortNameMultiple:hover {
+    color: darken(white, 50%);
+}
+
+.teacherFullNameMultiple:active,
+.teacherSubjectsMultiple:active,
+.teacherShortNameMultiple:active {
+    color: darken(white, 30%);
+}
+
+#insidePopInfo:not(.multipleTeachers) {
+    .teacherFullNameMultiple {
+        display: none;
+    }
+
+    .teacherSubjectsMultiple {
+        display: none;
+    }
+
+    .teacherShortNameMultiple {
+        display: none;
+    }
+}
+
+#insidePopInfo.multipleTeachers {
+
+    .teacherShortName,
+    .teacherShortNameContent {
+        display: none !important;
+    }
+
+    .teacherSubjects,
+    .teacherSubjectsContent {
+        display: none !important;
+    }
+
+    .teacherFullName,
+    .teacherFullNameContent {
+        display: none;
+    }
+
+    .teacherFullNameMultiple {
+        display: flex;
+    }
+
+    .teacherSubjectsMultiple {
+        display: flex;
+    }
+
+    .teacherShortNameMultiple {
+        display: flex;
+    }
+}
+
+#insidePopInfo {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(12, auto);
+    grid-column-gap: 0px;
+    grid-row-gap: 0px;
+    min-height: 40vh;
+    min-width: 20vw;
+    max-height: calc(100% - 40px);
+
+    $marginKeys: 5%;
+
+    .moreLessonsDiv {
+        display: none;
+    }
+
+    .teacherSubjectList {
+        list-style-type: "-  ";
+        list-style-position: inside;
+        padding: 0;
+        margin-left: $marginKeys;
+    }
+
+    span {
+        display: flex;
+        justify-content: start;
+        align-items: end;
+        color: white;
+        text-align: left;
+        margin-left: $marginKeys;
+    }
+
+    li {
+        color: white;
+    }
+
+    .key {
+        font-size: 75%;
+        display: flex;
+        justify-content: left;
+        align-items: start;
+        margin-left: $marginKeys;
+        border-top: 1px solid white;
+        width: 50%;
+        justify-self: start;
+    }
+
+    .roomKey {
+        justify-content: right;
+        text-align: right;
+        margin-left: 0;
+        margin-right: $marginKeys;
+        justify-self: right;
+    }
+
+    .room {
+        justify-content: right;
+        text-align: right;
+        margin-left: 0;
+        margin-right: $marginKeys;
+    }
+
+    &:has(.infoText.unknown) {
+        grid-template-rows: repeat(10, auto);
+
+        .infoText.unknown,
+        .infoTextKey {
+            display: none !important;
+        }
+
+        .roomFullName {
+            grid-area: 5 / 1 / 6 / 3 !important;
+        }
+
+        .teacherFullName,
+        .teacherFullNameMultiple {
+            grid-area: 7 / 1 / 8 / 3 !important;
+
+        }
+
+        .teacherSubjects,
+        .teacherSubjectsMultiple {
+            grid-area: 9 / 1 / 10 / 3 !important;
+        }
+
+        .roomFullNameKey {
+            grid-area: 6 / 1 / 7 / 3 !important;
+        }
+
+        .teacherFullNameKey {
+            grid-area: 8 / 1 / 9 / 3 !important;
+        }
+
+        .subjectsKey {
+            grid-area: 10 / 1 / 11 / 3 !important;
+        }
+
+    }
+
+    .teacherShortName,
+    .teacherShortNameMultiple {
+        grid-area: 1 / 1 / 2 / 2;
+    }
+
+    .room {
+        grid-area: 1 / 2 / 2 / 3;
+    }
+
+    .subject {
+        grid-area: 3 / 1 / 4 / 3;
+    }
+
+    .infoText {
+        grid-area: 5 / 1 / 6 / 3;
+    }
+
+    .roomFullName {
+        grid-area: 7 / 1 / 8 / 3;
+    }
+
+    .teacherFullName,
+    .teacherFullNameMultiple {
+        grid-area: 9 / 1 / 10 / 3;
+    }
+
+    .teacherSubjects,
+    .teacherSubjectsMultiple {
+        grid-area: 11 / 1 / 12 / 3;
+        display: flex;
+        justify-content: end;
+        align-items: start;
+        flex-direction: column;
+    }
+
+
+    .teacherShortNameKey {
+        grid-area: 2 / 1 / 3 / 2;
+    }
+
+    .roomKey {
+        grid-area: 2 / 2 / 3 / 3;
+    }
+
+    .subjectKey {
+        grid-area: 4 / 1 / 5 / 3;
+    }
+
+    .infoTextKey {
+        grid-area: 6 / 1 / 7 / 3;
+    }
+
+    .roomFullNameKey {
+        grid-area: 8 / 1 / 9 / 3;
+    }
+
+    .teacherFullNameKey {
+        grid-area: 10 / 1 / 11 / 3;
+    }
+
+    .subjectsKey {
+        grid-area: 12 / 1 / 13 / 3;
+    }
+
+}
+
+
+#insidePopInfo {
+    background-color: $gray-600;
+    position: relative;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: calc(var(--width) * 1.5);
+    height: calc(var(--height) * 1.5);
+}
+
+$animationDuration: 0.4s;
+
+.lesson.popupAnimation {
+    position: fixed;
+    width: var(--width) !important;
+    height: var(--height) !important;
+    animation: popupAnimation $animationDuration ease-in-out forwards;
+}
+
+.lesson.popupAnimationReverse {
+    position: fixed;
+    width: var(--width) !important;
+    height: var(--height) !important;
+    animation: popupAnimation $animationDuration ease-in-out reverse forwards;
+}
+
+@keyframes popupAnimation {
+    0% {
+        top: var(--top);
+        left: var(--left);
+        transform: translate(0, 0) scale(1);
+    }
+
+    80% {
+        opacity: 100%;
+    }
+
+    100% {
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(1.5);
+        opacity: 20%;
+    }
+}
+
+.lesson.exam {
+    background-color: var(--examColor) !important;
+}
+
+.lesson.infoTextHidden {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    grid-column-gap: $colGap;
+    grid-row-gap: $rowGap;
+    margin-inline: $margin;
+    margin-block: $margin;
+    padding: $padding;
+    cursor: pointer;
+    container-type: inline-size;
+    container-name: lessonContainer;
+
+    .teacher {
+        grid-area: 1 / 1 / 2 / 2;
+        text-align: center;
+        font-size: clampW(0.4em, 1em, 100px, 2000px);
+        height: max-content;
+    }
+
+    .room {
+        grid-area: 1 / 2 / 2 / 3;
+        text-align: center;
+        font-size: clampW(0.4em, 1em, 100px, 2000px);
+        height: max-content;
+    }
+
+    .subject,
+    .subjectShort {
+        grid-area: 2 / 1 / 3 / 3;
+        text-align: center;
+        font-size: clampW(0.4em, 1.3em, 100px, 2000px);
+        height: max-content;
+        white-space: wrap;
+    }
+
+    .subjectShort {
+        display: none;
+    }
+
+    .infoText {
+        text-align: center;
+        display: none;
+    }
+}
+
+.moreLessons {
+    margin-left: $margin;
+    margin-block: $margin;
+    padding: $padding;
+    cursor: pointer;
+
+    width: 20%;
+    justify-self: right;
+
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+
+    .moreLessonsSpan {
+        font-size: 175%;
+    }
+
+}
+
+.lesson:has(+.moreLessons) {
+    width: calc(80% - $borderWidth*2 - $borderWidth);
+    justify-self: left;
+}
+
+$borderBottomColor: rgba(255, 255, 255, 0.2);
+
+.schedule {
+    width: 100%;
+    color: white;
+    border-collapse: collapse;
+    height: 2000px;
+    table-layout: fixed;
+    --minutesToDisplayOnScreen: calc(var(--totalMinutes) / 1.2);
+    --pixelPerMinute: calc(var(--windowHeight) / var(--minutesToDisplayOnScreen)); // px per 5min
+    height: calc(var(--totalMinutes) * var(--pixelPerMinute));
+
+    .header {
+        // height: 2vh;
+        position: sticky;
+        top: 0px;
+        background: $gray-900;
+        z-index: 1000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: clampW(0.6em, 1em, 100px, 2000px);
+
+        .shortName {
+            display: none;
+        }
+
+        .longName {
+            display: inline;
+        }
+    }
+
+    .break:not(.lessonTime) {
+        background: rgba($gray-700, 0.5);
+        background: repeating-linear-gradient(45deg, rgba(255, 255, 255, .3), rgba(255, 255, 255, .3) 2px, transparent 2px, transparent 10px), repeating-linear-gradient(135deg, rgba(255, 255, 255, .3), rgba(255, 255, 255, .3) 2px, transparent 2px, transparent 10px);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        .breakLabel {
+            max-height: 100%;
+            text-align: center;
+            font-size: clampW(0.6em, 1em, 100px, 2000px);
+            background-color: $gray-800;
+            padding: 7px;
+            border-radius: 10px;
+        }
+    }
+
+    .lessonTime {
+        position: relative;
+        font-size: clampW(0.39em, 1em, 100px, 2000px);
+
+        // background: rgba($gray-700, 0.5);
+        .start {
+            position: absolute;
+            top: 0px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .end {
+            position: absolute;
+            bottom: 0px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        &.break {
+            // background: rgba($gray-700, 0.5);
+            container-type: inline-size;
+            container-name: lessonTimeContainer;
+
+            .start {
+                position: absolute;
+                top: 50%;
+                left: 20px;
+
+                bottom: unset;
+                right: unset;
+                transform: translateY(-50%);
+            }
+
+            .end {
+                position: absolute;
+                top: 50%;
+                right: 20px;
+
+                bottom: unset;
+                left: unset;
+                transform: translateY(-50%);
+            }
+        }
+
+    }
+
+    .lessonTime.hovered {
+        background-color: $gray-600 !important;
+    }
+
+    tbody {
+        height: 80vh;
+
+        tr td {
+            border-bottom: 2px solid $borderBottomColor;
+        }
+
+
+        tr.hidden {
+            display: none;
+        }
+
+        tr:last-of-type td {
+            border-bottom: none;
+        }
+
+        tr:has(.break) td {
+            border-bottom: 2px solid $borderBottomColor;
+            background-color: rgba($gray-700, 0.5);
+        }
+
+
+    }
+
+    th.titleLessonTime {
+        width: 10%;
+    }
+
+    th.titleDay {
+        width: 18%;
+        text-align: center;
+    }
+
+}
+
+.currentDay {
+    background-color: rgba(0, 0, 0, 0.2);
+    pointer-events: none;
+}
+
+.schoolTimesBackground {
+    pointer-events: none;
+    background: rgba($gray-700, 0.5);
+}
+
+#prevWeek,
+#nextWeek {
+    background-color: rgba(100, 100, 100, 0.2);
+    border: none;
+    color: white;
+    font-size: clampW(0.5em, 1.5em, 100px, 2000px);
+    cursor: pointer;
+}
+
+#prevWeek:not(.disabled):hover,
+#nextWeek:not(.disabled):hover {
+    background-color: rgba(150, 150, 150, 0.2);
+}
+
+#prevWeek:not(.disabled):active,
+#nextWeek:not(.disabled):active {
+    background-color: rgba(200, 200, 200, 0.2);
+}
+
+#schedule,
+#nextSchedule,
+#previousSchedule {
+    position: absolute;
+    top: 0;
+}
+
+#schedule[animate],
+#nextSchedule[animate],
+#previousSchedule[animate] {
+    transition: transform .5s;
+}
+
+$distance: calc(100% + 500px);
+
+#nextSchedule {
+    transform: translate($distance);
+    right: 0;
+    width: 100%;
+}
+
+#previousSchedule {
+    transform: translate(calc(-1 * $distance));
+    left: 0;
+    width: 100%;
+}
+
+body:has(#schedule[animateNext]) #nextSchedule {
+    transform: translate(0%);
+    right: 0;
+}
+
+body:has(#schedule[animatePrevious]) #previousSchedule {
+    transform: translate(0%);
+    right: 0;
+}
+
+#schedule[animatePrevious] {
+    transform: translate($distance);
+    left: 0;
+}
+
+#schedule[animateNext] {
+    transform: translate(calc(-1 * $distance));
+    left: 0;
+}
+
+#teacherViewer {
+    $teacherViewMargin: 20px;
+    width: 50vw;
+    height: 50vh;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 20px;
+
+
+    #teacherViewerTable {
+        width: calc(100% - $teacherViewMargin*2);
+        color: white;
+        border-collapse: collapse;
+        margin: $teacherViewMargin;
+
+        thead {
+            position: sticky;
+            top: 0;
+            background-color: $gray-600;
+        }
+
+        tbody tr:nth-of-type(2n) {
+            background-color: $gray-700;
+        }
+
+        td {
+            padding-block: 10px;
+        }
+
+    }
+
+}
+
+.settings-teacher-list div {
+    width: 100%;
+    padding: 10px;
+    padding-inline: 20px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr) 0.5fr;
+    grid-template-rows: 1fr;
+    grid-column-gap: 5px;
+    grid-row-gap: 0px;
+
+    input,
+    button {
+        outline: none;
+        border: none;
+        background-color: transparent;
+        color: white;
+        border-radius: 5px;
+        padding-inline: 10px;
+        padding: 5px;
+        background-color: $gray-600;
+    }
+
+    input:focus,
+    button:hover {
+        background-color: $gray-500;
+    }
+
+    button:active {
+        background-color: darken($gray-500, 5%);
+    }
+
+    .teacher-short-name {
+        grid-area: 1 / 1 / 2 / 2;
+    }
+
+    .teacher-first-name {
+        grid-area: 1 / 2 / 2 / 3;
+    }
+
+    .teacher-surname {
+        grid-area: 1 / 3 / 2 / 4;
+    }
+
+    .teacher-subjects {
+        grid-area: 1 / 4 / 2 / 5;
+    }
+
+    button {
+        grid-area: 1 / 5 / 2 / 6;
+        cursor: pointer;
+    }
+}
+
+.settings-teacher-list table,
+.settings-exam-list table {
+    width: calc(100% - 20px * 2);
+    color: white;
+    border-collapse: collapse;
+    margin: 20px;
+    margin-bottom: 5px;
+
+    thead {
+        position: sticky;
+        top: 0;
+        background-color: $gray-600;
+    }
+
+    thead td:last-of-type {
+        width: 5%;
+        min-width: 30px;
+    }
+
+    tbody tr:nth-of-type(2n) {
+        background-color: $gray-700;
+    }
+
+    // .hidden {
+    //     display: none;
+    // }
+
+    td {
+        padding-block: 10px;
+    }
+
+    tr td:last-of-type {
+        padding-right: 20px;
+    }
+
+    tr td:first-of-type {
+        padding-left: 20px;
+    }
+
+    td:has(.searchBar) {
+        display: flex;
+    }
+
+    .searchBar {
+        margin-left: auto;
+        outline: none;
+        border: none;
+        background-color: transparent;
+        color: white;
+        border-radius: 10px;
+        padding-inline: 10px;
+        padding: 5px;
+    }
+
+    .searchBar:focus {
+        background-color: $gray-500;
+    }
+
+    .trash {
+        color: darken(red, 20%);
+        cursor: pointer;
+    }
+
+    .allreadyWritten {
+        opacity: 0.3;
+    }
+
+}
+
+.tableStatText {
+    padding: 5px;
+    opacity: 0.4;
+    padding-inline: 20px;
+
+    .writtenof {
+        float: right;
+    }
+}
