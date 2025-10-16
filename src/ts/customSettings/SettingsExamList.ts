@@ -1,8 +1,11 @@
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat.js";
-import { EXAMS, type Exam } from "../ScheduleDarius";
+import { EXAMS, SCHEDULE, type Exam, type LessonRaw } from "../ScheduleDarius";
 import { SettingsElement, type SettingsContentElement, type SettingsFunctionData } from "../settings/SettingsTitleElement";
 import { Images } from "./Images";
+import { easepick } from "@easepick/core";
+import toast from "toastify-js";
+import { DateTime } from "@easepick/bundle";
 dayjs.extend(customParseFormat);
 
 export type SettingsExamsListData = SettingsFunctionData & {
@@ -50,6 +53,21 @@ export class SettingsExamsList extends SettingsElement {
                 sb.placeholder = "Search";
                 titleCell.appendChild(sb);
                 this.searchBar = sb;
+            } else if (title == "") {
+                titleCell.innerHTML = "+";
+                titleCell.classList.add("examButton");
+                titleCell.onclick = () => {
+                    this.addExam((lesson, date, subject) => {
+                        const ex = EXAMS.get();
+                        ex.push({
+                            date: dayjs(date).format("DD.MM.YYYY"),
+                            sign: lesson.sign,
+                            subject: subject
+                        })
+                        EXAMS.set(ex);
+                        this.updateTable();
+                    });
+                };
             }
         }
 
@@ -72,7 +90,6 @@ export class SettingsExamsList extends SettingsElement {
                 });
                 if (this.tableStatText) this.tableStatText.innerHTML = EXAMS.get().length + " of " + EXAMS.get().length + this.examsVisibleText + " " + this.writtenOf;
             } else {
-                const length = value.length;
                 this.examTableBody.innerHTML = "";
                 const filtered = this.examRows.filter(row => {
 
@@ -85,28 +102,12 @@ export class SettingsExamsList extends SettingsElement {
 
                     let found = false;
 
-                    const markSearch = (valueToSearch: string): string => {
-                        if (valueToSearch.toLowerCase().startsWith(value.toLowerCase())) {
-                            found = true;
-                            const length = value.length;
-                            valueToSearch = "<mark>" + valueToSearch.substring(0, length) + "</mark>" + valueToSearch.substring(length, valueToSearch.length);
-                        } else if (valueToSearch.toLowerCase().endsWith(value.toLowerCase())) {
-                            found = true;
-                            valueToSearch = valueToSearch.substring(0, valueToSearch.length - length) + "<mark>" + valueToSearch.substring(valueToSearch.length - length, valueToSearch.length) + "</mark>";
-                        } else if (valueToSearch.toLowerCase().includes(value.toLowerCase())) {
-                            const start = valueToSearch.toLowerCase().indexOf(value.toLowerCase());
-                            if (start != -1) {
-                                found = true;
-                                valueToSearch = valueToSearch.substring(0, start) + "<mark>" + valueToSearch.substring(start, start + length) + "</mark>" + valueToSearch.substring(start + length, valueToSearch.length);
-                            }
-                        }
-                        return valueToSearch;
-                    };
-
                     for (const e of elements) {
-                        let value = e.innerText;
-                        if (value) {
-                            value = markSearch(value);
+                        let textValue = e.innerText;
+                        if (textValue) {
+                            const result = this.markSearch(value, textValue);
+                            found = found || result.found;
+                            textValue = result.value;
                             e.innerHTML = value;
                         }
                     }
@@ -189,6 +190,240 @@ export class SettingsExamsList extends SettingsElement {
             this.writtenOf = this.writtenOf.replace("{{EXAM_ALL_NUM}}", EXAMS.get().length + "");
         }
 
+    }
+
+
+    private markSearch(value: string, valueToSearch: string): { found: boolean, value: string } {
+        const length = value.length;
+        let found = false;
+        if (valueToSearch.toLowerCase().startsWith(value.toLowerCase())) {
+            found = true;
+            const length = value.length;
+            valueToSearch = "<mark>" + valueToSearch.substring(0, length) + "</mark>" + valueToSearch.substring(length, valueToSearch.length);
+        } else if (valueToSearch.toLowerCase().endsWith(value.toLowerCase())) {
+            found = true;
+            valueToSearch = valueToSearch.substring(0, valueToSearch.length - length) + "<mark>" + valueToSearch.substring(valueToSearch.length - length, valueToSearch.length) + "</mark>";
+        } else if (valueToSearch.toLowerCase().includes(value.toLowerCase())) {
+            const start = valueToSearch.toLowerCase().indexOf(value.toLowerCase());
+            if (start != -1) {
+                found = true;
+                valueToSearch = valueToSearch.substring(0, start) + "<mark>" + valueToSearch.substring(start, start + length) + "</mark>" + valueToSearch.substring(start + length, valueToSearch.length);
+            }
+        }
+        return {
+            found: found,
+            value: valueToSearch
+        };
+    };
+
+    private addExam(callback: (lesson: LessonRaw, date: Date, subject: string) => void) {
+        let lessonRows: HTMLLIElement[] = [];
+
+        let selectedLesson: LessonRaw | null = null;
+        let selectedDate: Date | null = null;
+        let selectedSubject: string | null = null;
+
+        const addExamDialog = document.createElement("dialog");
+        addExamDialog.id = "addExamDialog";
+
+        const title = document.createElement("h2");
+        title.innerText = "Add Exam";
+
+        const search = document.createElement("input");
+        search.classList.add("search");
+        search.placeholder = "Search";
+        search.type = "text";
+
+        const subjectInput = document.createElement("input");
+        subjectInput.classList.add("subjectInput");
+        subjectInput.placeholder = "Subject (e.g. Math)";
+        subjectInput.type = "text";
+
+        const addBtn = document.createElement("button");
+        addBtn.classList.add("addBtn");
+        addBtn.innerText = "Add";
+        addBtn.onclick = () => {
+            const notify = (msg: string) => {
+                const toasts = toast({
+                    text: msg,
+                    duration: 3000,
+                    position: "right",
+                    stopOnFocus: true,
+                    gravity: "bottom",
+                    style: {
+                        background: "linear-gradient(135deg, #ff7373, #f55454)",
+                        boxShadow: "0 3px 6px -1px rgba(0, 0, 0, 0.12), 0 10px 36px -4px rgba(232, 77, 77, 0.3)",
+                        zIndex: "10000000"
+                    }
+                });
+                toasts.showToast();
+                return;
+            };
+            if (!selectedLesson) {
+                notify("You have to select a lesson");
+                return;
+            }
+            if (!selectedDate) {
+                notify("You have to select a date");
+                return;
+            }
+            if (!selectedSubject) {
+                notify("You have to select a subject");
+                return;
+            }
+            addExamDialog.close();
+            document.body.removeChild(addExamDialog);
+            callback(selectedLesson, selectedDate, selectedSubject);
+        };
+
+        const cancelbtn = document.createElement("button");
+        cancelbtn.classList.add("cancelbtn");
+        cancelbtn.innerText = "Cancel";
+        cancelbtn.onclick = () => {
+            addExamDialog.close();
+            document.body.removeChild(addExamDialog);
+        };
+
+
+        subjectInput.oninput = () => {
+            selectedSubject = subjectInput.value;
+        };
+
+        const datePickerInput = document.createElement("input");
+        datePickerInput.id = "datePickerInput";
+        datePickerInput.placeholder = "Date";
+        const initPicker = () => {
+            const datePicker = new easepick.create({
+                element: datePickerInput,
+                plugins: [],
+                zIndex: 1000000000,
+                readonly: true,
+                autoApply: true,
+                scrollToDate: true,
+                // RangePlugin: {
+                //     locale: {
+                //         one: "Tag",
+                //         two: "Tage",
+                //         many: "Tage",
+                //         few: "Tage",
+                //         other: "Tage",
+                //         zero: "Tage"
+                //     }
+                // },
+                format: "DD.MM.YYYY",
+                lang: "de",
+                css: [
+                    'https://cdn.jsdelivr.net/npm/@easepick/core@1.2.1/dist/index.css',
+                    // 'https://cdn.jsdelivr.net/npm/@easepick/range-plugin@1.2.1/dist/index.css',
+                    // 'https://cdn.jsdelivr.net/npm/@easepick/time-plugin@1.2.1/dist/index.css'
+                ]
+            });
+
+            // datePickerInput.addEventListener("focusin", () => {
+            //     datePicker.show();
+            // });
+
+            // datePickerInput.addEventListener("focusout", () => {
+            //     datePicker.hide();
+            // });
+
+            datePicker.on("select", (e) => {
+                selectedDate = e.detail.date;
+            });
+
+        }
+
+        const lessonPickerList = document.createElement("ul");
+        lessonPickerList.classList.add("lessonPickerList");
+
+        search.oninput = () => {
+            const value = search.value;
+            if (!value) {
+                lessonPickerList.innerHTML = "";
+                lessonRows.forEach(row => {
+                    const school = row.querySelector(".school") as HTMLSpanElement;
+                    const sign = row.querySelector(".sign") as HTMLSpanElement;
+                    const elements = [school, sign];
+
+                    for (const e of elements) {
+                        e.innerText = e.innerText;
+                    }
+                    lessonPickerList.appendChild(row);
+                });
+                return;
+            }
+
+            lessonRows.forEach(row => row.remove());
+
+            const filtered = lessonRows.filter(row => {
+                const school = row.querySelector(".school") as HTMLSpanElement;
+                const sign = row.querySelector(".sign") as HTMLSpanElement;
+                const elements = [school, sign];
+                let found = false;
+                for (const e of elements) {
+                    let textValue = e.innerText;
+                    if (textValue) {
+                        const result = this.markSearch(value, textValue);
+                        found = found || result.found;
+                        textValue = result.value;
+                        e.innerHTML = textValue;
+                    }
+                }
+                return found;
+            });
+
+            filtered.forEach(row => {
+                lessonPickerList.appendChild(row);
+            });
+
+        };
+
+
+        const LESSONS_TO_PICK_FROM: LessonRaw[] = [];
+
+
+
+        for (const lesson of Object.values(SCHEDULE).flat().map(day => Object.values(day)).flat()) {
+            if (!lesson) continue;
+            if (!LESSONS_TO_PICK_FROM.find(l => lesson.sign == l.sign)) {
+                LESSONS_TO_PICK_FROM.push(lesson);
+            }
+        }
+
+        for (const lesson of LESSONS_TO_PICK_FROM) {
+            const listItem = document.createElement("li");
+            const school = document.createElement("span");
+            const sign = document.createElement("span");
+            school.innerText = lesson.school;
+            sign.innerText = lesson.sign;
+
+            school.classList.add("school");
+            sign.classList.add("sign");
+
+            listItem.appendChild(sign);
+            listItem.appendChild(school);
+            listItem.onclick = () => {
+                selectedLesson = lesson;
+                lessonRows.forEach(r => r.classList.remove("selected"));
+                listItem.classList.add("selected");
+
+            };
+            lessonPickerList.appendChild(listItem);
+            lessonRows.push(listItem);
+        }
+
+        addExamDialog.appendChild(title);
+        addExamDialog.appendChild(search);
+        addExamDialog.appendChild(subjectInput);
+        addExamDialog.appendChild(datePickerInput);
+        addExamDialog.appendChild(lessonPickerList);
+        addExamDialog.appendChild(addBtn);
+        addExamDialog.appendChild(cancelbtn);
+
+
+        document.body.appendChild(addExamDialog);
+        addExamDialog.showModal();
+        initPicker();
     }
 
     getElement(): HTMLDivElement {

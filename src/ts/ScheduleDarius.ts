@@ -8,6 +8,7 @@ import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat.js";
 
 dayjs.extend(customParseFormat);
+export const HOST = "localhost:2222";
 
 export const SCHEDULE: ScheduleDarius = {
 
@@ -447,4 +448,47 @@ function parseDate(date: number): string {
     return `${day}.${month}`;
 }
 
-export const SCHOOLS: School[] = ["Meiendorf", "Grootmoor"];
+let _SCHOOLS: School[] = ["Meiendorf", "Grootmoor"];
+
+export const SCHOOLS = {
+    get: (): School[] => {
+        return _SCHOOLS;
+    },
+    set(schools: School[]) {
+        _SCHOOLS = schools;
+    }
+}
+
+export type UntisAccess = {
+    school: School;
+    schoolId: string;
+    username: string;
+    password: string;
+    host: string;
+}
+
+let _UNTIS_ACCESSES: UntisAccess[] = [
+    {
+        school: "Meiendorf",
+        schoolId: "meiont",
+        username: "darius",
+        password: "password123",
+        host: "https://meiont.hamburg.de"
+    },
+    {
+        school: "Grootmoor",
+        schoolId: "groot",
+        username: "max",
+        password: "password456",
+        host: "https://grootmoor.hamburg.de"
+    }
+];
+
+export const UNTIS_ACCESSES = {
+    get: (): UntisAccess[] => {
+        return _UNTIS_ACCESSES;
+    },
+    set: (accesses: UntisAccess[]) => {
+        _UNTIS_ACCESSES = accesses;
+    }
+};

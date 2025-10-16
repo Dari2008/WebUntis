@@ -260,7 +260,6 @@ export class SettingsTeacherList extends SettingsElement {
             trashDiv.classList.add("trash");
             trashDiv.onclick = () => {
                 TEACHER_DATABASE[this.data.school] = TEACHER_DATABASE[this.data.school].filter(e => e != teacher);
-                console.log(TEACHER_DATABASE[this.data.school]);
                 const row = this.teacherRows.find((r) => r.teacher == teacher) as HTMLTableRowElement;
                 this.teacherRows = this.teacherRows.filter(row => row.teacher != teacher);
                 this.teacherTableBody.removeChild(row);

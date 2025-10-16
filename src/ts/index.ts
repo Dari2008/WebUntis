@@ -26,8 +26,6 @@ async function initEnv() {
     const CLASS_NAME_GROOTMOOR = env.Grootmoor.className;
     const CLASS_NAME_MEIENDORF = env.Meiendorf.className;
 
-
-
     const untisManagerGrootmoor = new UntisManager(env.Grootmoor.schoolId, env.Grootmoor.username, env.Grootmoor.password, env.Grootmoor.host, "Untiscombiner", true, "Grootmoor");
     const untisManagerMeiendorf = new UntisManager(env.Meiendorf.schoolId, env.Meiendorf.username, env.Meiendorf.password, env.Meiendorf.host, "Untiscombiner", true, "Meiendorf");
 

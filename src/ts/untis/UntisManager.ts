@@ -1,4 +1,4 @@
-import { BREAKS, END_TIME, LESSON_TIMES_STRING, SCHEDULE, START_TIME, type BreaksRawByDay, type DayName, type ScheduleBreak, type ScheduleRawDay } from "../ScheduleDarius";
+import { BREAKS, END_TIME, HOST, LESSON_TIMES_STRING, SCHEDULE, START_TIME, type BreaksRawByDay, type DayName, type ScheduleBreak, type ScheduleRawDay } from "../ScheduleDarius";
 import { WebUntis, type SchoolYear, WebUntisElementType, type Lesson, type Klasse, type Time, type WebAPITimetable } from "./";
 import { TEACHER_DATABASE, UNKNOWN_TEACHER, type School, type Teacher } from "./TeacherDatabase";
 import type { CompiledLesson } from "./UntisSchedule";
@@ -16,7 +16,6 @@ export default class UntisManager {
     private schoolType: School;
 
     // private host = "192.168.178.110:2222";
-    private host = "localhost:2222";
 
     constructor(
         school: string,
@@ -62,7 +61,7 @@ export default class UntisManager {
     public async getCompiledLessonForRange(className: string, startDate: Date, endDate: Date): Promise<void> {
 
         try {
-            const response = await fetch("http://" + this.host + "/untis/getTimetableForRange.php", {
+            const response = await fetch("http://" + HOST + "/untis/getTimetableForRange.php", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -106,7 +105,7 @@ export default class UntisManager {
     public async getLessonForWeekCompiledViaProxy(className: string, startDate?: Date): Promise<void> {
 
         try {
-            const response = await fetch("http://" + this.host + "/untis/getTimetableForWeek.php", {
+            const response = await fetch("http://" + HOST + "/untis/getTimetableForWeek.php", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"

@@ -1,11 +1,12 @@
+import { SettingsBreakList } from "../customSettings/SettingsBreakList";
 import { SettingsExamsList } from "../customSettings/SettingsExamList";
 import { SettingsTeacherList, type SettingsTeacherListData } from "../customSettings/SettingsTeacherList";
+import { SettingsUntisAccessesList } from "../customSettings/SettingsUntisAccessesList";
 import { SCHOOLS } from "../ScheduleDarius";
-import { TEACHER_DATABASE } from "../untis/TeacherDatabase";
 import { Settings } from "./Settings";
 import type { SettingsColorSelectorElement } from "./SettingsColorSelectorElement";
 import { initForSettings, loadSettings, type SettingsData } from "./SettingsGenerator";
-import { SettingsElement, SettingsTitleElement, type SettingsContentData, type SettingsContentElement, type SettingsFunctionData, type SettingsTitleData } from "./SettingsTitleElement";
+import { type SettingsContentData, type SettingsTitleData } from "./SettingsTitleElement";
 
 
 export function initSettings() {
@@ -14,8 +15,8 @@ export function initSettings() {
 
     let settingOptions: SettingsData[] = [
         {
-            id: "general",
-            label: "General",
+            id: "appearance",
+            label: "Appearance",
             selected: true,
             options: [
                 {
@@ -228,6 +229,60 @@ export function initSettings() {
                 }
             ],
             elements: []
+        },
+        {
+            id: "breaks",
+            label: "Breaks",
+            selected: false,
+            options: [
+                {
+                    type: "title",
+                    hnumber: 1,
+                    title: "Breaks",
+                    name: "breaks",
+                    content: [
+                        {
+                            type: "text",
+                            elementType: "p",
+                            text: "Manage your Breaks here.",
+                            id: "manageBreaksText"
+                        },
+                        {
+                            type: <SettingsBreakListData>(data: SettingsBreakListData) => new SettingsBreakList((data as any)),
+                            name: "breakList",
+                            id: "breakList",
+                        }
+                    ]
+                }
+            ],
+            elements: []
+        },
+        {
+            id: "untisAccesses",
+            label: "Untis Accesses",
+            selected: false,
+            options: [
+                {
+                    type: "title",
+                    hnumber: 1,
+                    title: "Untis Accesses",
+                    name: "untisAccesses",
+                    content: [
+                        {
+                            type: "text",
+                            elementType: "p",
+                            text: "Manage your Schedules here.",
+                            id: "manageSchedulesText"
+                        },
+                        {
+                            type: <SettingsUntisAccessesListData>(data: SettingsUntisAccessesListData) => new SettingsUntisAccessesList((data as any)),
+                            name: "breakList",
+                            id: "breakList",
+                        }
+                    ]
+                }
+            ],
+            elements: []
         }
     ];
 
@@ -239,7 +294,7 @@ export function initSettings() {
 function generateTeacherSettings(): SettingsContentData[] {
     const settingData: SettingsContentData[] = [];
 
-    for (const school of SCHOOLS) {
+    for (const school of SCHOOLS.get()) {
         const settingElement: SettingsTeacherListData = {
             type: <SettingsTeacherListData>(data: SettingsTeacherListData) => new SettingsTeacherList((data as any)),
             name: "teacherList" + school,
