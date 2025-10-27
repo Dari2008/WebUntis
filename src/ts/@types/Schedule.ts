@@ -176,12 +176,27 @@ export type ScheduleBreak = {
     start: string;
     end: string;
     school: School;
+    uuid: string;
 }
 
 export type LessonRaw = {
     id: number;
     school: School;
     sign: string;
+    uuid: string;
 }
 
 export type DayName = "monday" | "tuesday" | "wednesday" | "thursday" | "friday";
+
+export type LessonTime = {
+    start: string;
+    end: string;
+};
+
+export type LessonTimes = {
+    [key in School]?: LessonTime[];
+};
+
+export type LessonTimesString = {
+    [key in School]?: string[];
+}

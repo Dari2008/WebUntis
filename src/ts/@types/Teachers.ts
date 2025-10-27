@@ -12,6 +12,7 @@ export type Teacher = {
         fullName?: string;
     };
     subjects: Subject[];
+    uuid: string;
 
 }
 

@@ -1,11 +1,13 @@
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat.js";
-import { EXAMS, SCHEDULE, type Exam } from "../ScheduleDarius";
 import { SettingsElement, type SettingsFunctionData } from "../settings/SettingsTitleElement";
 import { Images } from "./Images";
 import { easepick } from "@easepick/core";
 import toast from "toastify-js";
 import type { LessonRaw } from "../@types/Schedule";
+import type { Exam } from "../@types/Exam";
+import { UserManagement } from "../userManagement/UserManagement";
+import Utils from "../Utils";
 dayjs.extend(customParseFormat);
 
 export type SettingsExamsListData = SettingsFunctionData & {
@@ -56,13 +58,19 @@ export class SettingsExamsList extends SettingsElement {
                 titleCell.classList.add("examButton");
                 titleCell.onclick = () => {
                     this.addExam((lesson, date, subject) => {
-                        const ex = EXAMS.get();
-                        ex.push({
+                        const ex = UserManagement.ALL_DATA!.exams;
+                        const newExam = {
                             date: dayjs(date).format("DD.MM.YYYY"),
                             sign: lesson.sign,
-                            subject: subject
-                        })
-                        EXAMS.set(ex);
+                            subject: subject,
+                            uuid: Utils.uuidv4Exclude(UserManagement.ALL_DATA!.exams.map(e => e.uuid))
+                        };
+                        ex.push(newExam)
+
+                        UserManagement.updateExams("add", [
+                            newExam
+                        ]);
+
                         this.updateTable();
                     });
                 };
@@ -86,7 +94,7 @@ export class SettingsExamsList extends SettingsElement {
                     }
                     this.examTableBody.appendChild(row);
                 });
-                if (this.tableStatText) this.tableStatText.innerHTML = EXAMS.get().length + " of " + EXAMS.get().length + this.examsVisibleText + " " + this.writtenOf;
+                if (this.tableStatText) this.tableStatText.innerHTML = UserManagement.ALL_DATA!.exams.length + " of " + UserManagement.ALL_DATA!.exams.length + this.examsVisibleText + " " + this.writtenOf;
             } else {
                 this.examTableBody.innerHTML = "";
                 const filtered = this.examRows.filter(row => {
@@ -112,7 +120,7 @@ export class SettingsExamsList extends SettingsElement {
                     return found;
                 });
 
-                if (this.tableStatText) this.tableStatText.innerHTML = filtered.length + " of " + EXAMS.get().length + this.examsVisibleText + " " + this.writtenOf;
+                if (this.tableStatText) this.tableStatText.innerHTML = filtered.length + " of " + UserManagement.ALL_DATA!.exams.length + this.examsVisibleText + " " + this.writtenOf;
 
                 filtered.forEach(row => {
                     // row.classList.remove("hidden");
@@ -131,7 +139,7 @@ export class SettingsExamsList extends SettingsElement {
 
         this.tableStatText = document.createElement("p");
         this.tableStatText.classList.add("tableStatText");
-        this.tableStatText.innerHTML = EXAMS.get().length + " of " + EXAMS.get().length + this.examsVisibleText + " " + this.writtenOf;
+        this.tableStatText.innerHTML = UserManagement.ALL_DATA!.exams.length + " of " + UserManagement.ALL_DATA!.exams.length + this.examsVisibleText + " " + this.writtenOf;
 
         this.element.appendChild(teacherTable);
         this.element.appendChild(this.tableStatText);
@@ -145,7 +153,7 @@ export class SettingsExamsList extends SettingsElement {
 
         let written = 0;
 
-        for (const exam of EXAMS.get()) {
+        for (const exam of UserManagement.ALL_DATA!.exams) {
             const row = this.examTableBody.insertRow();
             const subjectName = row.insertCell();
             const date = row.insertCell();
@@ -170,11 +178,13 @@ export class SettingsExamsList extends SettingsElement {
             trashDiv.innerHTML = Images.TRASH;
             trashDiv.classList.add("trash");
             trashDiv.onclick = () => {
-                EXAMS.set(EXAMS.get().filter(e => e != exam));
+                UserManagement.ALL_DATA!.exams = UserManagement.ALL_DATA!.exams.filter(e => e != exam);
+                UserManagement.updateExams("remove", [exam.uuid]);
                 const row = this.examRows.find((r) => r.exam == exam) as HTMLTableRowElement;
                 this.examRows = this.examRows.filter(row => row.exam != exam);
                 this.examTableBody.removeChild(row);
-                if (this.tableStatText) this.tableStatText.innerHTML = this.examTableBody.children.length + " of " + EXAMS.get().length + this.examsVisibleText + " " + this.writtenOf;
+                if (this.tableStatText) this.tableStatText.innerHTML = this.examTableBody.children.length + " of " + UserManagement.ALL_DATA!.exams.length + this.examsVisibleText + " " + this.writtenOf;
+                Utils.success("Deleted Exam Successfully");
             };
             trash.appendChild(trashDiv);
 
@@ -185,7 +195,7 @@ export class SettingsExamsList extends SettingsElement {
 
         if (this.writtenOf.includes("{{")) {
             this.writtenOf = this.writtenOf.replace("{{EXAM_NUM}}", written + "");
-            this.writtenOf = this.writtenOf.replace("{{EXAM_ALL_NUM}}", EXAMS.get().length + "");
+            this.writtenOf = this.writtenOf.replace("{{EXAM_ALL_NUM}}", UserManagement.ALL_DATA!.exams.length + "");
         }
 
     }
@@ -381,7 +391,7 @@ export class SettingsExamsList extends SettingsElement {
 
 
 
-        for (const lesson of Object.values(SCHEDULE).flat().map(day => Object.values(day)).flat()) {
+        for (const lesson of Object.values(UserManagement.ALL_DATA!.schedule).flat().map(day => Object.values(day)).flat()) {
             if (!lesson) continue;
             if (!LESSONS_TO_PICK_FROM.find(l => lesson.sign == l.sign)) {
                 LESSONS_TO_PICK_FROM.push(lesson);

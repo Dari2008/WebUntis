@@ -1,12 +1,14 @@
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat.js";
-import { BREAKS, EXAMS, SCHEDULE, SCHOOLS } from "../ScheduleDarius";
 import { SettingsElement, type SettingsFunctionData } from "../settings/SettingsTitleElement";
 import { Images } from "./Images";
 import toast from "toastify-js";
 import UntisManager from "../untis/UntisManager";
 import type { BreaksRawByDay, DayName, ScheduleBreak, Time } from "../@types/Schedule";
 import type { School } from "../@types/School";
+import { UserManagement } from "../userManagement/UserManagement";
+import Utils from "../Utils";
+import type { UpdateDataBreaks } from "../@types/UserManagement";
 dayjs.extend(customParseFormat);
 
 export type SettingsBreakListData = SettingsFunctionData & {
@@ -48,11 +50,19 @@ export class SettingsBreakList extends SettingsElement {
                 titleCell.classList.add("examButton");
                 titleCell.onclick = () => {
                     this.addBreak((dayOfWeek, startTime, endTime, school) => {
-                        BREAKS[dayOfWeek].push({
+                        const newBreak = {
                             start: startTime.hour.toString().padStart(2, "0") + ":" + startTime.minute.toString().padStart(2, "0"),
                             end: endTime.hour.toString().padStart(2, "0") + ":" + endTime.minute.toString().padStart(2, "0"),
-                            school: school
-                        })
+                            school: school,
+                            uuid: Utils.uuidv4Exclude(UserManagement.ALL_DATA!.breaks[dayOfWeek].map(e => e.uuid))
+                        };
+                        UserManagement.ALL_DATA!.breaks[dayOfWeek].push(newBreak);
+
+                        const data: UpdateDataBreaks = {};
+                        data[dayOfWeek] = newBreak;
+
+                        UserManagement.updateBreaks("add", data);
+
                         this.updateTable();
                     });
                 };
@@ -83,8 +93,8 @@ export class SettingsBreakList extends SettingsElement {
             day: DayName
         })[] = [];
 
-        for (const key of (Object.keys(BREAKS) as (keyof BreaksRawByDay)[])) {
-            for (const breakV of BREAKS[key]) {
+        for (const key of (Object.keys(UserManagement.ALL_DATA!.breaks) as (keyof BreaksRawByDay)[])) {
+            for (const breakV of UserManagement.ALL_DATA!.breaks[key]) {
                 allBreaks.push({
                     ...breakV,
                     day: key as DayName
@@ -119,13 +129,16 @@ export class SettingsBreakList extends SettingsElement {
             trashDiv.innerHTML = Images.TRASH;
             trashDiv.classList.add("trash");
             trashDiv.onclick = () => {
-                for (const key of (Object.keys(BREAKS) as (keyof BreaksRawByDay)[])) {
-                    BREAKS[key] = BREAKS[key].filter(e => e != breakV);
+                for (const key of (Object.keys(UserManagement.ALL_DATA!.breaks) as (keyof BreaksRawByDay)[])) {
+                    UserManagement.ALL_DATA!.breaks[key] = UserManagement.ALL_DATA!.breaks[key].filter(e => e != breakV);
                 }
+
+                UserManagement.updateBreaks("remove", [breakV.uuid]);
 
                 const row = this.examRows.find((r) => r.break == breakV) as HTMLTableRowElement;
                 this.examRows = this.examRows.filter(row => row.break != breakV);
                 this.examTableBody.removeChild(row);
+                Utils.success("Deleted Break Successfully");
             };
             trash.appendChild(trashDiv);
 
@@ -418,7 +431,7 @@ export class SettingsBreakList extends SettingsElement {
         const schoolInput = document.createElement("select");
         schoolInput.classList.add("school");
 
-        SCHOOLS.get().forEach(school => {
+        UserManagement.ALL_DATA!.schools.forEach(school => {
             const option = document.createElement("option");
             option.value = school;
             option.text = school;
@@ -448,7 +461,7 @@ export class SettingsBreakList extends SettingsElement {
             };
 
             const validSchool = (school: string): boolean => {
-                if ((SCHOOLS.get() as string[]).includes(school)) return true;
+                if ((UserManagement.ALL_DATA!.schools as string[]).includes(school)) return true;
                 return false;
             }
 
@@ -459,7 +472,7 @@ export class SettingsBreakList extends SettingsElement {
             const startMinutes = startTimeData.getTime().hour * 60 + startTimeData.getTime().minute;
             const endMinutes = endTimeData.getTime().hour * 60 + endTimeData.getTime().minute;
 
-            const found = BREAKS[(dayOfWeekSelect.value).toLowerCase() as DayName].find(b => {
+            const found = UserManagement.ALL_DATA!.breaks[(dayOfWeekSelect.value).toLowerCase() as DayName].find(b => {
                 const bStart = UntisManager.parseTime(b.start);
                 const bEnd = UntisManager.parseTime(b.end);
                 const bStartM = bStart.hour * 60 + bStart.minute;

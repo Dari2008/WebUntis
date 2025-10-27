@@ -1,6 +1,6 @@
 import { formatDate } from "date-fns";
 import { HTMLTableManager } from "./htmlTable/HtmlTableManager";
-import { SCHEDULE } from "./ScheduleDarius";
+// import { SCHEDULE } from "./ScheduleDarius_old";
 import UntisManager, { type TempLesson } from "./untis/UntisManager"
 import UntisSchedule from "./untis/UntisSchedule";
 import { initSettings } from "./settings/settingsLoader";
@@ -8,6 +8,8 @@ import { v4 } from "uuid";
 import type { School } from "./@types/School";
 import type { CompiledLesson } from "./@types/Schedule";
 import { UserManagement } from "./userManagement/UserManagement";
+import Utils from "./Utils";
+import type { AllData } from "./@types/UserManagement";
 // import { HolidayLoader } from "./untis/HolidayLoader";
 
 let env: {
@@ -25,16 +27,28 @@ type EnvSchoolData = {
 async function initEnv() {
 
     UserManagement.init();
-    const response = await ((await fetch("./env.json")).json());
-    env = response;
 
-    const CLASS_NAME_GROOTMOOR = env.Grootmoor.className;
-    const CLASS_NAME_MEIENDORF = env.Meiendorf.className;
+    const allData = await UserManagement.loadAll() as AllData;
+    if (!allData) {
+        Utils.error("Failed to load Data From Account");
+        return;
+    }
 
-    const untisManagerGrootmoor = new UntisManager(env.Grootmoor.schoolId, env.Grootmoor.username, env.Grootmoor.password, env.Grootmoor.host, "Grootmoor");
-    const untisManagerMeiendorf = new UntisManager(env.Meiendorf.schoolId, env.Meiendorf.username, env.Meiendorf.password, env.Meiendorf.host, "Meiendorf");
 
-    const UNTIS_MANAGERS = [untisManagerGrootmoor, untisManagerMeiendorf];
+
+    // const CLASS_NAME_GROOTMOOR = env.Grootmoor.className;
+    // const CLASS_NAME_MEIENDORF = env.Meiendorf.className;
+
+    // const untisManagerGrootmoor = new UntisManager(env.Grootmoor.schoolId, env.Grootmoor.username, env.Grootmoor.password, env.Grootmoor.host, "Grootmoor");
+    // const untisManagerMeiendorf = new UntisManager(env.Meiendorf.schoolId, env.Meiendorf.username, env.Meiendorf.password, env.Meiendorf.host, "Meiendorf");
+
+    const UNTIS_MANAGERS: UntisManager[] = [];
+
+    for (const untisManagerData of allData.untisAccesses) {
+        const manager = new UntisManager(untisManagerData);
+        UNTIS_MANAGERS.push(manager);
+    }
+
 
     const htmlTableManagerCurrently: HTMLTableManager = new HTMLTableManager("currentSchedule", "schedule");
     const htmlTableManagerNext: HTMLTableManager = new HTMLTableManager("nextSchedule", "nextSchedule");
@@ -288,41 +302,44 @@ async function initEnv() {
         } = {};
 
         for (const manager of UNTIS_MANAGERS) {
-            let CLASS_NAME = manager.getSchool() == "Grootmoor" ? CLASS_NAME_GROOTMOOR : CLASS_NAME_MEIENDORF;
-            if (isCurrentWeek) {
-                await manager.getLessonForWeekCompiledViaProxy(CLASS_NAME, date);
-                const lessons = manager.getRawLessons();
-                if (!lessons) continue;
-                const id = v4();
-                console.log(lessons);
-                lessons.map(l => {
-                    const tmp = l as TempLesson;
-                    tmp.scheduleId = id;
-                    tmp.school = manager.getSchool();
-                    return tmp;
-                })
-                lessonsAll.push(...(lessons as TempLesson[]));
-                scheduleDatas[id] = {
-                    className: CLASS_NAME,
-                    school: manager.getSchool()
-                };
+            for (const CLASS_NAME of manager.getClassNames()) {
 
-            } else {
-                await manager.getCompiledLessonForRange(CLASS_NAME, monday, friday);
-                const lessons = manager.getRawLessons();
-                if (!lessons) continue;
-                const id = v4();
-                lessons.map(l => {
-                    const tmp = l as TempLesson;
-                    tmp.scheduleId = id;
-                    tmp.school = manager.getSchool();
-                    return tmp;
-                })
-                lessonsAll.push(...(lessons as TempLesson[]));
-                scheduleDatas[id] = {
-                    className: CLASS_NAME,
-                    school: manager.getSchool()
-                };
+                // let CLASS_NAME = manager.getSchool() == "Grootmoor" ? CLASS_NAME_GROOTMOOR : CLASS_NAME_MEIENDORF;
+                if (isCurrentWeek) {
+                    await manager.getLessonForWeekCompiledViaProxy(CLASS_NAME, date);
+                    const lessons = manager.getRawLessons();
+                    if (!lessons) continue;
+                    const id = v4();
+                    console.log(lessons);
+                    lessons.map(l => {
+                        const tmp = l as TempLesson;
+                        tmp.scheduleId = id;
+                        tmp.school = manager.getSchool();
+                        return tmp;
+                    })
+                    lessonsAll.push(...(lessons as TempLesson[]));
+                    scheduleDatas[id] = {
+                        className: CLASS_NAME,
+                        school: manager.getSchool()
+                    };
+
+                } else {
+                    await manager.getCompiledLessonForRange(CLASS_NAME, monday, friday);
+                    const lessons = manager.getRawLessons();
+                    if (!lessons) continue;
+                    const id = v4();
+                    lessons.map(l => {
+                        const tmp = l as TempLesson;
+                        tmp.scheduleId = id;
+                        tmp.school = manager.getSchool();
+                        return tmp;
+                    })
+                    lessonsAll.push(...(lessons as TempLesson[]));
+                    scheduleDatas[id] = {
+                        className: CLASS_NAME,
+                        school: manager.getSchool()
+                    };
+                }
             }
         }
 
@@ -347,7 +364,7 @@ async function initEnv() {
             const compiledLessons: CompiledLesson[] = UntisManager.compileLessons(lessonsSorted[scheduleKey]);
             console.log("compiledLessons", compiledLessons, scheduleData);
             const schedule = new UntisSchedule(compiledLessons, scheduleData.className, scheduleData.school);
-            schedule.filter(SCHEDULE);
+            schedule.filter(allData.schedule);
             schedules.push(schedule);
         }
 

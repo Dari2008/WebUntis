@@ -1,9 +1,11 @@
 import type { CompiledLesson, DayName, ScheduleBreak, ScheduleRawDay, Time } from "../@types/Schedule";
 import type { School } from "../@types/School";
 import type { Teacher } from "../@types/Teachers";
-import { BREAKS, HOST, SCHEDULE, type UntisAccess } from "../ScheduleDarius";
+import type { UntisAccess } from "../@types/UntisAccess";
+import { HOST } from "../ScheduleDarius_old";
+import { UserManagement } from "../userManagement/UserManagement";
 import { type Lesson, type Klasse, type WebAPITimetable } from "./";
-import { TEACHER_DATABASE, UNKNOWN_TEACHER } from "./TeacherDatabase";
+import { UNKNOWN_TEACHER } from "./TeacherDatabase";
 
 
 export type TempLesson = (Lesson | WebAPITimetable) & {
@@ -14,28 +16,16 @@ export type TempLesson = (Lesson | WebAPITimetable) & {
 export default class UntisManager {
 
     private untis: UntisAccess = undefined as any;
-    private schoolType: School;
+    // private schoolType: School;
 
     // private host = "192.168.178.110:2222";
 
     constructor(
-        school: string,
-        username: string,
-        password: string,
-        baseurl: string,
-        // identity = 'Awesome',
-        // disableUserAgent = false,
-        schoolType: School
+        untisAccess: UntisAccess
     ) {
-        this.untis = {
-            host: baseurl,
-            password: password,
-            username: username,
-            school: school as School,
-            schoolId: ""
-        }
+        this.untis = untisAccess;
         // this.untis = new WebUntis(school, username, password, baseurl, identity, disableUserAgent);
-        this.schoolType = schoolType;
+        // this.schoolType = schoolType;
     }
 
     public getUntis(): UntisAccess {
@@ -43,7 +33,11 @@ export default class UntisManager {
     }
 
     public getSchool(): School {
-        return this.schoolType;
+        return this.untis.school;
+    }
+
+    public getClassNames(): string[] {
+        return this.untis.classNames;
     }
 
     private responseRange = null;
@@ -179,8 +173,8 @@ export default class UntisManager {
                 [key in DayName]?: (keyof ScheduleRawDay)[];
             } = {};
 
-        for (const dayOfWeek of (Object.keys(SCHEDULE) as DayName[])) {
-            const keys = (Object.keys(SCHEDULE[dayOfWeek]) as (keyof ScheduleRawDay)[]).filter(k => !!SCHEDULE[dayOfWeek][k]);
+        for (const dayOfWeek of (Object.keys(UserManagement.ALL_DATA!.schedule) as DayName[])) {
+            const keys = (Object.keys(UserManagement.ALL_DATA!.schedule[dayOfWeek]) as (keyof ScheduleRawDay)[]).filter(k => !!UserManagement.ALL_DATA!.schedule[dayOfWeek][k]);
             lessonStartTimes[dayOfWeek] = keys;
         }
 
@@ -198,7 +192,7 @@ export default class UntisManager {
                     if (t > endTimeMinutes) {
                         break;
                     }
-                    const breakFound = Object.values(BREAKS).flat().filter(breakSpanFilter).filter(b => b.school == lesson.school).find(b => stringTimeToMinutes(b.start) == t);
+                    const breakFound = Object.values(UserManagement.ALL_DATA!.breaks).flat().filter(breakSpanFilter).filter(b => b.school == lesson.school).find(b => stringTimeToMinutes(b.start) == t);
                     if (breakFound) {
                         const startM = stringTimeToMinutes(breakFound.start);
                         const endM = stringTimeToMinutes(breakFound.end);
@@ -515,7 +509,7 @@ export default class UntisManager {
     }
 
     public static getFullNameFromShortOfTeacher(shortName: string, school: School): Teacher {
-        const found = TEACHER_DATABASE[school].find(t => {
+        const found = UserManagement.ALL_DATA!.teachers[school].find(t => {
             if (t.short.toLowerCase() == shortName.toLowerCase()) {
                 return true;
             }

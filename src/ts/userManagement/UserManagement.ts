@@ -1,9 +1,12 @@
-import type { ExamList } from "../@types/Exam";
-import type { BreaksRawByDay, ScheduleRawData } from "../@types/Schedule";
+import dayjs from "dayjs";
+import type { Exam, ExamList } from "../@types/Exam";
+import type { BreaksRawByDay, DayName, LessonRaw, LessonTime, LessonTimes, LessonTimesString, ScheduleRawData } from "../@types/Schedule";
 import type { School } from "../@types/School";
-import type { TeacherDatabase } from "../@types/Teachers";
+import type { Teacher, TeacherDatabase } from "../@types/Teachers";
+import type { UntisAccess } from "../@types/UntisAccess";
 import type { AllData, UpdateDataBreaks, UpdateDataExams, UpdateDataPreferences, UpdateDataSchedule, UpdateDataTeachers, UpdateDataUntisAccess, UpdateMethod } from "../@types/UserManagement";
-import { HOST, type UntisAccess } from "../ScheduleDarius";
+import { HOST } from "../ScheduleDarius_old";
+import UntisManager from "../untis/UntisManager";
 import Utils from "../Utils";
 
 type RequestResponse = {
@@ -21,6 +24,7 @@ export class UserManagement {
     public static jwt = "";
     public static allowedUntil = 0;
     public static validJwt = false;
+    public static ALL_DATA: AllData | undefined;
 
     public static async init() {
         const goToLogin = () => {
@@ -48,16 +52,131 @@ export class UserManagement {
         }
         this.validJwt = true;
 
-        console.log(await this.loadAll());
     }
 
     public static async loadAll(): Promise<boolean | AllData> {
+        if (this.ALL_DATA) return this.ALL_DATA;
         const result = await this.request("http://" + HOST + "/untis/users/data/getData.php", { "jwt": this.jwt, dataType: "allData" });
         if (!result) return false;
         const all = result as AllData;
-        all.schools = all.untisAccesses.map(e => e.school) as School[];
+        this.compileAll(all);
+        this.ALL_DATA = all;
         return all;
     }
+
+    private static compileAll(all: AllData) {
+
+
+
+        function getEndOfLesson(start: string): string {
+            const parsed = UntisManager.parseTime(start);
+            parsed.minute += 45;
+            if (parsed.minute >= 60) {
+                parsed.minute = parsed.minute % 60;
+                parsed.hour += 1;
+                if (parsed.hour >= 24) {
+                    parsed.hour = 0;
+                }
+            }
+            return parsed.hour.toString().padStart(2, "0") + ":" + parsed.minute.toString().padStart(2, "0");
+        }
+
+        function compileScheduleToLessonTimes(): LessonTimes {
+            const times: LessonTimes = {};
+
+            for (const day of Object.keys(all.schedule) as DayName[]) {
+                const dayLessons = all.schedule[day];
+                if (!dayLessons) continue;
+                for (const lessonTime of Object.keys(dayLessons) as string[]) {
+                    const element = (dayLessons as any)[lessonTime as string] as LessonRaw;
+                    if (!element || !element.school) continue;
+                    if (!times[element.school]) {
+                        times[element.school] = [];
+                    }
+                    times[element.school]?.push({
+                        start: lessonTime,
+                        end: getEndOfLesson(lessonTime)
+                    })
+
+                }
+            }
+
+            const filtered: LessonTimes = {};
+
+            const contains = (lessonTimes: LessonTime[], search: LessonTime): boolean => {
+                for (const l of lessonTimes) {
+                    if (l.end == search.end && l.start == search.start) return true;
+                }
+                return false;
+            };
+
+            for (const school of Object.keys(times) as School[]) {
+                if (!filtered[school]) filtered[school] = [];
+                if (!times[school]) continue;
+                for (const time of times[school]) {
+                    if (time.start == time.end) continue;
+                    if (contains(filtered[school], time)) continue;
+                    filtered[school].push(time);
+                }
+            }
+
+
+            return filtered;
+        }
+
+        all.schools = all.untisAccesses.map(e => e.school) as School[];
+        all.LESSON_TIMES = compileScheduleToLessonTimes();
+        all.LESSON_TIMES_STRING = (() => {
+
+            const times: LessonTimesString = {};
+
+            for (const key of Object.keys(all.LESSON_TIMES) as School[]) {
+                if (!key) continue;
+                if (!all.LESSON_TIMES[key]) continue;
+                for (const time of all.LESSON_TIMES[key]) {
+                    if (!time) continue;
+                    if (!times[key]) times[key] = [];
+                    times[key].push(time.end);
+                    times[key].push(time.start);
+                }
+            }
+
+
+
+            return times;
+
+        })();
+
+        all.START_TIME = UntisManager.parseTime(Object.values(all.LESSON_TIMES).flat().reduce((a, b) => {
+            const parsedStartA = UntisManager.parseTime(a.start);
+            const parsedStartB = UntisManager.parseTime(b.start);
+
+            const minutesStartA = parsedStartA.hour * 60 + parsedStartA.minute;
+            const minutesStartB = parsedStartB.hour * 60 + parsedStartB.minute;
+
+            if (minutesStartA < minutesStartB) return a;
+            return b;
+        }, { start: "8:00" }).start);
+
+        all.END_TIME = UntisManager.parseTime(Object.values(all.LESSON_TIMES).flat().reduce((a, b) => {
+            const parsedEndA = UntisManager.parseTime(a.end);
+            const parsedEndB = UntisManager.parseTime(b.end);
+
+            const minutesEndA = parsedEndA.hour * 60 + parsedEndA.minute;
+            const minutesEndB = parsedEndB.hour * 60 + parsedEndB.minute;
+
+            if (minutesEndA < minutesEndB) return b;
+            return a;
+        }, { end: "16:00" }).end);
+
+        all.exams = all.exams.sort((a: Exam, b: Exam) => {
+            return dayjs(a.date, "DD.MM.YYYY").diff(dayjs(b.date, "DD.MM.YYYY"));
+        });
+
+    }
+
+
+
 
     public static async getUntisAccesses(): Promise<UntisAccess[] | boolean> {
         const result = await this.request("http://" + HOST + "/untis/users/data/getData.php", { "jwt": this.jwt, dataType: "untisAccesses" });

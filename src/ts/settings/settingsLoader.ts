@@ -2,7 +2,7 @@ import { SettingsBreakList } from "../customSettings/SettingsBreakList";
 import { SettingsExamsList } from "../customSettings/SettingsExamList";
 import { SettingsTeacherList, type SettingsTeacherListData } from "../customSettings/SettingsTeacherList";
 import { SettingsUntisAccessesList } from "../customSettings/SettingsUntisAccessesList";
-import { SCHOOLS } from "../ScheduleDarius";
+import { UserManagement } from "../userManagement/UserManagement";
 import { Settings } from "./Settings";
 import type { SettingsColorSelectorElement } from "./SettingsColorSelectorElement";
 import { initForSettings, loadSettings, type SettingsData } from "./SettingsGenerator";
@@ -12,6 +12,24 @@ import { type SettingsContentData, type SettingsTitleData } from "./SettingsTitl
 export function initSettings() {
 
     const TEACHER_SETTINGS = generateTeacherSettings();
+
+    let timeoutLessonColorChange: number = -1;
+
+    let timeoutData: {
+        [key: string]: number;
+    } = {};
+
+    const changed = (key: string, defaultVal: string | boolean | number, value: string | boolean | number) => {
+        if (timeoutData[key]) {
+            clearTimeout(timeoutData[key]);
+        }
+        timeoutData[key] = setTimeout(() => {
+            (UserManagement.ALL_DATA!.preferences as any)[key] = value ?? defaultVal;
+            UserManagement.updatePreferences({
+                [key]: value ?? defaultVal
+            });
+        }, 100);
+    };
 
     let settingOptions: SettingsData[] = [
         {
@@ -36,11 +54,16 @@ export function initSettings() {
                             onchange(value, getOtherElement) {
                                 if (!value.hex) return;
                                 document.documentElement.style.setProperty("--canceledBorderColor", value.hex + "");
+                                changed("lessonCancelColor", Settings.colors.canceledBorderColor, value.hex);
                             },
                             onload(value, getOtherElement) {
                                 console.log(value);
                                 if (!value.hex) return;
                                 document.documentElement.style.setProperty("--canceledBorderColor", value.hex + "");
+                                if (UserManagement.ALL_DATA) {
+                                    if (UserManagement.ALL_DATA.preferences.lessonCancelColor)
+                                        document.documentElement.style.setProperty("--canceledBorderColor", UserManagement.ALL_DATA.preferences.lessonCancelColor + "");
+                                }
                             },
                         },
                         {
@@ -55,10 +78,15 @@ export function initSettings() {
                             onchange(value, getOtherElement) {
                                 if (!value.hex) return;
                                 document.documentElement.style.setProperty("--additionalLessonBorderColor", value.hex + "");
+                                changed("additionalLessonColor", Settings.colors.additionalLessonBorderColor, value.hex);
                             },
                             onload(value, getOtherElement) {
                                 if (!value.hex) return;
                                 document.documentElement.style.setProperty("--additionalLessonBorderColor", value.hex + "");
+                                if (UserManagement.ALL_DATA) {
+                                    if (UserManagement.ALL_DATA.preferences.additionalLessonColor)
+                                        document.documentElement.style.setProperty("--additionalLessonBorderColor", UserManagement.ALL_DATA.preferences.additionalLessonColor + "");
+                                }
                             },
                         },
                         {
@@ -73,10 +101,15 @@ export function initSettings() {
                             onchange(value, getOtherElement) {
                                 if (!value.hex) return;
                                 document.documentElement.style.setProperty("--examColor", value.hex + "");
+                                changed("examLessonColor", Settings.colors.examColor, value.hex);
                             },
                             onload(value, getOtherElement) {
                                 if (!value.hex) return;
                                 document.documentElement.style.setProperty("--examColor", value.hex + "");
+                                if (UserManagement.ALL_DATA) {
+                                    if (UserManagement.ALL_DATA.preferences.examLessonColor)
+                                        document.documentElement.style.setProperty("--examColor", UserManagement.ALL_DATA.preferences.examLessonColor + "");
+                                }
                             },
                         },
                         {
@@ -105,11 +138,16 @@ export function initSettings() {
                                             teacherChange.setVisible(true);
                                             changeColor.setVisible(false);
                                         }
+                                        changed("oneColorForEveryChange", false, checked);
                                     },
                                     onload(checked, getOtherElement) {
                                         const roomChange = getOtherElement("roomChangeColor") as SettingsColorSelectorElement;
                                         const teacherChange = getOtherElement("teacherChangeColor") as SettingsColorSelectorElement;
                                         const changeColor = getOtherElement("changeColor") as SettingsColorSelectorElement;
+                                        if (UserManagement.ALL_DATA) {
+                                            if (UserManagement.ALL_DATA.preferences.oneColorForEveryChange)
+                                                checked = UserManagement.ALL_DATA.preferences.oneColorForEveryChange;
+                                        }
                                         if (!checked) {
                                             roomChange.setVisible(false);
                                             teacherChange.setVisible(false);
@@ -132,10 +170,15 @@ export function initSettings() {
                                     onchange(value, getOtherElement) {
                                         if (!value.hex) return;
                                         document.documentElement.style.setProperty("--roomSubstitutionBorderColor", value.hex + "");
+                                        changed("roomChangeColor", Settings.colors.roomSubstitutionBorderColor, value.hex);
                                     },
                                     onload(value, getOtherElement) {
                                         if (!value.hex) return;
                                         document.documentElement.style.setProperty("--roomSubstitutionBorderColor", value.hex + "");
+                                        if (UserManagement.ALL_DATA) {
+                                            if (UserManagement.ALL_DATA.preferences.roomChangeColor)
+                                                document.documentElement.style.setProperty("--roomSubstitutionBorderColor", UserManagement.ALL_DATA.preferences.roomChangeColor + "");
+                                        }
                                     },
                                 },
                                 {
@@ -145,14 +188,19 @@ export function initSettings() {
                                     description: "Color of the lesson border when the teacher is changed",
                                     autoSave: true,
                                     name: "teacherChangeColor",
-                                    color: Settings.colors.absenceBorderColor,
+                                    color: Settings.colors.substitutionBorderColor,
                                     onchange(value, getOtherElement) {
                                         if (!value.hex) return;
                                         document.documentElement.style.setProperty("--absenceBorderColor", value.hex + "");
+                                        changed("teacherChangeColor", Settings.colors.substitutionBorderColor, value.hex);
                                     },
                                     onload(value, getOtherElement) {
                                         if (!value.hex) return;
                                         document.documentElement.style.setProperty("--absenceBorderColor", value.hex + "");
+                                        if (UserManagement.ALL_DATA) {
+                                            if (UserManagement.ALL_DATA.preferences.teacherChangeColor)
+                                                document.documentElement.style.setProperty("--absenceBorderColor", UserManagement.ALL_DATA.preferences.teacherChangeColor + "");
+                                        }
                                     },
                                 },
                                 {
@@ -167,10 +215,15 @@ export function initSettings() {
                                         if (!value.hex) return;
                                         document.documentElement.style.setProperty("--absenceBorderColor", value.hex + "");
                                         document.documentElement.style.setProperty("--roomSubstitutionBorderColor", value.hex + "");
+                                        changed("changeColor", Settings.colors.absenceBorderColor, value.hex);
                                     },
                                     onload(value, getOtherElement) {
                                         if (!value.hex) return;
                                         document.documentElement.style.setProperty("--roomSubstitutionBorderColor", value.hex + "");
+                                        if (UserManagement.ALL_DATA) {
+                                            if (UserManagement.ALL_DATA.preferences.changeColor)
+                                                document.documentElement.style.setProperty("--roomSubstitutionBorderColor", UserManagement.ALL_DATA.preferences.changeColor + "");
+                                        }
                                     },
                                 }
                             ]
@@ -221,7 +274,7 @@ export function initSettings() {
                             id: "manageExamsText"
                         },
                         {
-                            type: <SettingsExamsListData>(data: SettingsExamsListData) => new SettingsExamsList((data as any)),
+                            type: () => new SettingsExamsList(),
                             name: "examList",
                             id: "examList",
                         }
@@ -294,7 +347,7 @@ export function initSettings() {
 function generateTeacherSettings(): SettingsContentData[] {
     const settingData: SettingsContentData[] = [];
 
-    for (const school of SCHOOLS.get()) {
+    for (const school of UserManagement.ALL_DATA!.schools) {
         const settingElement: SettingsTeacherListData = {
             type: <SettingsTeacherListData>(data: SettingsTeacherListData) => new SettingsTeacherList((data as any)),
             name: "teacherList" + school,

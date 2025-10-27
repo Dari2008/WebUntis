@@ -1,5 +1,5 @@
 import type { School } from "../@types/School";
-import { HOST } from "../ScheduleDarius";
+import { HOST } from "../ScheduleDarius_old";
 import type { Holiday } from "./types";
 import UntisManager from "./UntisManager";
 

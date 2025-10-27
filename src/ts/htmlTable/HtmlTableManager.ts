@@ -1,9 +1,11 @@
 import type { CompiledLesson, DayName, LessonSlot, ScheduleBreak, Time } from "../@types/Schedule";
 import type { School } from "../@types/School";
-import { BREAKS, checkForExam, END_TIME, LESSON_TIMES_STRING, SCHEDULE, START_TIME } from "../ScheduleDarius";
-import { getColumnForSchool, SCHOOL_COUNT } from "../untis/TeacherDatabase";
+// import { Utils.checkForExam } from "../ScheduleDarius_old";
+import { getColumnForSchool } from "../untis/TeacherDatabase";
 import UntisManager from "../untis/UntisManager";
 import UntisSchedule from "../untis/UntisSchedule";
+import { UserManagement } from "../userManagement/UserManagement";
+import Utils from "../Utils";
 
 export class HTMLTableManager {
 
@@ -29,8 +31,8 @@ export class HTMLTableManager {
         this.tableElement.innerHTML = "";
         this.tableElement.style.display = "grid";
 
-        const widthOfAll = 100 - (SCHOOL_COUNT * 10);
-        this.tableElement.style.gridTemplateColumns = `repeat(${SCHOOL_COUNT}, 10%) calc(${widthOfAll}% / 5) calc(${widthOfAll}% / 5) calc(${widthOfAll}% / 5) calc(${widthOfAll}% / 5) calc(${widthOfAll}% / 5)`;
+        const widthOfAll = 100 - (UserManagement.ALL_DATA!.schools.length * 10);
+        this.tableElement.style.gridTemplateColumns = `repeat(${UserManagement.ALL_DATA!.schools.length}, 10%) calc(${widthOfAll}% / 5) calc(${widthOfAll}% / 5) calc(${widthOfAll}% / 5) calc(${widthOfAll}% / 5) calc(${widthOfAll}% / 5)`;
         this.tableElement.style.gridTemplateRows = `max(${this.heightHeaderPercentage}%, 4vh)`;
 
         const longToShortName: {
@@ -83,7 +85,7 @@ export class HTMLTableManager {
 
         this.schoolTimesBackgroundDiv = document.createElement("div");
         this.schoolTimesBackgroundDiv.classList.add("schoolTimesBackground");
-        this.schoolTimesBackgroundDiv.style.gridArea = "2 / 1 / " + (this.rowCount + 2) + " / " + (SCHOOL_COUNT + 1);
+        this.schoolTimesBackgroundDiv.style.gridArea = "2 / 1 / " + (this.rowCount + 2) + " / " + (UserManagement.ALL_DATA!.schools.length + 1);
         this.tableElement.appendChild(this.schoolTimesBackgroundDiv);
 
         this.setCurrentDate(100);
@@ -97,7 +99,7 @@ export class HTMLTableManager {
         if (indexToday == -1) this.currentDayDiv.style.display = "none";
 
         this.currentDayDiv.style.gridArea = "1 / " + (indexToday) + " / " + (maxHeightIndex + 2) + " / " + (indexToday + 1);
-        this.schoolTimesBackgroundDiv!.style.gridArea = "2 / 1 / " + (maxHeightIndex + 2) + " / " + (SCHOOL_COUNT + 1);
+        this.schoolTimesBackgroundDiv!.style.gridArea = "2 / 1 / " + (maxHeightIndex + 2) + " / " + (UserManagement.ALL_DATA!.schools.length + 1);
 
         this.tableElement!.appendChild(this.currentDayDiv);
     }
@@ -112,7 +114,7 @@ export class HTMLTableManager {
             case "friday": column = 5; break;
             default: return -1;
         }
-        return column + SCHOOL_COUNT;
+        return column + UserManagement.ALL_DATA!.schools.length;
     }
 
     private sortTimeArray(a: string, b: string) {
@@ -230,7 +232,7 @@ export class HTMLTableManager {
     }
 
     private isBreakString(start: string, end: string | undefined): boolean {
-        const found = Object.values(BREAKS).flat().find(b => {
+        const found = Object.values(UserManagement.ALL_DATA!.breaks).flat().find(b => {
             return b.start == start && b.end == end && end;
         });
         return !!found;
@@ -255,7 +257,7 @@ export class HTMLTableManager {
     public preloadTimes() {
         let startTimesNeeded: {
             [key in School]?: string[];
-        } = LESSON_TIMES_STRING;
+        } = UserManagement.ALL_DATA!.LESSON_TIMES_STRING;
 
         for (const key of Object.keys(startTimesNeeded) as School[]) {
             if (startTimesNeeded[key]) {
@@ -264,12 +266,12 @@ export class HTMLTableManager {
         }
 
         this.clear();
-        this.caluclateGrid(START_TIME, END_TIME);
+        this.caluclateGrid(UserManagement.ALL_DATA!.START_TIME, UserManagement.ALL_DATA!.END_TIME);
 
         for (const k of Object.keys(startTimesNeeded)) {
             const key = k as School;
             if (!startTimesNeeded[key]) continue;
-            this.calculateHeight(startTimesNeeded[key], key, START_TIME);
+            this.calculateHeight(startTimesNeeded[key], key, UserManagement.ALL_DATA!.START_TIME);
         }
     }
 
@@ -457,14 +459,14 @@ export class HTMLTableManager {
                 const start = lessonSlotData.startTime;
                 const end = lessonSlotData.endTime;
                 const day = (lessonSlotData.lessonSlotExample as LessonSlot)?.lessons[0].dayName as DayName;
-                const position = this.getGridPositionOfTime(start, end, day, START_TIME);
+                const position = this.getGridPositionOfTime(start, end, day, UserManagement.ALL_DATA!.START_TIME);
                 if (position) {
                     const cell = this.insertCellInto(position.rowStart, position.column, position.rowSpan);
                     if (cell) {
                         const lesson = (lessonSlotData.lessonSlotExample as LessonSlot)?.lessons[0];
                         if (!lesson) continue;
 
-                        const isExam = checkForExam(lesson);
+                        const isExam = Utils.checkForExam(lesson);
 
                         this.insertLessonIntoDiv(cell, lesson, isExam);
                         this.addOpenAndInfoDialog(cell, lesson, isExam);
@@ -480,7 +482,7 @@ export class HTMLTableManager {
                 const start = lessonSlotData.startTime;
                 const end = lessonSlotData.endTime;
                 const day = lessonSlotData.lessonSlotExample?.lessons[0].dayName as DayName;
-                const position = this.getGridPositionOfTime(start, end, day, START_TIME);
+                const position = this.getGridPositionOfTime(start, end, day, UserManagement.ALL_DATA!.START_TIME);
                 if (position) {
                     const cell = this.insertCellInto(position.rowStart, position.column, position.rowSpan);
                     if (cell) {
@@ -490,7 +492,7 @@ export class HTMLTableManager {
 
                         let isExam = false;
                         for (const lesson of lessons) {
-                            if (checkForExam(lesson)) {
+                            if (Utils.checkForExam(lesson)) {
                                 isExam = true;
                                 break;
                             }
@@ -510,13 +512,13 @@ export class HTMLTableManager {
         }
 
 
-        for (const day of Object.keys(BREAKS)) {
+        for (const day of Object.keys(UserManagement.ALL_DATA!.breaks)) {
             if (day == "others") continue;
-            for (const br of BREAKS[day as DayName]) {
+            for (const br of UserManagement.ALL_DATA!.breaks[day as DayName]) {
                 const breakStartTime = UntisManager.parseTime(br.start);
                 const breakEndTime = UntisManager.parseTime(br.end);
 
-                const position = this.getGridPositionOfTime(breakStartTime, breakEndTime, day as DayName, START_TIME);
+                const position = this.getGridPositionOfTime(breakStartTime, breakEndTime, day as DayName, UserManagement.ALL_DATA!.START_TIME);
                 if (position && position.rowSpan > 0 && position.column != -1 && position.rowEnd != -1 && position.rowStart != -1) {
                     const cell = this.insertCellInto(position.rowStart, position.column, position.rowSpan);
                     if (cell) {
@@ -573,7 +575,7 @@ export class HTMLTableManager {
         endPosition += 2;
 
         if (startPosition != -1 && endPosition != -1) {
-            return { rowStart: startPosition, rowEnd: endPosition, rowSpan: endPosition - startPosition, column: column + SCHOOL_COUNT }
+            return { rowStart: startPosition, rowEnd: endPosition, rowSpan: endPosition - startPosition, column: column + UserManagement.ALL_DATA!.schools.length }
         }
         return undefined;
     }
@@ -875,7 +877,7 @@ export class HTMLTableManager {
             const tab = document.createElement("div");
             tab.classList.add("tab");
 
-            if (checkForExam(lesson)) {
+            if (Utils.checkForExam(lesson)) {
                 tab.classList.add("exam");
             } else {
                 tab.classList.remove("exam");

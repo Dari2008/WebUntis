@@ -1,9 +1,12 @@
 import type { School } from "../@types/School";
-import { HOST, UNTIS_ACCESSES, type UntisAccess } from "../ScheduleDarius";
+import { HOST } from "../ScheduleDarius_old";
 import { SettingsElement, type SettingsFunctionData } from "../settings/SettingsTitleElement";
 import { Images } from "./Images";
 import Toast from "toastify-js";
 import { createInputWithLabel } from "./Utils";
+import type { UntisAccess } from "../@types/UntisAccess";
+import Utils from "../Utils";
+import { UserManagement } from "../userManagement/UserManagement";
 
 export type SettingsUntisAccessesListData = SettingsFunctionData & {
     school: School;
@@ -64,15 +67,18 @@ export class SettingsUntisAccessesList extends SettingsElement {
                 titleCell.classList.add("examButton");
                 titleCell.onclick = () => {
                     this.addUntisAccess((schoolData, username, password) => {
-                        const accesses = UNTIS_ACCESSES.get();
-                        accesses.push({
+                        const accesses = UserManagement.ALL_DATA!.untisAccesses;
+                        const newAccess = {
                             school: schoolData.displayName as School,
                             schoolId: schoolData.loginName,
                             username: username,
                             password: password,
-                            host: schoolData.server.startsWith("https://") ? schoolData.server : "https://" + schoolData.server
-                        });
-                        UNTIS_ACCESSES.set(accesses);
+                            host: schoolData.server.startsWith("https://") ? schoolData.server : "https://" + schoolData.server,
+                            classNames: [],
+                            uuid: Utils.uuidv4Exclude(UserManagement.ALL_DATA!.untisAccesses.map(e => e.uuid))
+                        };
+                        accesses.push(newAccess);
+                        UserManagement.updateUntisAccesses("add", [newAccess]);
                         this.updateTable();
                     });
                 };
@@ -187,7 +193,7 @@ export class SettingsUntisAccessesList extends SettingsElement {
                     return;
                 }
 
-                if (UNTIS_ACCESSES.get().find(e => e.schoolId == SELECTED?.loginName)) {
+                if (UserManagement.ALL_DATA!.untisAccesses.find(e => e.schoolId == SELECTED?.loginName)) {
                     notify("You already added this school!");
                     return;
                 }
@@ -244,7 +250,7 @@ export class SettingsUntisAccessesList extends SettingsElement {
         this.schoolRows.forEach(e => e.remove());
         this.schoolRows = [];
 
-        for (const untisAccess of UNTIS_ACCESSES.get()) {
+        for (const untisAccess of UserManagement.ALL_DATA!.untisAccesses) {
             if (!untisAccess) continue;
             const row = this.schoolTableBody.insertRow();
             const school = row.insertCell();
@@ -265,10 +271,12 @@ export class SettingsUntisAccessesList extends SettingsElement {
             trashDiv.innerHTML = Images.TRASH;
             trashDiv.classList.add("trash");
             trashDiv.onclick = () => {
-                UNTIS_ACCESSES.set(UNTIS_ACCESSES.get().filter(e => e == untisAccess));
+                UserManagement.ALL_DATA!.untisAccesses = UserManagement.ALL_DATA!.untisAccesses.filter(e => e == untisAccess);
+                UserManagement.updateUntisAccesses("remove", [untisAccess.uuid]);
                 const row = this.schoolRows.find((r) => r.untisAccess == untisAccess) as HTMLTableRowElement;
                 this.schoolRows = this.schoolRows.filter(row => row.untisAccess != untisAccess);
                 this.schoolTableBody.removeChild(row);
+                Utils.success("Deleted Untis Access Successfully");
             };
             trash.appendChild(trashDiv);
 

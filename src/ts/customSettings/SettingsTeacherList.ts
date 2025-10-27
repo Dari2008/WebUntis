@@ -1,10 +1,13 @@
 import type { School } from "../@types/School";
 import type { Subject, Teacher } from "../@types/Teachers";
 import { SettingsElement, type SettingsContentElement, type SettingsFunctionData } from "../settings/SettingsTitleElement";
-import { TEACHER_DATABASE, TEACHER_DATABASE_ARRAY } from "../untis/TeacherDatabase";
+// import { TEACHER_DATABASE, TEACHER_DATABASE_ARRAY } from "../untis/TeacherDatabase";
 import { Images } from "./Images";
 import Toast from "toastify-js";
 import { createInputWithLabel } from "./Utils";
+import { UserManagement } from "../userManagement/UserManagement";
+import Utils from "../Utils";
+import type { UpdateDataTeachers } from "../@types/UserManagement";
 
 export type SettingsTeacherListData = SettingsFunctionData & {
     school: School;
@@ -81,17 +84,7 @@ export class SettingsTeacherList extends SettingsElement {
                 return;
             }
 
-            const teacherToAdd: Teacher = {
-                name: {
-                    firstName: firstName,
-                    surname: surname,
-                    fullName: firstName + " " + surname
-                },
-                short: short,
-                subjects: subjects as Subject[]
-            }
-
-            if (TEACHER_DATABASE[this.data.school].find(e => e.short == short)) {
+            if (UserManagement.ALL_DATA!.teachers[this.data.uuid].find(e => e.short == short)) {
                 const toast = Toast({
                     text: "Teacher Allready Exists!",
                     duration: 3000,
@@ -112,10 +105,26 @@ export class SettingsTeacherList extends SettingsElement {
             teacherSurnameInput.value = "";
             teacherSubjectsInput.value = "";
 
+            const teacherToAdd: Teacher = {
+                name: {
+                    firstName: firstName,
+                    surname: surname,
+                    fullName: firstName + " " + surname
+                },
+                short: short,
+                subjects: subjects as Subject[],
+                uuid: Utils.uuidv4Exclude(UserManagement.ALL_DATA!.teachers[this.data.school].map(e => e.uuid))
+            }
+
             if (this.searchBar) this.searchBar.value = "";
-            TEACHER_DATABASE[this.data.school].push(teacherToAdd);
+            UserManagement.ALL_DATA?.teachers[this.data.school].push(teacherToAdd);
+
+            const data: UpdateDataTeachers = {};
+            data[this.data.school] = [teacherToAdd];
+            UserManagement.updateTeachers("add", data);
+
             this.updateTable();
-            if (this.tableStatText) this.tableStatText.innerHTML = TEACHER_DATABASE[this.data.school].length + " of " + TEACHER_DATABASE[this.data.school].length + this.teachersVisibleText;
+            if (this.tableStatText) this.tableStatText.innerHTML = UserManagement.ALL_DATA!.teachers[this.data.school].length + " of " + UserManagement.ALL_DATA!.teachers[this.data.school].length + this.teachersVisibleText;
 
             const toast = Toast({
                 text: "Teacher Added!",
@@ -167,7 +176,7 @@ export class SettingsTeacherList extends SettingsElement {
                     }
                     this.teacherTableBody.appendChild(row);
                 });
-                if (this.tableStatText) this.tableStatText.innerHTML = TEACHER_DATABASE[this.data.school].length + " of " + TEACHER_DATABASE[this.data.school].length + this.teachersVisibleText;
+                if (this.tableStatText) this.tableStatText.innerHTML = UserManagement.ALL_DATA!.teachers[this.data.school].length + " of " + UserManagement.ALL_DATA!.teachers[this.data.school].length + this.teachersVisibleText;
             } else {
                 const length = value.length;
                 this.teacherTableBody.innerHTML = "";
@@ -210,7 +219,7 @@ export class SettingsTeacherList extends SettingsElement {
                     return found;
                 });
 
-                if (this.tableStatText) this.tableStatText.innerHTML = filtered.length + " of " + TEACHER_DATABASE[this.data.school].length + this.teachersVisibleText;
+                if (this.tableStatText) this.tableStatText.innerHTML = filtered.length + " of " + UserManagement.ALL_DATA!.teachers[this.data.school].length + this.teachersVisibleText;
 
                 filtered.forEach(row => {
                     // row.classList.remove("hidden");
@@ -229,7 +238,7 @@ export class SettingsTeacherList extends SettingsElement {
 
         this.tableStatText = document.createElement("span");
         this.tableStatText.classList.add("tableStatText");
-        this.tableStatText.innerHTML = TEACHER_DATABASE[this.data.school].length + " of " + TEACHER_DATABASE[this.data.school].length + this.teachersVisibleText;
+        this.tableStatText.innerHTML = UserManagement.ALL_DATA!.teachers[this.data.school].length + " of " + UserManagement.ALL_DATA!.teachers[this.data.school].length + this.teachersVisibleText;
 
         this.element.appendChild(addTeacherDiv);
         this.element.appendChild(teacherTable);
@@ -241,7 +250,7 @@ export class SettingsTeacherList extends SettingsElement {
         this.teacherRows.forEach(e => e.remove());
         this.teacherRows = [];
 
-        for (const teacher of TEACHER_DATABASE[this.data.school]) {
+        for (const teacher of UserManagement.ALL_DATA!.teachers[this.data.school]) {
             const row = this.teacherTableBody.insertRow();
             const shortName = row.insertCell();
             const firstName = row.insertCell();
@@ -258,11 +267,13 @@ export class SettingsTeacherList extends SettingsElement {
             trashDiv.innerHTML = Images.TRASH;
             trashDiv.classList.add("trash");
             trashDiv.onclick = () => {
-                TEACHER_DATABASE[this.data.school] = TEACHER_DATABASE[this.data.school].filter(e => e != teacher);
+                UserManagement.ALL_DATA!.teachers[this.data.school] = UserManagement.ALL_DATA!.teachers[this.data.school].filter(e => e != teacher);
+                UserManagement.updateTeachers("remove", [teacher.uuid]);
                 const row = this.teacherRows.find((r) => r.teacher == teacher) as HTMLTableRowElement;
                 this.teacherRows = this.teacherRows.filter(row => row.teacher != teacher);
                 this.teacherTableBody.removeChild(row);
-                if (this.tableStatText) this.tableStatText.innerHTML = this.teacherTableBody.children.length + " of " + TEACHER_DATABASE[this.data.school].length + this.teachersVisibleText;
+                if (this.tableStatText) this.tableStatText.innerHTML = this.teacherTableBody.children.length + " of " + UserManagement.ALL_DATA!.teachers[this.data.school].length + this.teachersVisibleText;
+                Utils.success("Deleted Teacher Successfully");
             };
             trash.appendChild(trashDiv);
 
