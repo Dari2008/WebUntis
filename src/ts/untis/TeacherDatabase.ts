@@ -1,6 +1,7 @@
 import type { School } from "../@types/School";
-import type { Teacher, TeacherDatabase } from "../@types/Teachers";
+import type { Teacher } from "../@types/Teachers";
 import { UserManagement } from "../userManagement/UserManagement";
+
 
 // export const TEACHER_DATABASE_GROOTMOOR: TeacherDatabase = [
 //   {

@@ -4,8 +4,8 @@ import type { Teacher } from "../@types/Teachers";
 import type { UntisAccess } from "../@types/UntisAccess";
 import { HOST } from "../ScheduleDarius_old";
 import { UserManagement } from "../userManagement/UserManagement";
-import { type Lesson, type Klasse, type WebAPITimetable } from "./";
 import { UNKNOWN_TEACHER } from "./TeacherDatabase";
+import { type Lesson, type Klasse, type WebAPITimetable } from "./types";
 
 
 export type TempLesson = (Lesson | WebAPITimetable) & {
@@ -331,7 +331,7 @@ export default class UntisManager {
                     for (const t of clesson.teachers) {
                         if (t.element.name) {
                             clesson.teacherShortName = t.element.name;
-                            let teacher: Teacher | undefined = UntisManager.getFullNameFromShortOfTeacher(clesson.teacherShortName, schoolType);
+                            let teacher: Teacher | undefined = UntisManager.getFullNameFromShortOfTeacher(clesson.teacherShortName!, schoolType);
                             if (!teacher || (teacher.isUnknownTeacher && teacher.isUnknownTeacher != undefined)) {
                                 teacher = loadTeacherName();
                             }
@@ -352,7 +352,7 @@ export default class UntisManager {
                 } else if (clesson.teachers && clesson.teachers.length > 0 && clesson.teachers[0].element.name) {
                     clesson.multipleTeachers = false;
                     clesson.teacherShortName = clesson.teachers[0].element.name;
-                    let teacher: Teacher | undefined = UntisManager.getFullNameFromShortOfTeacher(clesson.teacherShortName, schoolType);
+                    let teacher: Teacher | undefined = UntisManager.getFullNameFromShortOfTeacher(clesson.teacherShortName!, schoolType);
                     if (!teacher || (teacher.isUnknownTeacher && teacher.isUnknownTeacher != undefined)) {
                         teacher = loadTeacherName();
                     }
@@ -444,7 +444,7 @@ export default class UntisManager {
                     for (const t of clesson.teachers) {
                         if (t.element.name) {
                             clesson.teacherShortName = t.element.name;
-                            let teacher: Teacher | undefined = UntisManager.getFullNameFromShortOfTeacher(clesson.teacherShortName, schoolType);
+                            let teacher: Teacher | undefined = UntisManager.getFullNameFromShortOfTeacher(clesson.teacherShortName!, schoolType);
                             if (!teacher || (teacher.isUnknownTeacher && teacher.isUnknownTeacher != undefined)) {
                                 teacher = loadTeacherName(clesson.teacherShortName);
                             }
@@ -457,16 +457,13 @@ export default class UntisManager {
                                 clesson.cTeachers.push(teacher);
                                 teacher.name.fullName = teacher?.name.firstName + " " + (teacher?.name.surname ? teacher?.name.surname : "");
                             }
-                            // clesson.teacherFullName = teacher?.name.firstName + " " + (teacher?.name.surname ? teacher?.name.surname : "");
-                            // clesson.teacherSubjectString = teacher?.subjects.join(", ");
-                            // clesson.teacherStatus = clesson.teachers[0].state;
                         } else {
                         }
                     }
                 } else if (clesson.teachers && clesson.teachers.length > 0 && clesson.teachers[0].element.name) {
                     clesson.multipleTeachers = false;
                     clesson.teacherShortName = clesson.teachers[0].element.name;
-                    let teacher: Teacher | undefined = UntisManager.getFullNameFromShortOfTeacher(clesson.teacherShortName, schoolType);
+                    let teacher: Teacher | undefined = UntisManager.getFullNameFromShortOfTeacher(clesson.teacherShortName!, schoolType);
                     if (!teacher || (teacher.isUnknownTeacher && teacher.isUnknownTeacher != undefined)) {
                         teacher = loadTeacherName();
                     }
