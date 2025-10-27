@@ -1,7 +1,8 @@
 import type { ExamList } from "../@types/Exam";
-import type { BreaksRawByDay } from "../@types/Schedule";
+import type { BreaksRawByDay, ScheduleRawData } from "../@types/Schedule";
 import type { School } from "../@types/School";
 import type { TeacherDatabase } from "../@types/Teachers";
+import type { AllData, UpdateDataBreaks, UpdateDataExams, UpdateDataPreferences, UpdateDataSchedule, UpdateDataTeachers, UpdateDataUntisAccess, UpdateMethod } from "../@types/UserManagement";
 import { HOST, type UntisAccess } from "../ScheduleDarius";
 import Utils from "../Utils";
 
@@ -11,15 +12,9 @@ type RequestResponse = {
     [key: string]: any;
 }
 
-export type All = {
-    untisAccesses: UntisAccess[];
-    breaks: BreaksRawByDay;
-    teachers: TeacherDatabase;
-    exams: ExamList;
-    schedule: ExamList;
-    schools: School[];
+type UpdateResponse = {
+    success: boolean;
 }
-
 
 export class UserManagement {
 
@@ -56,10 +51,10 @@ export class UserManagement {
         console.log(await this.loadAll());
     }
 
-    public static async loadAll(): Promise<boolean | All> {
+    public static async loadAll(): Promise<boolean | AllData> {
         const result = await this.request("http://" + HOST + "/untis/users/data/getData.php", { "jwt": this.jwt, dataType: "allData" });
         if (!result) return false;
-        const all = result as All;
+        const all = result as AllData;
         all.schools = all.untisAccesses.map(e => e.school) as School[];
         return all;
     }
@@ -82,10 +77,10 @@ export class UserManagement {
         return result as TeacherDatabase;
     }
 
-    public static async getSchedule() {
+    public static async getSchedule(): Promise<ScheduleRawData | boolean> {
         const result = await this.request("http://" + HOST + "/untis/users/data/getData.php", { "jwt": this.jwt, dataType: "schedule" });
         if (!result) return false;
-        return result as ExamList;
+        return result as ScheduleRawData;
     }
 
     public static async getExams(): Promise<ExamList | boolean> {
@@ -108,7 +103,71 @@ export class UserManagement {
         } else {
             return result ?? {};
         }
+    }
 
+    public static async updateUntisAccesses(updateMethod: UpdateMethod, data: UpdateDataUntisAccess): Promise<boolean> {
+        const result = await this.request("http://" + HOST + "/untis/users/data/updateData.php", {
+            "jwt": this.jwt,
+            dataType: "untisAccesses",
+            data: data,
+            updateMethod: updateMethod
+        }) as UpdateResponse;
+        if (!result) return false;
+        return result.success;
+    }
+
+    public static async updateBreaks(updateMethod: UpdateMethod, data: UpdateDataBreaks): Promise<boolean> {
+        const result = await this.request("http://" + HOST + "/untis/users/data/updateData.php", {
+            "jwt": this.jwt,
+            dataType: "breaks",
+            data: data,
+            updateMethod: updateMethod
+        }) as UpdateResponse;
+        if (!result) return false;
+        return result.success;
+    }
+
+    public static async updateTeachers(updateMethod: UpdateMethod, data: UpdateDataTeachers): Promise<boolean> {
+        const result = await this.request("http://" + HOST + "/untis/users/data/updateData.php", {
+            "jwt": this.jwt,
+            dataType: "teachers",
+            data: data,
+            updateMethod: updateMethod
+        }) as UpdateResponse;
+        if (!result) return false;
+        return result.success;
+    }
+
+    public static async updateSchedule(updateMethod: UpdateMethod, data: UpdateDataSchedule): Promise<boolean> {
+        const result = await this.request("http://" + HOST + "/untis/users/data/updateData.php", {
+            "jwt": this.jwt,
+            dataType: "schedule",
+            data: data,
+            updateMethod: updateMethod
+        }) as UpdateResponse;
+        if (!result) return false;
+        return result.success;
+    }
+
+    public static async updateExams(updateMethod: UpdateMethod, data: UpdateDataExams): Promise<boolean> {
+        const result = await this.request("http://" + HOST + "/untis/users/data/updateData.php", {
+            "jwt": this.jwt,
+            dataType: "exams",
+            data: data,
+            updateMethod: updateMethod
+        }) as UpdateResponse;
+        if (!result) return false;
+        return result.success;
+    }
+
+    public static async updatePreferences(data: UpdateDataPreferences): Promise<boolean> {
+        const result = await this.request("http://" + HOST + "/untis/users/data/updateData.php", {
+            "jwt": this.jwt,
+            dataType: "preferences",
+            data: data
+        }) as UpdateResponse;
+        if (!result) return false;
+        return result.success;
     }
 
 }

@@ -189,14 +189,6 @@ async function initEnv() {
         return date;
     }
 
-
-
-    function getDateFroWeek(offsetWeeks: number): Date {
-        const date: Date = new Date();
-        date.setDate(date.getDate() + (7 * offsetWeeks));
-        return date;
-    }
-
     let currentIdDisplayed: string | null = null;
 
     async function loadAllWeeksFor(date: Date, loadCurrentSchedule: boolean = true) {
@@ -243,19 +235,19 @@ async function initEnv() {
 
     }
 
-    function isDateInCurrentWeek(date: Date): boolean {
-        const now = new Date();
-        const dayOfWeek = now.getDay() || 7; // Sunday → 0, so treat as 7
-        const monday = new Date(now);
-        monday.setDate(now.getDate() - dayOfWeek + 1);
-        monday.setHours(0, 0, 0, 0);
+    // function isDateInCurrentWeek(date: Date): boolean {
+    //     const now = new Date();
+    //     const dayOfWeek = now.getDay() || 7; // Sunday → 0, so treat as 7
+    //     const monday = new Date(now);
+    //     monday.setDate(now.getDate() - dayOfWeek + 1);
+    //     monday.setHours(0, 0, 0, 0);
 
-        const sunday = new Date(monday);
-        sunday.setDate(monday.getDate() + 6);
-        sunday.setHours(23, 59, 59, 999);
+    //     const sunday = new Date(monday);
+    //     sunday.setDate(monday.getDate() + 6);
+    //     sunday.setHours(23, 59, 59, 999);
 
-        return date >= monday && date <= sunday;
-    }
+    //     return date >= monday && date <= sunday;
+    // }
 
     function getCurrentWeekRange(now: Date): { monday: Date; friday: Date } {
         const dayOfWeek = now.getDay() || 7; // Sunday → 0, so set to 7
