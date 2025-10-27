@@ -1,11 +1,9 @@
-// import type { Time } from "./untis";
-import { set } from "date-fns";
-import type { Time } from "./untis";
-import type { School } from "./untis/TeacherDatabase";
 import UntisManager from "./untis/UntisManager";
-import type { CompiledLesson } from "./untis/UntisSchedule";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat.js";
+import type { BreaksRawByDay, CompiledLesson, DayName, LessonRaw, ScheduleRawData, Time } from "./@types/Schedule";
+import type { School } from "./@types/School";
+import type { Exam, ExamList } from "./@types/Exam";
 
 dayjs.extend(customParseFormat);
 export const HOST = "localhost:2222";
@@ -208,71 +206,6 @@ export const END_TIME: Time = UntisManager.parseTime(Object.values(LESSON_TIMES)
 
 export type ScheduleDarius = ScheduleRawData;
 
-export type ScheduleRawData = {
-    "monday": ScheduleRawDay;
-    "tuesday": ScheduleRawDay;
-    "wednesday": ScheduleRawDay;
-    "thursday": ScheduleRawDay;
-    "friday": ScheduleRawDay;
-}
-
-export type ScheduleRawDay = {
-    "08:00"?: LessonRaw;
-    "08:45"?: LessonRaw;
-    "09:50"?: LessonRaw;
-    "10:35"?: LessonRaw;
-    "11:35"?: LessonRaw;
-    "12:20"?: LessonRaw;
-    "13:20"?: LessonRaw;
-    "14:05"?: LessonRaw;
-    "15:00"?: LessonRaw;
-    "15:45"?: LessonRaw;
-    "16:30"?: LessonRaw;
-    "17:50"?: LessonRaw;
-
-    "10:00"?: LessonRaw;
-    "10:45"?: LessonRaw;
-    "11:00"?: LessonRaw;
-    "11:45"?: LessonRaw;
-    "12:00"?: LessonRaw;
-    "12:45"?: LessonRaw;
-    "13:00"?: LessonRaw;
-    "13:45"?: LessonRaw;
-    "14:00"?: LessonRaw;
-    "14:45"?: LessonRaw;
-    // "15:00"?: LessonDarius;
-    // "15:45"?: LessonDarius;
-    "16:00"?: LessonRaw;
-    "16:45"?: LessonRaw;
-    "17:00"?: LessonRaw;
-    "17:45"?: LessonRaw;
-};
-
-export type BreaksRawByDay = {
-    "monday": ScheduleBreak[];
-    "tuesday": ScheduleBreak[];
-    "wednesday": ScheduleBreak[];
-    "thursday": ScheduleBreak[];
-    "friday": ScheduleBreak[];
-    "others": ScheduleBreak[];
-}
-
-export type ScheduleBreak = {
-    start: string;
-    end: string;
-    school: School;
-}
-
-export type LessonRaw = {
-    id: number;
-    school: School;
-    sign: string;
-}
-
-export type DayName = "monday" | "tuesday" | "wednesday" | "thursday" | "friday";
-
-
-
 function compileScheduleToLessonTimes(): LessonTimes {
     const times: LessonTimes = {};
 
@@ -426,14 +359,6 @@ let _EXAMS: ExamList = [
     return dayjs(a.date, "DD.MM.YYYY").diff(dayjs(b.date, "DD.MM.YYYY"));
 });
 
-export type Exam = {
-    date: string;
-    subject: string;
-    sign: string;
-}
-
-export type ExamList = Exam[];
-
 export function checkForExam(lesson: CompiledLesson): boolean {
     const date = parseDate(lesson.date);
     return _EXAMS.some(exam => (exam.sign === (lesson.studentGroup ? lesson.studentGroup : lesson.sg)) && exam.date === date);
@@ -473,14 +398,14 @@ let _UNTIS_ACCESSES: UntisAccess[] = [
         schoolId: "meiont",
         username: "darius",
         password: "password123",
-        host: "https://meiont.hamburg.de"
+        host: "https://ikarus.webuntis.com"
     },
     {
         school: "Grootmoor",
         schoolId: "groot",
         username: "max",
         password: "password456",
-        host: "https://grootmoor.hamburg.de"
+        host: "https://ikarus.webuntis.com"
     }
 ];
 

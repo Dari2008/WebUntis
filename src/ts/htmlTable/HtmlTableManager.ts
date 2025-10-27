@@ -1,8 +1,9 @@
-import { BREAKS, checkForExam, END_TIME, LESSON_TIMES_STRING, SCHEDULE, START_TIME, type DayName, type ScheduleBreak, type ScheduleRawDay } from "../ScheduleDarius";
-import type { Time } from "../untis";
-import { getColumnForSchool, SCHOOL_COUNT, type School } from "../untis/TeacherDatabase";
+import type { CompiledLesson, DayName, LessonSlot, ScheduleBreak, Time } from "../@types/Schedule";
+import type { School } from "../@types/School";
+import { BREAKS, checkForExam, END_TIME, LESSON_TIMES_STRING, SCHEDULE, START_TIME } from "../ScheduleDarius";
+import { getColumnForSchool, SCHOOL_COUNT } from "../untis/TeacherDatabase";
 import UntisManager from "../untis/UntisManager";
-import UntisSchedule, { type CompiledLesson, type LessonSlot } from "../untis/UntisSchedule";
+import UntisSchedule from "../untis/UntisSchedule";
 
 export class HTMLTableManager {
 

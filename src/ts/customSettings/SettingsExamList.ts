@@ -1,11 +1,11 @@
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat.js";
-import { EXAMS, SCHEDULE, type Exam, type LessonRaw } from "../ScheduleDarius";
-import { SettingsElement, type SettingsContentElement, type SettingsFunctionData } from "../settings/SettingsTitleElement";
+import { EXAMS, SCHEDULE, type Exam } from "../ScheduleDarius";
+import { SettingsElement, type SettingsFunctionData } from "../settings/SettingsTitleElement";
 import { Images } from "./Images";
 import { easepick } from "@easepick/core";
 import toast from "toastify-js";
-import { DateTime } from "@easepick/bundle";
+import type { LessonRaw } from "../@types/Schedule";
 dayjs.extend(customParseFormat);
 
 export type SettingsExamsListData = SettingsFunctionData & {
@@ -19,7 +19,6 @@ export class SettingsExamsList extends SettingsElement {
     private element: HTMLDivElement;
     private name: string = "";
     private disabled: boolean = false;
-    private data: SettingsExamsListData;
     private searchBar: HTMLInputElement | null = null;
     private examTableBody: HTMLTableSectionElement;
     private examTableHead: HTMLTableSectionElement;
@@ -28,9 +27,8 @@ export class SettingsExamsList extends SettingsElement {
     private examsVisibleText: string = " <span class='examsText'>Exams</span> <span class='visibleText'>visible</span>";
     private writtenOf: string = "<span class='writtenof'>{{EXAM_NUM}} of {{EXAM_ALL_NUM}} Written</span>";
 
-    constructor(data: SettingsExamsListData) {
+    constructor() {
         super();
-        this.data = data;
         this.element = document.createElement("div");
         this.element.classList.add("settings-exam-list");
         this.examTableBody = document.createElement("tbody");
@@ -435,7 +433,7 @@ export class SettingsExamsList extends SettingsElement {
         this.element = element;
     }
 
-    setTitle(title: string): void {
+    setTitle(): void {
     }
 
     getTitle(): string {

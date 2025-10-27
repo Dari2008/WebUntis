@@ -1,0 +1,118 @@
+@use "../Variables.scss" as vars;
+/* autoprefixer: off */
+
+$borderRadius: 5px;
+$outlineWidth: 2px;
+$inputPadding: 10px;
+$asterisk-Offset: 5px;
+$backgroundColor: vars.$gray-800;
+$textColor: vars.$textColor;
+$left: 5%;
+
+.inputWithLabel-wrapper {
+    position: relative;
+    display: inline !important;
+    font-size: 75%;
+}
+
+.inputWithLabel-wrapper::before {
+    content: attr(data-label);
+    top: 50%;
+    left: $left;
+    transform: translateY(-50%);
+    position: absolute;
+    opacity: 0.4;
+    pointer-events: none;
+    background-color: $backgroundColor;
+    padding: 5px;
+    transition: all 0.2s ease-in-out;
+    height: min-content;
+}
+
+.inputWithLabel-wrapper::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 5%;
+    height: 60%;
+    pointer-events: none;
+    opacity: 0;
+    aspect-ratio: 1;
+    transform: translateY(-50%);
+    transition: background-image 0.2s ease-in-out;
+}
+
+.inputWithLabel-wrapper:has(input:valid)::after {
+    opacity: 1;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='green'%3E%3Cpath d='M20.285 6.709l-11.025 11.025-5.285-5.285 1.414-1.414 3.871 3.871 9.611-9.611z'/%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+.inputWithLabel-wrapper:has(input:invalid:not(:placeholder-shown))::after {
+    opacity: 1;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='red'%3E%3Cpath d='M18.364 5.636l-1.414-1.414L12 9.172 7.05 4.222 5.636 5.636 10.586 10.586l-4.95 4.95 1.414 1.414L12 12l4.95 4.95 1.414-1.414-4.95-4.95z'/%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+.inputWithLabel-wrapper input {
+    font-size: 16px;
+    padding: $inputPadding;
+    border-radius: $borderRadius;
+    border: none;
+    outline: $outlineWidth/2 solid $textColor !important;
+}
+
+.inputWithLabel-wrapper input:valid {
+    transition: outline 0.2s ease-in-out;
+    outline: $outlineWidth solid vars.$successColor !important;
+}
+
+.inputWithLabel-wrapper input:invalid:not(:placeholder-shown) {
+    transition: outline 0.2s ease-in-out;
+    outline: $outlineWidth solid vars.$errorColor !important;
+}
+
+.inputWithLabel-wrapper:has(input:focus)::before {
+    top: -2px !important;
+    left: $left;
+    opacity: 1;
+}
+
+.inputWithLabel-wrapper:has(input:not(:placeholder-shown))::before {
+    top: -2px !important;
+    left: $left;
+    opacity: 1;
+}
+
+.inputWithLabel-wrapper:has(input:focus) .inputWithLabel-asterisk {
+    top: -2px !important;
+    left: calc($left + $asterisk-Offset);
+    opacity: 1;
+}
+
+.inputWithLabel-wrapper:has(input:not(:placeholder-shown)) .inputWithLabel-asterisk {
+    top: -2px !important;
+    left: calc($left + $asterisk-Offset);
+    opacity: 1;
+}
+
+.inputWithLabel-wrapper:not(:has(input:required)) .inputWithLabel-asterisk {
+    display: none;
+}
+
+.inputWithLabel-wrapper:has(input:required)::before {
+    padding-left: 15px;
+}
+
+.inputWithLabel-wrapper .inputWithLabel-asterisk {
+    color: red;
+    position: absolute;
+    top: 50%;
+    left: calc($left + $asterisk-Offset);
+    transform: translateY(-50%);
+    transition: all 0.2s ease-in-out;
+}
+
+/* autoprefixer: on */

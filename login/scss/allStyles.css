@@ -1,0 +1,571 @@
+html, body, dialog {
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  background-color: #212121;
+  color: #000000;
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  z-index: -1;
+}
+
+html.overflowWhenVisible:not(.visible) {
+  overflow: hidden;
+}
+
+html:has(iframe.open),
+html:has(iframe.opened) {
+  overflow: hidden;
+}
+
+html, body {
+  width: 100%;
+  min-height: 100%;
+  max-width: 100%;
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+  height: 100%;
+  overflow: hidden;
+}
+
+button {
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+.centerAll {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+:not(.slow-transition) * {
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s, box-shadow 0.3s;
+  box-sizing: border-box;
+}
+:not(.slow-transition) * ::after, :not(.slow-transition) * ::before {
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s, box-shadow 0.3s;
+  box-sizing: border-box;
+}
+
+.slow-transition * {
+  transition: all 5s !important;
+  box-sizing: border-box;
+}
+.slow-transition * ::after, .slow-transition * ::before {
+  transition: all 5s !important;
+  box-sizing: border-box;
+}
+
+iframe {
+  border: none !important;
+  outline: none !important;
+}
+
+.widthAvailable {
+  width: 100%;
+  width: fill-available;
+  width: -moz-available;
+  width: -webkit-fill-available;
+}
+
+.h-s {
+  font-family: "Poppins";
+  font-weight: 400;
+  font-style: normal;
+}
+
+* {
+  font-family: "Poppins";
+  font-weight: 400;
+  font-style: normal;
+  box-sizing: content-box;
+}
+
+.title {
+  line-height: 2.5rem;
+  font-family: "Agrandir Bold";
+  font-weight: 600;
+  color: #EEEEEE;
+}
+
+.text {
+  line-height: 2em;
+  font-family: "Poppins";
+  color: #EEEEEE;
+}
+
+p, a, h1, h2, h3, h4, h5, h6, li {
+  text-wrap: wrap;
+  word-break: break-word;
+  word-wrap: anywhere;
+}
+
+body {
+  --mobile: 0;
+}
+
+@media (width < 1200px) {
+  body {
+    --mobile: 1;
+  }
+}
+*::selection {
+  background: #90512e;
+  color: white;
+}
+
+.defaultElementOnMainPage {
+  color: #EEEEEE;
+  font-family: "Poppins";
+  font-weight: 400;
+  font-style: normal;
+  font-size: clamp(0.6em, 0.7111111111em + 0.8888888889vw, 1.6em);
+  line-height: clamp(1.4em, 1.4222222222em + 0.1777777778vw, 1.6em);
+}
+
+.defaultMainElement {
+  width: 80%;
+  margin: 0 auto;
+  text-align: justify;
+  align-self: center;
+}
+
+@media (width < 200px) {
+  * {
+    word-wrap: anywhere;
+    hyphens: auto;
+  }
+}
+.imageFade10 {
+  position: relative;
+}
+.imageFade10::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 10%;
+  z-index: 1000;
+  background: linear-gradient(to bottom, #212121, rgba(33, 33, 33, 0));
+}
+.imageFade10::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  height: 10%;
+  background: linear-gradient(to bottom, rgba(33, 33, 33, 0), #212121);
+}
+
+.imageFade15 {
+  position: relative;
+}
+.imageFade15::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 15%;
+  z-index: 1000;
+  background: linear-gradient(to bottom, #212121, rgba(33, 33, 33, 0));
+}
+.imageFade15::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 15%;
+  z-index: 1000;
+  background: linear-gradient(to bottom, rgba(33, 33, 33, 0), #212121);
+}
+
+.imageFade20 {
+  position: relative;
+}
+.imageFade20::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 20%;
+  z-index: 1000;
+  background: linear-gradient(to bottom, #212121, rgba(33, 33, 33, 0));
+}
+.imageFade20::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 20%;
+  z-index: 1000;
+  background: linear-gradient(to bottom, rgba(33, 33, 33, 0), #212121);
+}
+
+.imageFade25 {
+  position: relative;
+}
+.imageFade25::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 25%;
+  z-index: 1000;
+  background: linear-gradient(to bottom, #212121, rgba(33, 33, 33, 0));
+}
+.imageFade25::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 25%;
+  z-index: 1000;
+  background: linear-gradient(to bottom, rgba(33, 33, 33, 0), #212121);
+}
+
+.imageFade30 {
+  position: relative;
+}
+.imageFade30::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 30%;
+  z-index: 1000;
+  background: linear-gradient(to bottom, #212121, rgba(33, 33, 33, 0));
+}
+.imageFade30::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 30%;
+  z-index: 1000;
+  background: linear-gradient(to bottom, rgba(33, 33, 33, 0), #212121);
+}
+
+.imageFade35 {
+  position: relative;
+}
+.imageFade35::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 35%;
+  z-index: 1000;
+  background: linear-gradient(to bottom, #212121, rgba(33, 33, 33, 0));
+}
+.imageFade35::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 35%;
+  z-index: 1000;
+  background: linear-gradient(to bottom, rgba(33, 33, 33, 0), #212121);
+}
+
+/* autoprefixer: off */
+.inputWithLabel-wrapper {
+  position: relative;
+  display: inline !important;
+  font-size: 75%;
+}
+
+.inputWithLabel-wrapper::before {
+  content: attr(data-label);
+  top: 50%;
+  left: 5%;
+  transform: translateY(-50%);
+  position: absolute;
+  opacity: 0.4;
+  pointer-events: none;
+  background-color: #212121;
+  padding: 5px;
+  transition: all 0.2s ease-in-out;
+  height: min-content;
+}
+
+.inputWithLabel-wrapper::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 5%;
+  height: 60%;
+  pointer-events: none;
+  opacity: 0;
+  aspect-ratio: 1;
+  transform: translateY(-50%);
+  transition: background-image 0.2s ease-in-out;
+}
+
+.inputWithLabel-wrapper:has(input:valid)::after {
+  opacity: 1;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='green'%3E%3Cpath d='M20.285 6.709l-11.025 11.025-5.285-5.285 1.414-1.414 3.871 3.871 9.611-9.611z'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.inputWithLabel-wrapper:has(input:invalid:not(:placeholder-shown))::after {
+  opacity: 1;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='red'%3E%3Cpath d='M18.364 5.636l-1.414-1.414L12 9.172 7.05 4.222 5.636 5.636 10.586 10.586l-4.95 4.95 1.414 1.414L12 12l4.95 4.95 1.414-1.414-4.95-4.95z'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.inputWithLabel-wrapper input {
+  font-size: 16px;
+  padding: 10px;
+  border-radius: 5px;
+  border: none;
+  outline: 1px solid #EEEEEE !important;
+}
+
+.inputWithLabel-wrapper input:valid {
+  transition: outline 0.2s ease-in-out;
+  outline: 2px solid #019225 !important;
+}
+
+.inputWithLabel-wrapper input:invalid:not(:placeholder-shown) {
+  transition: outline 0.2s ease-in-out;
+  outline: 2px solid #830000 !important;
+}
+
+.inputWithLabel-wrapper:has(input:focus)::before {
+  top: -2px !important;
+  left: 5%;
+  opacity: 1;
+}
+
+.inputWithLabel-wrapper:has(input:not(:placeholder-shown))::before {
+  top: -2px !important;
+  left: 5%;
+  opacity: 1;
+}
+
+.inputWithLabel-wrapper:has(input:focus) .inputWithLabel-asterisk {
+  top: -2px !important;
+  left: calc(5% + 5px);
+  opacity: 1;
+}
+
+.inputWithLabel-wrapper:has(input:not(:placeholder-shown)) .inputWithLabel-asterisk {
+  top: -2px !important;
+  left: calc(5% + 5px);
+  opacity: 1;
+}
+
+.inputWithLabel-wrapper:not(:has(input:required)) .inputWithLabel-asterisk {
+  display: none;
+}
+
+.inputWithLabel-wrapper:has(input:required)::before {
+  padding-left: 15px;
+}
+
+.inputWithLabel-wrapper .inputWithLabel-asterisk {
+  color: red;
+  position: absolute;
+  top: 50%;
+  left: calc(5% + 5px);
+  transform: translateY(-50%);
+  transition: all 0.2s ease-in-out;
+}
+
+/* autoprefixer: on */
+/*!
+ * Toastify js 1.12.0
+ * https://github.com/apvarun/toastify-js
+ * @license MIT licensed
+ *
+ * Copyright (C) 2018 Varun A P
+ */
+.toastify {
+  padding: 12px 20px;
+  color: #ffffff;
+  display: inline-block;
+  box-shadow: 0 3px 6px -1px rgba(0, 0, 0, 0.12), 0 10px 36px -4px rgba(77, 96, 232, 0.3);
+  background: -webkit-linear-gradient(315deg, #73a5ff, #5477f5);
+  background: linear-gradient(135deg, #73a5ff, #5477f5);
+  position: fixed;
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.215, 0.61, 0.355, 1);
+  border-radius: 2px;
+  cursor: pointer;
+  text-decoration: none;
+  max-width: calc(50% - 20px);
+  z-index: 2147483647;
+}
+
+.toastify.on {
+  opacity: 1;
+}
+
+.toast-close {
+  background: transparent;
+  border: 0;
+  color: white;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 1em;
+  opacity: 0.4;
+  padding: 0 5px;
+}
+
+.toastify-right {
+  right: 15px;
+}
+
+.toastify-left {
+  left: 15px;
+}
+
+.toastify-top {
+  top: -150px;
+}
+
+.toastify-bottom {
+  bottom: -150px;
+}
+
+.toastify-rounded {
+  border-radius: 25px;
+}
+
+.toastify-avatar {
+  width: 1.5em;
+  height: 1.5em;
+  margin: -7px 5px;
+  border-radius: 2px;
+}
+
+.toastify-center {
+  margin-left: auto;
+  margin-right: auto;
+  left: 0;
+  right: 0;
+  max-width: fit-content;
+  max-width: -moz-fit-content;
+}
+
+@media only screen and (max-width: 360px) {
+  .toastify-right, .toastify-left {
+    margin-left: auto;
+    margin-right: auto;
+    left: 0;
+    right: 0;
+    max-width: fit-content;
+  }
+}
+.login-container {
+  width: 30%;
+  height: 40%;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #424242;
+  padding: 20px;
+  border-radius: 20px;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 15% 85%;
+  grid-column-gap: 0px;
+  grid-row-gap: 0px;
+}
+.login-container h1 {
+  grid-area: 1/1/2/2;
+  height: 100%;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+}
+.login-container #loginForm {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  grid-area: 2/1/3/2;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: repeat(3, 1fr) min-content;
+  grid-column-gap: 0px;
+  grid-row-gap: 0px;
+}
+.login-container #loginForm .username {
+  grid-area: 1/1/2/2;
+}
+.login-container #loginForm .password {
+  grid-area: 2/1/3/2;
+}
+.login-container #loginForm .inputWithLabel-wrapper {
+  width: 70%;
+  align-self: center;
+  justify-self: center;
+}
+.login-container #loginForm .inputWithLabel-wrapper::before {
+  background-color: #424242;
+  color: white;
+}
+.login-container #loginForm .inputWithLabel-wrapper input {
+  width: 100%;
+  background-color: #424242;
+  color: white;
+  outline: 1px solid #9b9b9b !important;
+}
+.login-container #loginForm .inputWithLabel-wrapper::after {
+  display: none;
+}
+.login-container #loginForm button {
+  padding: 10px;
+  border: none;
+  border-radius: 10px;
+  background-color: #2f2f2f;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+  grid-area: 3/1/4/2;
+  max-height: 50px;
+  align-self: end;
+  margin: 20px;
+}
+.login-container #loginForm button:hover {
+  background-color: rgb(21.5, 21.5, 21.5);
+}
+.login-container #loginForm .not-registered-yet {
+  color: white;
+  text-align: center;
+  grid-area: 4/1/5/2;
+}
+.login-container #loginForm .not-registered-yet a {
+  color: #8383ff;
+  text-decoration: none;
+}/*# sourceMappingURL=allStyles.css.map */

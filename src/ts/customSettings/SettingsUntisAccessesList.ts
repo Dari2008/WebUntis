@@ -1,8 +1,9 @@
-import { HOST, SCHOOLS, UNTIS_ACCESSES, type UntisAccess } from "../ScheduleDarius";
-import { SettingsElement, type SettingsContentElement, type SettingsFunctionData } from "../settings/SettingsTitleElement";
-import { TEACHER_DATABASE, TEACHER_DATABASE_ARRAY, type School, type Subject, type Teacher } from "../untis/TeacherDatabase";
+import type { School } from "../@types/School";
+import { HOST, UNTIS_ACCESSES, type UntisAccess } from "../ScheduleDarius";
+import { SettingsElement, type SettingsFunctionData } from "../settings/SettingsTitleElement";
 import { Images } from "./Images";
 import Toast from "toastify-js";
+import { createInputWithLabel } from "./Utils";
 
 export type SettingsUntisAccessesListData = SettingsFunctionData & {
     school: School;
@@ -37,14 +38,12 @@ export class SettingsUntisAccessesList extends SettingsElement {
     private element: HTMLDivElement;
     private name: string = "";
     private disabled: boolean = false;
-    private data: SettingsUntisAccessesListData;
     private schoolRows: MemoryRow[] = [];
     private schoolTableBody: HTMLTableSectionElement;
     private schoolTableHead: HTMLTableSectionElement;
 
     constructor(data: SettingsUntisAccessesListData) {
         super();
-        this.data = data;
         this.name = data.name;
         this.element = document.createElement("div");
         this.element.className = "settings-untis-accesses-list";
@@ -71,7 +70,7 @@ export class SettingsUntisAccessesList extends SettingsElement {
                             schoolId: schoolData.loginName,
                             username: username,
                             password: password,
-                            host: schoolData.server || ""
+                            host: schoolData.server.startsWith("https://") ? schoolData.server : "https://" + schoolData.server
                         });
                         UNTIS_ACCESSES.set(accesses);
                         this.updateTable();
@@ -103,17 +102,17 @@ export class SettingsUntisAccessesList extends SettingsElement {
         const addUntisAccessDialog = document.createElement("div");
         addUntisAccessDialog.classList.add("dialog");
 
-        const usernameInput = document.createElement("input");
-        usernameInput.type = "text";
-        usernameInput.placeholder = "Username";
+        const [usernameInputWrapper, usernameInput] = createInputWithLabel(undefined, "Username", /.+/, true);
+        // usernameInput.type = "text";
+        // usernameInput.placeholder = "Username";
         usernameInput.classList.add("username");
-        addUntisAccessDialog.appendChild(usernameInput);
+        addUntisAccessDialog.appendChild(usernameInputWrapper);
 
-        const passwordInput = document.createElement("input");
+        const [passwordInputWrapper, passwordInput] = createInputWithLabel(undefined, "Password", /.+/, true);
         passwordInput.type = "password";
-        passwordInput.placeholder = "Password";
+        // passwordInput.placeholder = "Password";
         passwordInput.classList.add("password");
-        addUntisAccessDialog.appendChild(passwordInput);
+        addUntisAccessDialog.appendChild(passwordInputWrapper);
 
         const tableWrapper = document.createElement("div");
         tableWrapper.classList.add("tableWrapper");
@@ -288,7 +287,7 @@ export class SettingsUntisAccessesList extends SettingsElement {
         this.element = element;
     }
 
-    setTitle(title: string): void {
+    setTitle(): void {
     }
 
     getTitle(): string {

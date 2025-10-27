@@ -5,6 +5,7 @@
 @use "./settings/settings.scss" as *;
 @use "./settings/spinner.scss" as *;
 @use "./settings/settingsLanguage.scss" as *;
+@use "./settings/inputWithLabel.scss" as *;
 @use "../../node_modules/toastify-js/src/toastify.css" as *;
 
 $canceledBorderColor: darken(#FF0000, 10%);
@@ -1136,7 +1137,7 @@ body:has(#schedule[animatePrevious]) #previousSchedule {
 
 }
 
-.settings-teacher-list div {
+.settings-teacher-list>div {
     width: 100%;
     padding: 10px;
     padding-inline: 20px;
@@ -1155,13 +1156,13 @@ body:has(#schedule[animatePrevious]) #previousSchedule {
         border-radius: 5px;
         padding-inline: 10px;
         padding: 5px;
-        background-color: $gray-600;
+        background-color: $gray-800;
     }
 
-    input:focus,
-    button:hover {
-        background-color: $gray-500;
-    }
+    // input:focus,
+    // button:hover {
+    //     background-color: $gray-500;
+    // }
 
     button:active {
         background-color: darken($gray-500, 5%);
@@ -1721,6 +1722,22 @@ body:has(#schedule[animatePrevious]) #previousSchedule {
         grid-row-gap: 10px;
 
 
+        div:has(.username)::before,
+        div:has(.password)::before {
+            top: 35%;
+            height: calc(90% - 15px);
+            background-color: $gray-700;
+        }
+
+
+        div:has(.username),
+        div:has(.password) {
+
+            .inputWithLabel-asterisk,
+            &::after {
+                top: 35%;
+            }
+        }
 
         .school,
         .username,
@@ -1728,7 +1745,7 @@ body:has(#schedule[animatePrevious]) #previousSchedule {
             width: 100%;
             outline: none;
             border: none;
-            background-color: darken($gray-700, 2%);
+            background-color: $gray-700;
             color: white;
             border-radius: 10px;
             padding-inline: 10px;
@@ -1736,9 +1753,26 @@ body:has(#schedule[animatePrevious]) #previousSchedule {
             justify-self: center;
         }
 
-        .school:focus,
-        .username:focus,
-        .password:focus {
+        .selected {
+            position: relative;
+        }
+
+        .selected::after {
+            content: '';
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23019225'%3E%3Cpath d='M20.285 6.709l-11.025 11.025-5.285-5.285 1.414-1.414 3.871 3.871 9.611-9.611z'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+            position: absolute;
+            color: $successColor;
+            font-size: 1.5em;
+            top: 50%;
+            right: 8px;
+            transform: translateY(-50%);
+            height: 90%;
+            aspect-ratio: 1 / 1;
+        }
+
+        .school:focus {
             background-color: $gray-500;
         }
 
@@ -1828,11 +1862,11 @@ body:has(#schedule[animatePrevious]) #previousSchedule {
             grid-area: 1 / 1 / 2 / 4;
         }
 
-        .username {
+        div:has(.username) {
             grid-area: 2 / 1 / 3 / 4;
         }
 
-        .password {
+        div:has(.password) {
             grid-area: 3 / 1 / 4 / 4;
         }
 

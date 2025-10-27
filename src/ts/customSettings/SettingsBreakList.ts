@@ -1,13 +1,12 @@
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat.js";
-import { BREAKS, EXAMS, SCHEDULE, SCHOOLS, type BreaksRawByDay, type DayName, type LessonRaw, type ScheduleBreak } from "../ScheduleDarius";
+import { BREAKS, EXAMS, SCHEDULE, SCHOOLS } from "../ScheduleDarius";
 import { SettingsElement, type SettingsFunctionData } from "../settings/SettingsTitleElement";
 import { Images } from "./Images";
 import toast from "toastify-js";
 import UntisManager from "../untis/UntisManager";
-import flatpickr from "flatpickr";
-import type { Time } from "../untis";
-import type { School } from "../untis/TeacherDatabase";
+import type { BreaksRawByDay, DayName, ScheduleBreak, Time } from "../@types/Schedule";
+import type { School } from "../@types/School";
 dayjs.extend(customParseFormat);
 
 export type SettingsBreakListData = SettingsFunctionData & {
@@ -136,30 +135,6 @@ export class SettingsBreakList extends SettingsElement {
         }
 
     }
-
-
-    private markSearch(value: string, valueToSearch: string): { found: boolean, value: string } {
-        const length = value.length;
-        let found = false;
-        if (valueToSearch.toLowerCase().startsWith(value.toLowerCase())) {
-            found = true;
-            const length = value.length;
-            valueToSearch = "<mark>" + valueToSearch.substring(0, length) + "</mark>" + valueToSearch.substring(length, valueToSearch.length);
-        } else if (valueToSearch.toLowerCase().endsWith(value.toLowerCase())) {
-            found = true;
-            valueToSearch = valueToSearch.substring(0, valueToSearch.length - length) + "<mark>" + valueToSearch.substring(valueToSearch.length - length, valueToSearch.length) + "</mark>";
-        } else if (valueToSearch.toLowerCase().includes(value.toLowerCase())) {
-            const start = valueToSearch.toLowerCase().indexOf(value.toLowerCase());
-            if (start != -1) {
-                found = true;
-                valueToSearch = valueToSearch.substring(0, start) + "<mark>" + valueToSearch.substring(start, start + length) + "</mark>" + valueToSearch.substring(start + length, valueToSearch.length);
-            }
-        }
-        return {
-            found: found,
-            value: valueToSearch
-        };
-    };
 
     private addBreak(callback: (dayOfWeek: DayName, startTime: Time, endTime: Time, school: School) => void) {
 

@@ -1,7 +1,10 @@
+import type { School } from "../@types/School";
+import type { Subject, Teacher } from "../@types/Teachers";
 import { SettingsElement, type SettingsContentElement, type SettingsFunctionData } from "../settings/SettingsTitleElement";
-import { TEACHER_DATABASE, TEACHER_DATABASE_ARRAY, type School, type Subject, type Teacher } from "../untis/TeacherDatabase";
+import { TEACHER_DATABASE, TEACHER_DATABASE_ARRAY } from "../untis/TeacherDatabase";
 import { Images } from "./Images";
 import Toast from "toastify-js";
+import { createInputWithLabel } from "./Utils";
 
 export type SettingsTeacherListData = SettingsFunctionData & {
     school: School;
@@ -38,25 +41,21 @@ export class SettingsTeacherList extends SettingsElement {
     private initElement() {
         const addTeacherDiv = document.createElement("div");
 
-        const teacherShortNameInput = document.createElement("input");
+        const [teacherShortNameInputWrapper, teacherShortNameInput] = createInputWithLabel(undefined, "Short Name", /.{2,4}/, true);
         teacherShortNameInput.className = "teacher-short-name";
-        teacherShortNameInput.placeholder = "Short Name";
-        addTeacherDiv.appendChild(teacherShortNameInput);
+        addTeacherDiv.appendChild(teacherShortNameInputWrapper);
 
-        const teacherFirstNameInput = document.createElement("input");
+        const [teacherFirstNameInputWrapper, teacherFirstNameInput] = createInputWithLabel(undefined, "First Name", /.+/, true);
         teacherFirstNameInput.className = "teacher-first-name";
-        teacherFirstNameInput.placeholder = "First Name";
-        addTeacherDiv.appendChild(teacherFirstNameInput);
+        addTeacherDiv.appendChild(teacherFirstNameInputWrapper);
 
-        const teacherSurnameInput = document.createElement("input");
+        const [teacherSurnameInputWrapper, teacherSurnameInput] = createInputWithLabel(undefined, "Surname", /.+/, true);
         teacherSurnameInput.className = "teacher-surname";
-        teacherSurnameInput.placeholder = "Surname";
-        addTeacherDiv.appendChild(teacherSurnameInput);
+        addTeacherDiv.appendChild(teacherSurnameInputWrapper);
 
-        const teacherSubjectsInput = document.createElement("input");
+        const [teacherSubjectsInputWrapper, teacherSubjectsInput] = createInputWithLabel(undefined, "Subjects (comma separated)", /^([A-Za-z0-9]{2,5})(,[A-Za-z0-9]{2,5})*$/, true);
         teacherSubjectsInput.className = "teacher-subjects";
-        teacherSubjectsInput.placeholder = "Subjects (comma separated)";
-        addTeacherDiv.appendChild(teacherSubjectsInput);
+        addTeacherDiv.appendChild(teacherSubjectsInputWrapper);
 
         const addTeacherButton = document.createElement("button");
         addTeacherButton.innerText = "Add Teacher";

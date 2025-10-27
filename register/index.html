@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Login</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' type='text/css' media='screen' href='./scss/allStyles.css'>
+    <script src='./ts/index.ts' defer type="module"></script>
+</head>
+
+<body>
+    <div class="register-container">
+        <h1>Register</h1>
+        <div id="registerForm">
+            <div class="inputWithLabel-wrapper" class="email" data-label="Email">
+                <span class="inputWithLabel-asterisk">*</span>
+                <input type="email" id="email" name="email" required placeholder=" ">
+            </div>
+            <div class="inputWithLabel-wrapper" class="username" data-label="Username">
+                <span class="inputWithLabel-asterisk">*</span>
+                <input type="text" id="username" name="username" required placeholder=" ">
+            </div>
+            <div class="inputWithLabel-wrapper" class="password" data-label="Password">
+                <span class="inputWithLabel-asterisk">*</span>
+                <input type="password" id="password" name="password" required placeholder=" ">
+            </div>
+            <button id="registerBtn">Register</button>
+            <span class="already-registered">Already have an account? <a href="../login/">Login here</a></span>
+        </div>
+    </div>
+</body>
+
+</html>

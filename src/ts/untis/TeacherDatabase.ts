@@ -1,3 +1,6 @@
+import type { School } from "../@types/School";
+import type { Teacher, TeacherDatabase } from "../@types/Teachers";
+
 export const TEACHER_DATABASE_GROOTMOOR: TeacherDatabase = [
   {
     "short": "Ad",
@@ -2266,28 +2269,6 @@ export const TEACHER_DATABASE: {
   "Meiendorf": TEACHER_DATABASE_MEIENDORF
 }
 
-export type TeacherDatabase = Teacher[];
-
-export type Teacher = {
-  short: string;
-  duplicates?: boolean;
-  isUnknownTeacher?: boolean;
-  name: {
-    firstName: string;
-    surname?: string;
-    fullName?: string;
-  };
-  subjects: Subject[];
-
-}
-
-export type Subject =
-  "Mus" | "Deu" | "Spa" | "Spo" | "Ges" | "PGW" | "Ma" |
-  "Bio" | "NuT" | "Phy" | "Mat" | "Kun" | "Eng" | "Wir" |
-  "Frz" | "Geo" | "Phi" | "The" | "Inf" | "Rel" | "Che" |
-  "Lat" | "Mu" | "Fra" | "Psy" | "NaWi" | "Italienisch" | "Journalismus" | "Film";
-
-export type School = "Grootmoor" | "Meiendorf";
 export const SCHOOL_COUNT = 2;
 
 export function getColumnForSchool(school: School): number {

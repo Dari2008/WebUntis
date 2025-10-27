@@ -2,10 +2,13 @@ import { formatDate } from "date-fns";
 import { HTMLTableManager } from "./htmlTable/HtmlTableManager";
 import { SCHEDULE } from "./ScheduleDarius";
 import UntisManager, { type TempLesson } from "./untis/UntisManager"
-import UntisSchedule, { type CompiledLesson } from "./untis/UntisSchedule";
+import UntisSchedule from "./untis/UntisSchedule";
 import { initSettings } from "./settings/settingsLoader";
 import { v4 } from "uuid";
-import type { School } from "./untis/TeacherDatabase";
+import type { School } from "./@types/School";
+import type { CompiledLesson } from "./@types/Schedule";
+import { UserManagement } from "./userManagement/UserManagement";
+// import { HolidayLoader } from "./untis/HolidayLoader";
 
 let env: {
     [key: string]: EnvSchoolData;
@@ -20,14 +23,16 @@ type EnvSchoolData = {
 }
 
 async function initEnv() {
+
+    UserManagement.init();
     const response = await ((await fetch("./env.json")).json());
     env = response;
 
     const CLASS_NAME_GROOTMOOR = env.Grootmoor.className;
     const CLASS_NAME_MEIENDORF = env.Meiendorf.className;
 
-    const untisManagerGrootmoor = new UntisManager(env.Grootmoor.schoolId, env.Grootmoor.username, env.Grootmoor.password, env.Grootmoor.host, "Untiscombiner", true, "Grootmoor");
-    const untisManagerMeiendorf = new UntisManager(env.Meiendorf.schoolId, env.Meiendorf.username, env.Meiendorf.password, env.Meiendorf.host, "Untiscombiner", true, "Meiendorf");
+    const untisManagerGrootmoor = new UntisManager(env.Grootmoor.schoolId, env.Grootmoor.username, env.Grootmoor.password, env.Grootmoor.host, "Grootmoor");
+    const untisManagerMeiendorf = new UntisManager(env.Meiendorf.schoolId, env.Meiendorf.username, env.Meiendorf.password, env.Meiendorf.host, "Meiendorf");
 
     const UNTIS_MANAGERS = [untisManagerGrootmoor, untisManagerMeiendorf];
 
@@ -36,6 +41,9 @@ async function initEnv() {
     const htmlTableManagerPrevious: HTMLTableManager = new HTMLTableManager("previousSchedule", "previousSchedule");
 
     const htmlTableManagers = [htmlTableManagerCurrently, htmlTableManagerNext, htmlTableManagerPrevious];
+
+    // const holidayLoader = new HolidayLoader(UNTIS_MANAGERS);
+    // console.log(await holidayLoader.getHolidays());
 
     async function initAll() {
 

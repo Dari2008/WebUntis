@@ -1,7 +1,9 @@
-import { BREAKS, END_TIME, HOST, LESSON_TIMES_STRING, SCHEDULE, START_TIME, type BreaksRawByDay, type DayName, type ScheduleBreak, type ScheduleRawDay } from "../ScheduleDarius";
-import { WebUntis, type SchoolYear, WebUntisElementType, type Lesson, type Klasse, type Time, type WebAPITimetable } from "./";
-import { TEACHER_DATABASE, UNKNOWN_TEACHER, type School, type Teacher } from "./TeacherDatabase";
-import type { CompiledLesson } from "./UntisSchedule";
+import type { CompiledLesson, DayName, ScheduleBreak, ScheduleRawDay, Time } from "../@types/Schedule";
+import type { School } from "../@types/School";
+import type { Teacher } from "../@types/Teachers";
+import { BREAKS, HOST, SCHEDULE, type UntisAccess } from "../ScheduleDarius";
+import { type Lesson, type Klasse, type WebAPITimetable } from "./";
+import { TEACHER_DATABASE, UNKNOWN_TEACHER } from "./TeacherDatabase";
 
 
 export type TempLesson = (Lesson | WebAPITimetable) & {
@@ -11,8 +13,7 @@ export type TempLesson = (Lesson | WebAPITimetable) & {
 
 export default class UntisManager {
 
-    private untis: WebUntis = undefined as any;
-    private currentSchoolYear: SchoolYear = undefined as any;
+    private untis: UntisAccess = undefined as any;
     private schoolType: School;
 
     // private host = "192.168.178.110:2222";
@@ -22,39 +23,29 @@ export default class UntisManager {
         username: string,
         password: string,
         baseurl: string,
-        identity = 'Awesome',
-        disableUserAgent = false,
+        // identity = 'Awesome',
+        // disableUserAgent = false,
         schoolType: School
     ) {
-        this.untis = new WebUntis(school, username, password, baseurl, identity, disableUserAgent);
+        this.untis = {
+            host: baseurl,
+            password: password,
+            username: username,
+            school: school as School,
+            schoolId: ""
+        }
+        // this.untis = new WebUntis(school, username, password, baseurl, identity, disableUserAgent);
         this.schoolType = schoolType;
+    }
+
+    public getUntis(): UntisAccess {
+        return this.untis;
     }
 
     public getSchool(): School {
         return this.schoolType;
     }
 
-    public async init() {
-        await this.login();
-        this.currentSchoolYear = await this.untis.getCurrentSchoolyear();
-        this.untis.getTimetableForRange(new Date("09/15/2025"), new Date("09/15/2025"), 1501, WebUntisElementType.CLASS);
-    }
-
-    public async login() {
-        await this.untis.login();
-    }
-
-    public async getClasses() {
-        return await this.untis.getClasses(false, this.currentSchoolYear.id);
-    }
-
-    public async getLessons(startDate: Date, endDate: Date, id: number) {
-        return await this.untis.getTimetableForRange(startDate, endDate, id, WebUntisElementType.CLASS);
-    }
-
-    public async getLessonsForWeek(startDate: Date, id: number): Promise<CompiledLesson[]> {
-        return UntisManager.compileLesson(this.schoolType, await this.untis.getTimetableForWeek(startDate, id, WebUntisElementType.CLASS));
-    }
     private responseRange = null;
 
     // public async getCompiledLessonForRange(className: string, startDate: Date, endDate: Date): Promise<CompiledLesson[]> {
@@ -73,7 +64,7 @@ export default class UntisManager {
                     username: this.untis.username,
                     password: this.untis.password,
                     school: this.untis.school,
-                    baseurl: this.untis.baseurl,
+                    baseurl: this.untis.host,
                 })
             });
 
@@ -116,7 +107,7 @@ export default class UntisManager {
                     username: this.untis.username,
                     password: this.untis.password,
                     school: this.untis.school,
-                    baseurl: this.untis.baseurl,
+                    baseurl: this.untis.host,
                 })
             });
 
