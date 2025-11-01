@@ -53,7 +53,7 @@ function switchToSettingsTab(id: string) {
     // $("#settingsList #" + id).click();
 }
 
-const ELEMENTS = [];
+export const SETTINGS_ELEMENTS: SettingsContentElement[] = [];
 
 export function loadSettings(settingOptions: SettingsData[]) {
 
@@ -100,7 +100,7 @@ export function loadSettings(settingOptions: SettingsData[]) {
 
         setting.elements = [];
         for (let e of setting.options) {
-            let titleElement: SettingsTitleElement = new SettingsTitleElement(e, elements);
+            let titleElement: SettingsTitleElement = new SettingsTitleElement(e);
             setting.elements.push(titleElement);
             elements.push(titleElement);
         }
@@ -112,7 +112,7 @@ export function loadSettings(settingOptions: SettingsData[]) {
 
     }
 
-    ELEMENTS.push(...elements);
+    SETTINGS_ELEMENTS.push(...elements);
 
     for (let e of elements) {
         if (e.load) e.load();
@@ -162,7 +162,7 @@ export function loadSetting(setting: SettingsData) {
 
     setting.elements = [];
     for (let e of setting.options) {
-        let titleElement: SettingsTitleElement = new SettingsTitleElement(e, elements);
+        let titleElement: SettingsTitleElement = new SettingsTitleElement(e);
         setting.elements.push(titleElement);
         elements.push(titleElement);
     }
@@ -172,7 +172,7 @@ export function loadSetting(setting: SettingsData) {
         settingElement.click();
     }
 
-    ELEMENTS.push(...elements);
+    SETTINGS_ELEMENTS.push(...elements);
 
     for (let e of elements) {
         if (e.load) e.load();

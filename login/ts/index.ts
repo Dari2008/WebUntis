@@ -57,7 +57,7 @@ async function init() {
                     }, 1000)
                 } else if (response.status == "error") {
                     if (response.message) Utils.error(response.message);
-                    Utils.error("Server error! Please try again later");
+                    else Utils.error("Server error! Please try again later");
                 }
             } else {
                 Utils.error("Server error! Please try again later");

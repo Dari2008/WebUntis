@@ -1,6 +1,9 @@
 import { SettingsColorSelectorElement, type SettingsColorSelectorData } from "./SettingsColorSelectorElement";
+import { SettingsFoldableSectionElement, type SettingsFoldableSectionData } from "./SettingsFoldableSectionElement";
+import { SETTINGS_ELEMENTS } from "./SettingsGenerator";
 import { SettingsNumberSelectorElelement, type SettingsNumberSelectorData } from "./SettingsNumberSelectorElement";
 import { SettingsTextElement, type SettingsTextData } from "./SettingsTextElement";
+import { SettingsTextFieldElement, type SettingsTextFieldData } from "./SettingsTextFieldElement";
 import type { SettingsToggleData } from "./SettingsToggleElement";
 import { SettingsToggleElement } from "./SettingsToggleElement";
 
@@ -12,9 +15,7 @@ export type SettingsTitleData = {
     id?: string,
     hnumber: number,
     disabled?: boolean,
-    content: SettingsContentData[],
-    onchange?: (checked: boolean, getOtherElement: (name: string) => SettingsContentElement | undefined) => void,
-    onload?: (checked: boolean, getOtherElement: (name: string) => SettingsContentElement | undefined) => void
+    content: SettingsContentData[]
 };
 
 export type SettingsFunctionData = _SettingsFunctionData & {
@@ -23,7 +24,7 @@ export type SettingsFunctionData = _SettingsFunctionData & {
 
 
 type _SettingsFunctionData = {
-    type: <T>(data: T, elements: SettingsContentElement[]) => SettingsElement,
+    type: <T>(data: T) => SettingsElement,
     name: string,
     id?: string,
     disabled?: boolean,
@@ -53,31 +54,31 @@ export abstract class SettingsElement {
 
 }
 
-export type SettingsContentElement = SettingsTitleElement | SettingsToggleElement | SettingsNumberSelectorElelement | SettingsColorSelectorElement | SettingsTextElement | SettingsElement;
-export type SettingsContentData = SettingsTitleData | SettingsToggleData | SettingsNumberSelectorData | SettingsColorSelectorData | SettingsTextData | SettingsFunctionData;
+export type SettingsContentElement = SettingsTitleElement | SettingsToggleElement | SettingsNumberSelectorElelement | SettingsColorSelectorElement | SettingsTextElement | SettingsFoldableSectionElement | SettingsTextFieldElement | SettingsElement;
+export type SettingsContentData = SettingsTitleData | SettingsToggleData | SettingsNumberSelectorData | SettingsColorSelectorData | SettingsTextData | SettingsFoldableSectionData | SettingsTextFieldData | SettingsFunctionData;
 
 export class SettingsTitleElement {
 
 
     private element: HTMLHeadingElement;
     private data: SettingsTitleData;
-    private elements: SettingsContentElement[] = [];
     private mainElement: HTMLDivElement;
     private contentElement: HTMLDivElement;
     private content: SettingsContentData[] = [];
+    private elements: SettingsContentElement[];
 
     type: string = "title";
 
+    onload: (func?: (name: string) => SettingsContentElement | undefined) => void = (func?: (name: string) => SettingsContentElement | undefined) => { }
 
-    onchange: (checked: boolean, func: (name: string) => SettingsContentElement | undefined) => void = (checked: boolean, func: (name: string) => SettingsContentElement | undefined) => { };
-    onload: (checked?: boolean, func?: (name: string) => SettingsContentElement | undefined) => void = (checked?: boolean, func?: (name: string) => SettingsContentElement | undefined) => { }
-
-    constructor(data: SettingsTitleData, elements: SettingsContentElement[]) {
-        this.elements = elements;
+    constructor(data: SettingsTitleData) {
         this.mainElement = document.createElement("div");
+        this.mainElement.classList.add("settings-title-element-wrapper");
         this.element = document.createElement("h" + (data.hnumber || 3)) as HTMLHeadingElement;
         this.element.classList.add("settings-title-element");
-        this.element.id = data.id || "";
+        this.mainElement.id = data.id || "";
+
+        this.elements = [];
 
         // if(data.title.startsWith("#")){
         //     this.element.innerHTML = lang.get(data.title.substring(1));
@@ -109,29 +110,45 @@ export class SettingsTitleElement {
     parseData() {
         for (let element of this.content) {
             if (element.type === "title") {
-                let classElement = new SettingsTitleElement(element, this.elements);
+                let classElement = new SettingsTitleElement(element);
                 this.contentElement.appendChild(classElement.getElement());
                 this.elements.push(classElement);
+                SETTINGS_ELEMENTS.push(classElement);
             } else if (element.type === "toggle") {
-                let classElement = new SettingsToggleElement(element as SettingsToggleData, this.elements);
+                let classElement = new SettingsToggleElement(element as SettingsToggleData);
                 this.contentElement.appendChild(classElement.getElement());
                 this.elements.push(classElement);
+                SETTINGS_ELEMENTS.push(classElement);
             } else if (element.type === "number") {
-                let classElement = new SettingsNumberSelectorElelement(element, this.elements);
+                let classElement = new SettingsNumberSelectorElelement(element);
                 this.contentElement.appendChild(classElement.getElement());
                 this.elements.push(classElement);
+                SETTINGS_ELEMENTS.push(classElement);
             } else if (element.type === "color") {
-                let classElement = new SettingsColorSelectorElement(element, this.elements);
+                let classElement = new SettingsColorSelectorElement(element);
                 this.contentElement.appendChild(classElement.getElement());
                 this.elements.push(classElement);
+                SETTINGS_ELEMENTS.push(classElement);
             } else if (element.type === "text") {
-                let classElement = new SettingsTextElement(element, this.elements);
+                let classElement = new SettingsTextElement(element);
                 this.contentElement.appendChild(classElement.getElement());
                 this.elements.push(classElement);
+                SETTINGS_ELEMENTS.push(classElement);
+            } else if (element.type === "foldableSection") {
+                let classElement = new SettingsFoldableSectionElement(element);
+                this.contentElement.appendChild(classElement.getElement());
+                this.elements.push(classElement);
+                SETTINGS_ELEMENTS.push(classElement);
+            } else if (element.type === "textField") {
+                let classElement = new SettingsTextFieldElement(element);
+                this.contentElement.appendChild(classElement.getElement());
+                this.elements.push(classElement);
+                SETTINGS_ELEMENTS.push(classElement);
             } else if (typeof element.type == "function") {
-                let classElement: SettingsElement = element.type(element, this.elements);
+                let classElement: SettingsElement = element.type(element);
                 this.contentElement.appendChild(classElement.getElement());
                 this.elements.push(classElement);
+                SETTINGS_ELEMENTS.push(classElement);
             }
         }
     }
@@ -161,11 +178,11 @@ export class SettingsTitleElement {
     }
 
     setVisible(visible: boolean) {
-        this.element.setAttribute("visible", visible + "");
+        this.mainElement.setAttribute("visible", visible + "");
     }
 
     isVisible(): boolean {
-        return this.element.getAttribute("visible") == "true";
+        return this.mainElement.getAttribute("visible") == "true";
     }
 
     setDisabled(disabled: boolean) {
@@ -179,6 +196,9 @@ export class SettingsTitleElement {
 
     load() {
         for (let element of this.elements) {
+            if (element instanceof SettingsTitleElement) {
+                element.load();
+            }
             if (!element.onload) continue;
             element.onload();
         }

@@ -1,13 +1,39 @@
 
-import Toastify from "toastify-js";
+import StartToastifyInstance from "toastify-js";
 import { v4 } from "uuid";
 import type { CompiledLesson } from "./@types/Schedule";
 import { UserManagement } from "./userManagement/UserManagement";
 
-export default class Utils {
-    static error(text: string) {
 
-        const toast = Toastify({
+declare class Toastify {
+    readonly options: StartToastifyInstance.Options;
+    readonly toastElement: Element | null;
+    showToast(): void;
+    hideToast(): void;
+}
+
+export default class Utils {
+
+    private static MESSAGE_TAGS_SUCCESS: {
+        [key: string]: Toastify;
+    } = {};
+    private static MESSAGE_TAGS_ERRORS: {
+        [key: string]: Toastify;
+    } = {};
+
+    static error(text: string, tag?: string) {
+        if (tag && Utils.MESSAGE_TAGS_ERRORS[tag]) {
+
+            const toast = Utils.MESSAGE_TAGS_ERRORS[tag];
+            if (toast.toastElement) toast.toastElement.innerHTML = text;
+
+            toast.toastElement?.dispatchEvent(new MouseEvent("mouseover"));
+            toast.toastElement?.dispatchEvent(new MouseEvent("mouseleave"));
+
+            return;
+        }
+
+        const toast = StartToastifyInstance({
             text: text,
             duration: 3000,
             position: "right",
@@ -19,10 +45,30 @@ export default class Utils {
             }
         });
         toast.showToast();
+
+        if (tag) Utils.MESSAGE_TAGS_ERRORS[tag] = toast;
+
     }
 
-    static success(text: string) {
-        const toast = Toastify({
+    static success(text: string, tag?: string) {
+        if (tag && Utils.MESSAGE_TAGS_SUCCESS[tag]) {
+
+            const toast = Utils.MESSAGE_TAGS_SUCCESS[tag];
+            if (toast.toastElement) toast.toastElement.innerHTML = text;
+
+            toast.toastElement?.dispatchEvent(new MouseEvent("mouseover"));
+            toast.toastElement?.dispatchEvent(new MouseEvent("mouseleave"));
+
+            const isVisible = toast.toastElement?.checkVisibility();
+
+            if (!isVisible) {
+                toast.showToast();
+            }
+
+            return;
+        }
+
+        const toast = StartToastifyInstance({
             text: text,
             duration: 3000,
             position: "right",
@@ -34,6 +80,8 @@ export default class Utils {
             }
         });
         toast.showToast();
+
+        if (tag) Utils.MESSAGE_TAGS_SUCCESS[tag] = toast;
     }
 
     static uuidv4() {

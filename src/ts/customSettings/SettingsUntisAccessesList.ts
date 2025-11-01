@@ -2,7 +2,6 @@ import type { School } from "../@types/School";
 import { HOST } from "../ScheduleDarius_old";
 import { SettingsElement, type SettingsFunctionData } from "../settings/SettingsTitleElement";
 import { Images } from "./Images";
-import Toast from "toastify-js";
 import { createInputWithLabel } from "./Utils";
 import type { UntisAccess } from "../@types/UntisAccess";
 import Utils from "../Utils";
@@ -64,8 +63,12 @@ export class SettingsUntisAccessesList extends SettingsElement {
             titleCell.innerHTML = title;
             if (title == "") {
                 titleCell.innerHTML = "+";
-                titleCell.classList.add("examButton");
+                titleCell.classList.add("untisAccessButton");
                 titleCell.onclick = () => {
+                    if (!navigator.onLine) {
+                        Utils.error("You Are offline and can't change settings");
+                        return;
+                    }
                     this.addUntisAccess((schoolData, username, password) => {
                         const accesses = UserManagement.ALL_DATA!.untisAccesses;
                         const newAccess = {
@@ -109,16 +112,21 @@ export class SettingsUntisAccessesList extends SettingsElement {
         addUntisAccessDialog.classList.add("dialog");
 
         const [usernameInputWrapper, usernameInput] = createInputWithLabel(undefined, "Username", /.+/, true);
-        // usernameInput.type = "text";
-        // usernameInput.placeholder = "Username";
+        usernameInput.autocomplete = "";
         usernameInput.classList.add("username");
         addUntisAccessDialog.appendChild(usernameInputWrapper);
 
         const [passwordInputWrapper, passwordInput] = createInputWithLabel(undefined, "Password", /.+/, true);
         passwordInput.type = "password";
-        // passwordInput.placeholder = "Password";
+        usernameInput.autocomplete = "";
         passwordInput.classList.add("password");
         addUntisAccessDialog.appendChild(passwordInputWrapper);
+
+
+        const [classesInputWrapper, classesInput] = createInputWithLabel(undefined, "Password", /.+/, true);
+        classesInput.autocomplete = "";
+        classesInput.classList.add("classesInput");
+        addUntisAccessDialog.appendChild(classesInputWrapper);
 
         const tableWrapper = document.createElement("div");
         tableWrapper.classList.add("tableWrapper");
@@ -168,40 +176,25 @@ export class SettingsUntisAccessesList extends SettingsElement {
         const okBtn = document.createElement("button");
         okBtn.classList.add("addBtn");
         okBtn.innerText = "Add";
-        okBtn.disabled = true;
         okBtn.onclick = () => {
 
-            const notify = (msg: string) => {
-                const toasts = Toast({
-                    text: msg,
-                    duration: 3000,
-                    position: "right",
-                    stopOnFocus: true,
-                    gravity: "bottom",
-                    style: {
-                        background: "linear-gradient(135deg, #ff7373, #f55454)",
-                        boxShadow: "0 3px 6px -1px rgba(0, 0, 0, 0.12), 0 10px 36px -4px rgba(232, 77, 77, 0.3)",
-                        zIndex: "10000000"
-                    }
-                });
-                toasts.showToast();
-                return;
-            };
+            console.log(SELECTED);
+
             if (SELECTED) {
                 if (usernameInput.value.trim() === "" || passwordInput.value.trim() === "") {
-                    notify("Username and Password cannot be empty!");
+                    Utils.error("Username and Password cannot be empty!");
                     return;
                 }
 
                 if (UserManagement.ALL_DATA!.untisAccesses.find(e => e.schoolId == SELECTED?.loginName)) {
-                    notify("You already added this school!");
+                    Utils.error("You already added this school!");
                     return;
                 }
 
                 document.body.removeChild(addUntisAccessDialogWrapper);
                 callback(SELECTED, usernameInput.value, passwordInput.value);
             } else {
-                notify("Please select a school!");
+                Utils.error("Please select a school!");
             }
         };
         addUntisAccessDialog.appendChild(okBtn);

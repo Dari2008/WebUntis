@@ -1,3 +1,4 @@
+import { SETTINGS_ELEMENTS } from "./SettingsGenerator";
 import type { SettingsContentElement } from "./SettingsTitleElement";
 
 
@@ -27,12 +28,11 @@ export class SettingsToggleElement {
     private inputElement?: HTMLInputElement;
     private name: string = "";
     private data: SettingsToggleData;
-    private elements: SettingsContentElement[] = [];
 
     onchange: (checked: boolean, func: (name: string) => SettingsContentElement | undefined) => void = (checked: boolean, func: (name: string) => SettingsContentElement | undefined) => { };
     onload: () => void = () => { }
 
-    constructor(data: SettingsToggleData, elements: SettingsContentElement[]) {
+    constructor(data: SettingsToggleData) {
         this.onchange = data.onchange || ((checked: boolean, func: (name: string) => void) => { });
         this.onload = () => {
             if ((this.data.disabled || false)) return;
@@ -105,7 +105,6 @@ export class SettingsToggleElement {
             }
         }
 
-        this.elements = elements || [];
         this.setDisabled(!!data.disabled);
     }
 
@@ -143,7 +142,7 @@ export class SettingsToggleElement {
     }
 
     getOtherElement(name: string = "") {
-        return this.elements.find(e => e.getName() === name);
+        return SETTINGS_ELEMENTS.find(e => e.getName() === name);
     }
 
     createToggleElement(data: { checked?: boolean }) {

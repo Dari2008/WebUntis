@@ -3,11 +3,11 @@ import type { Subject, Teacher } from "../@types/Teachers";
 import { SettingsElement, type SettingsContentElement, type SettingsFunctionData } from "../settings/SettingsTitleElement";
 // import { TEACHER_DATABASE, TEACHER_DATABASE_ARRAY } from "../untis/TeacherDatabase";
 import { Images } from "./Images";
-import Toast from "toastify-js";
 import { createInputWithLabel } from "./Utils";
 import { UserManagement } from "../userManagement/UserManagement";
 import Utils from "../Utils";
 import type { UpdateDataTeachers } from "../@types/UserManagement";
+import { TEACHERS_PRESETS } from "../presets/TeacherPreset";
 
 export type SettingsTeacherListData = SettingsFunctionData & {
     school: School;
@@ -28,6 +28,7 @@ export class SettingsTeacherList extends SettingsElement {
     private teacherTableHead: HTMLTableSectionElement;
     private tableStatText: HTMLSpanElement | undefined;
     private teachersVisibleText: string = " <span class='teachersText'>Teachers</span> <span class='visibleText'>visible</span>";
+    private mainMenuWrapper: HTMLDivElement | undefined;
 
     constructor(data: SettingsTeacherListData) {
         super();
@@ -42,105 +43,7 @@ export class SettingsTeacherList extends SettingsElement {
     }
 
     private initElement() {
-        const addTeacherDiv = document.createElement("div");
 
-        const [teacherShortNameInputWrapper, teacherShortNameInput] = createInputWithLabel(undefined, "Short Name", /.{2,4}/, true);
-        teacherShortNameInput.className = "teacher-short-name";
-        addTeacherDiv.appendChild(teacherShortNameInputWrapper);
-
-        const [teacherFirstNameInputWrapper, teacherFirstNameInput] = createInputWithLabel(undefined, "First Name", /.+/, true);
-        teacherFirstNameInput.className = "teacher-first-name";
-        addTeacherDiv.appendChild(teacherFirstNameInputWrapper);
-
-        const [teacherSurnameInputWrapper, teacherSurnameInput] = createInputWithLabel(undefined, "Surname", /.+/, true);
-        teacherSurnameInput.className = "teacher-surname";
-        addTeacherDiv.appendChild(teacherSurnameInputWrapper);
-
-        const [teacherSubjectsInputWrapper, teacherSubjectsInput] = createInputWithLabel(undefined, "Subjects (comma separated)", /^([A-Za-z0-9]{2,5})(,[A-Za-z0-9]{2,5})*$/, true);
-        teacherSubjectsInput.className = "teacher-subjects";
-        addTeacherDiv.appendChild(teacherSubjectsInputWrapper);
-
-        const addTeacherButton = document.createElement("button");
-        addTeacherButton.innerText = "Add Teacher";
-        addTeacherButton.onclick = () => {
-            const short = teacherShortNameInput.value.trim();
-            const firstName = teacherFirstNameInput.value.trim();
-            const surname = teacherSurnameInput.value.trim();
-            const subjects = teacherSubjectsInput.value.split(",").map(s => s.trim()).filter(s => s != "");
-
-            if (short == "") {
-                const toast = Toast({
-                    text: "The Short Name has to be set!",
-                    duration: 3000,
-                    position: "right",
-                    stopOnFocus: true,
-                    gravity: "bottom",
-                    style: {
-                        background: "linear-gradient(135deg, #ff7373, #f55454)",
-                        boxShadow: "0 3px 6px -1px rgba(0, 0, 0, 0.12), 0 10px 36px -4px rgba(232, 77, 77, 0.3)"
-                    }
-                });
-                toast.showToast();
-                return;
-            }
-
-            if (UserManagement.ALL_DATA!.teachers[this.data.uuid].find(e => e.short == short)) {
-                const toast = Toast({
-                    text: "Teacher Allready Exists!",
-                    duration: 3000,
-                    position: "right",
-                    stopOnFocus: true,
-                    gravity: "bottom",
-                    style: {
-                        background: "linear-gradient(135deg, #ff7373, #f55454)",
-                        boxShadow: "0 3px 6px -1px rgba(0, 0, 0, 0.12), 0 10px 36px -4px rgba(232, 77, 77, 0.3)"
-                    }
-                });
-                toast.showToast();
-                return;
-            }
-
-            teacherShortNameInput.value = "";
-            teacherFirstNameInput.value = "";
-            teacherSurnameInput.value = "";
-            teacherSubjectsInput.value = "";
-
-            const teacherToAdd: Teacher = {
-                name: {
-                    firstName: firstName,
-                    surname: surname,
-                    fullName: firstName + " " + surname
-                },
-                short: short,
-                subjects: subjects as Subject[],
-                uuid: Utils.uuidv4Exclude(UserManagement.ALL_DATA!.teachers[this.data.school].map(e => e.uuid))
-            }
-
-            if (this.searchBar) this.searchBar.value = "";
-            UserManagement.ALL_DATA?.teachers[this.data.school].push(teacherToAdd);
-
-            const data: UpdateDataTeachers = {};
-            data[this.data.school] = [teacherToAdd];
-            UserManagement.updateTeachers("add", data);
-
-            this.updateTable();
-            if (this.tableStatText) this.tableStatText.innerHTML = UserManagement.ALL_DATA!.teachers[this.data.school].length + " of " + UserManagement.ALL_DATA!.teachers[this.data.school].length + this.teachersVisibleText;
-
-            const toast = Toast({
-                text: "Teacher Added!",
-                duration: 3000,
-                position: "right",
-                stopOnFocus: true,
-                gravity: "bottom",
-                style: {
-                    background: "linear-gradient(135deg, #83ff73ff, #54f554ff)",
-                    boxShadow: "0 3px 6px -1px rgba(0, 0, 0, 0.12), 0 10px 36px -4px rgba(90, 232, 77, 0.3)"
-                }
-            });
-            toast.showToast();
-
-        };
-        addTeacherDiv.appendChild(addTeacherButton);
 
         const teacherTable = document.createElement("table");
 
@@ -156,6 +59,18 @@ export class SettingsTeacherList extends SettingsElement {
                 sb.placeholder = "Search";
                 titleCell.appendChild(sb);
                 this.searchBar = sb;
+            } else if (title == "") {
+                titleCell.innerHTML = "+";
+                titleCell.classList.add("addTeacherBtn");
+                titleCell.onclick = (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (!navigator.onLine) {
+                        Utils.error("You Are offline and can't change settings");
+                        return;
+                    }
+                    this.mainMenuWrapper?.classList.contains("open") ? this.closeMenu() : this.openMenu();
+                };
             }
         }
 
@@ -240,15 +155,208 @@ export class SettingsTeacherList extends SettingsElement {
         this.tableStatText.classList.add("tableStatText");
         this.tableStatText.innerHTML = UserManagement.ALL_DATA!.teachers[this.data.school].length + " of " + UserManagement.ALL_DATA!.teachers[this.data.school].length + this.teachersVisibleText;
 
-        this.element.appendChild(addTeacherDiv);
+
+
+
+        // Value Presets
+
+        this.mainMenuWrapper = document.createElement("div");
+        this.mainMenuWrapper.classList.add("settings-preset-mainMenuWrapper");
+
+        for (const school of Object.keys(TEACHERS_PRESETS) as School[]) {
+
+            const presetButton = document.createElement("button");
+            presetButton.classList.add("presetButton");
+            presetButton.innerHTML = school;
+            presetButton.onclick = () => {
+                const data: UpdateDataTeachers = {};
+                for (const teacher of TEACHERS_PRESETS[school]) {
+                    console.log(teacher);
+                    const newBreak: Teacher = {
+                        ...teacher,
+                        uuid: Utils.uuidv4Exclude(UserManagement.ALL_DATA!.teachers[this.data.school].map(e => e.uuid))
+                    };
+                    UserManagement.ALL_DATA!.teachers[this.data.school].push(newBreak);
+                    if (!data[this.data.school]) data[this.data.school] = [];
+                    data[this.data.school].push(newBreak);
+                }
+
+                UserManagement.updateBreaks("add", data);
+                this.updateTable();
+                this.hidePresetSelector();
+            };
+
+            this.mainMenuWrapper.appendChild(presetButton);
+
+            // for (const day of Object.keys(BREAKS_PRESETS[school]) as DayName[]) {
+            //     for (const breakValue of BREAKS_PRESETS[school][day]) {
+
+            //     }
+            // }
+        }
+
+        const buttonAddPreset = document.createElement("button");
+        buttonAddPreset.classList.add("buttonAddPreset");
+        buttonAddPreset.innerHTML = "Add Presets";
+        buttonAddPreset.onclick = () => {
+            this.showPresetSelector();
+        };
+
+        const buttonAddCustomBreak = document.createElement("button");
+        buttonAddCustomBreak.classList.add("buttonAddCustomBreak");
+        buttonAddCustomBreak.innerHTML = "Add Custom Break";
+        buttonAddCustomBreak.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            this.closeMenu();
+            this.addTeacher((short, firstName, surname, subjects) => {
+                const teacherToAdd: Teacher = {
+                    short: short,
+                    name: {
+                        firstName: firstName,
+                        surname: surname,
+                        fullName: (firstName ? firstName : "" + " " + surname ? surname : "").trim()
+                    },
+                    subjects: subjects,
+                    uuid: Utils.uuidv4Exclude(UserManagement.ALL_DATA!.teachers[this.data.school].map(e => e.uuid))
+                };
+                UserManagement.ALL_DATA?.teachers[this.data.school].push(teacherToAdd);
+
+                const data: UpdateDataTeachers = {
+                    [this.data.school]: [teacherToAdd]
+                };
+                UserManagement.updateTeachers("add", data);
+
+                Utils.success("Teacher added!");
+
+
+                this.updateTable();
+            });
+        };
+
+        this.mainMenuWrapper.appendChild(buttonAddPreset);
+        this.mainMenuWrapper.appendChild(buttonAddCustomBreak);
+        titleRow.appendChild(this.mainMenuWrapper);
+
         this.element.appendChild(teacherTable);
         this.element.appendChild(this.tableStatText);
+
+    }
+
+
+    private showPresetSelector() {
+        this.mainMenuWrapper?.classList.add("presetSelector");
+        this.mainMenuWrapper?.classList.add("open");
+        this.addOnclickOutside(this.mainMenuWrapper!, this.hidePresetSelector.bind(this));
+    }
+
+    private hidePresetSelector() {
+        this.mainMenuWrapper?.classList.remove("open");
+        this.mainMenuWrapper?.addEventListener("transitionend", () => {
+            this.mainMenuWrapper?.classList.remove("presetSelector");
+        }, { once: true });
+    }
+
+    private openMenu() {
+        this.mainMenuWrapper?.classList.add("open");
+        this.addOnclickOutside(this.mainMenuWrapper!, this.closeMenu.bind(this));
+    }
+
+    private closeMenu() {
+        this.mainMenuWrapper?.classList.remove("open");
+    }
+
+    private addOnclickOutside(element: HTMLElement, closeCallback: () => void) {
+        const onclick = (e: PointerEvent) => {
+            if (!e.target) return;
+            if (element.contains(e.target as Node)) return;
+            closeCallback();
+            document.removeEventListener("click", onclick);
+            console.log("Closed", e);
+        };
+        document.addEventListener("click", onclick);
+    }
+
+    private addTeacher(callback: (short: string, firstName: string, surname: string, subjects: Subject[]) => void) {
+        const bgWrapper = document.createElement("div");
+
+        const addTeacherDiv = document.createElement("div");
+
+        const title = document.createElement("h2");
+        title.innerHTML = "Add Teacher";
+        title.classList.add("title");
+        addTeacherDiv.appendChild(title);
+
+        const [teacherShortNameInputWrapper, teacherShortNameInput] = createInputWithLabel(undefined, "Short Name", /.{2,4}/, true);
+        teacherShortNameInput.className = "teacher-short-name";
+        addTeacherDiv.appendChild(teacherShortNameInputWrapper);
+
+        const [teacherFirstNameInputWrapper, teacherFirstNameInput] = createInputWithLabel(undefined, "First Name", /^(\s|.{2,})$/, true);
+        teacherFirstNameInput.className = "teacher-first-name";
+        addTeacherDiv.appendChild(teacherFirstNameInputWrapper);
+
+        const [teacherSurnameInputWrapper, teacherSurnameInput] = createInputWithLabel(undefined, "Surname", /^(\s|.{2,})$/, true);
+        teacherSurnameInput.className = "teacher-surname";
+        addTeacherDiv.appendChild(teacherSurnameInputWrapper);
+
+        const [teacherSubjectsInputWrapper, teacherSubjectsInput] = createInputWithLabel(undefined, "Subjects (comma separated)", /^([A-Za-z0-9]{2,5})(,[A-Za-z0-9]{2,5})*$/, false);
+        teacherSubjectsInput.className = "teacher-subjects";
+        addTeacherDiv.appendChild(teacherSubjectsInputWrapper);
+
+        const addTeacherButton = document.createElement("button");
+        addTeacherButton.innerText = "Add Teacher";
+        addTeacherButton.onclick = () => {
+
+
+            const short = teacherShortNameInput.value.trim();
+            const firstName = teacherFirstNameInput.value.trim();
+            const surname = teacherSurnameInput.value.trim();
+            const subjects = teacherSubjectsInput.value.split(",").map(s => s.trim()).filter(s => s != "");
+
+            if (short == "") {
+                Utils.error("The Short Name has to be set!");
+                return;
+            }
+
+            if (UserManagement.ALL_DATA!.teachers[this.data.school].find(e => e.short == short)) {
+                Utils.error("Teacher Already Exists!");
+                return;
+            }
+
+            teacherShortNameInput.value = "";
+            teacherFirstNameInput.value = "";
+            teacherSurnameInput.value = "";
+            teacherSubjectsInput.value = "";
+
+            callback(short, firstName, surname, subjects as Subject[]);
+            document.body.removeChild(bgWrapper);
+        };
+        addTeacherDiv.appendChild(addTeacherButton);
+        addTeacherDiv.classList.add("settings-teachers-addTeacherDiv");
+
+        bgWrapper.classList.add("settings-teachers-bgWrapper");
+        bgWrapper.appendChild(addTeacherDiv);
+        document.body.appendChild(bgWrapper);
+
+
+        const onclick = (e: PointerEvent) => {
+            if (!e.target) return;
+            if (addTeacherDiv.contains(e.target as Node)) return;
+            document.removeEventListener("click", onclick);
+            document.body.removeChild(bgWrapper);
+        };
+
+
+        document.addEventListener("click", onclick);
 
     }
 
     private updateTable() {
         this.teacherRows.forEach(e => e.remove());
         this.teacherRows = [];
+
+        let removedSince: string[] = [];
+        let timeoutId = -1;
 
         for (const teacher of UserManagement.ALL_DATA!.teachers[this.data.school]) {
             const row = this.teacherTableBody.insertRow();
@@ -268,12 +376,22 @@ export class SettingsTeacherList extends SettingsElement {
             trashDiv.classList.add("trash");
             trashDiv.onclick = () => {
                 UserManagement.ALL_DATA!.teachers[this.data.school] = UserManagement.ALL_DATA!.teachers[this.data.school].filter(e => e != teacher);
-                UserManagement.updateTeachers("remove", [teacher.uuid]);
+                removedSince.push(teacher.uuid);
                 const row = this.teacherRows.find((r) => r.teacher == teacher) as HTMLTableRowElement;
                 this.teacherRows = this.teacherRows.filter(row => row.teacher != teacher);
                 this.teacherTableBody.removeChild(row);
                 if (this.tableStatText) this.tableStatText.innerHTML = this.teacherTableBody.children.length + " of " + UserManagement.ALL_DATA!.teachers[this.data.school].length + this.teachersVisibleText;
-                Utils.success("Deleted Teacher Successfully");
+                Utils.success(removedSince.length == 1 ? "Deleted Teacher Successfully" : "Deleted " + removedSince.length + " Teachers Successfully", "teacherDeleteToast");
+
+                if (timeoutId != -1) {
+                    clearTimeout(timeoutId);
+                }
+
+                timeoutId = setTimeout(() => {
+                    UserManagement.updateTeachers("remove", removedSince);
+                    removedSince = [];
+                }, 500);
+
             };
             trash.appendChild(trashDiv);
 

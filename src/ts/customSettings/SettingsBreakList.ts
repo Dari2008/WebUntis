@@ -2,13 +2,13 @@ import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat.js";
 import { SettingsElement, type SettingsFunctionData } from "../settings/SettingsTitleElement";
 import { Images } from "./Images";
-import toast from "toastify-js";
 import UntisManager from "../untis/UntisManager";
 import type { BreaksRawByDay, DayName, ScheduleBreak, Time } from "../@types/Schedule";
 import type { School } from "../@types/School";
 import { UserManagement } from "../userManagement/UserManagement";
 import Utils from "../Utils";
 import type { UpdateDataBreaks } from "../@types/UserManagement";
+import { BREAKS_PRESETS } from "../presets/BreakPreset";
 dayjs.extend(customParseFormat);
 
 export type SettingsBreakListData = SettingsFunctionData & {
@@ -25,14 +25,14 @@ export class SettingsBreakList extends SettingsElement {
     private data: SettingsBreakListData;
     private examTableBody: HTMLTableSectionElement;
     private examTableHead: HTMLTableSectionElement;
-    private tableStatText: HTMLParagraphElement | undefined;
     private examRows: MemoryRow[] = [];
+    private mainMenuWrapper: HTMLDivElement | undefined;
 
     constructor(data: SettingsBreakListData) {
         super();
         this.data = data;
         this.element = document.createElement("div");
-        this.element.classList.add("settings-exam-list");
+        this.element.classList.add("settings-break-list");
         this.examTableBody = document.createElement("tbody");
         this.examTableHead = document.createElement("thead");
         this.initElements();
@@ -47,27 +47,96 @@ export class SettingsBreakList extends SettingsElement {
             titleCell.innerHTML = title;
             if (title == "") {
                 titleCell.innerHTML = "+";
-                titleCell.classList.add("examButton");
-                titleCell.onclick = () => {
-                    this.addBreak((dayOfWeek, startTime, endTime, school) => {
-                        const newBreak = {
-                            start: startTime.hour.toString().padStart(2, "0") + ":" + startTime.minute.toString().padStart(2, "0"),
-                            end: endTime.hour.toString().padStart(2, "0") + ":" + endTime.minute.toString().padStart(2, "0"),
-                            school: school,
-                            uuid: Utils.uuidv4Exclude(UserManagement.ALL_DATA!.breaks[dayOfWeek].map(e => e.uuid))
-                        };
-                        UserManagement.ALL_DATA!.breaks[dayOfWeek].push(newBreak);
+                titleCell.classList.add("breakButton");
+                titleCell.onclick = (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
 
-                        const data: UpdateDataBreaks = {};
-                        data[dayOfWeek] = newBreak;
+                    if (!navigator.onLine) {
+                        Utils.error("You Are offline and can't change settings");
+                        return;
+                    }
 
-                        UserManagement.updateBreaks("add", data);
-
-                        this.updateTable();
-                    });
+                    this.mainMenuWrapper?.classList.contains("open") ? this.closeMenu() : this.openMenu();
                 };
             }
         }
+
+
+        // Value Presets
+
+        this.mainMenuWrapper = document.createElement("div");
+        this.mainMenuWrapper.classList.add("settings-preset-mainMenuWrapper");
+
+        for (const school of Object.keys(BREAKS_PRESETS) as School[]) {
+
+            const presetButton = document.createElement("button");
+            presetButton.classList.add("presetButton");
+            presetButton.innerHTML = school;
+            presetButton.onclick = () => {
+                const data: UpdateDataBreaks = {};
+                for (const day of Object.keys(BREAKS_PRESETS[school]) as DayName[]) {
+                    for (const breakValue of BREAKS_PRESETS[school][day]) {
+                        const newBreak = {
+                            start: breakValue.start.split(":")[0].padStart(2, "0") + ":" + breakValue.start.split(":")[1].padStart(2, "0"),
+                            end: breakValue.end.split(":")[0].padStart(2, "0") + ":" + breakValue.end.split(":")[1].padStart(2, "0"),
+                            school: school,
+                            uuid: Utils.uuidv4Exclude(UserManagement.ALL_DATA!.breaks[day].map(e => e.uuid))
+                        };
+                        UserManagement.ALL_DATA!.breaks[day].push(newBreak);
+                        if (!data[day]) data[day] = [];
+                        data[day].push(newBreak);
+                    }
+                }
+
+                UserManagement.updateBreaks("add", data);
+                this.updateTable();
+                this.hidePresetSelector();
+            };
+
+            this.mainMenuWrapper.appendChild(presetButton);
+
+            // for (const day of Object.keys(BREAKS_PRESETS[school]) as DayName[]) {
+            //     for (const breakValue of BREAKS_PRESETS[school][day]) {
+
+            //     }
+            // }
+        }
+
+        const buttonAddPreset = document.createElement("button");
+        buttonAddPreset.classList.add("buttonAddPreset");
+        buttonAddPreset.innerHTML = "Add Presets";
+        buttonAddPreset.onclick = () => {
+            this.showPresetSelector();
+        };
+
+        const buttonAddCustomBreak = document.createElement("button");
+        buttonAddCustomBreak.classList.add("buttonAddCustomBreak");
+        buttonAddCustomBreak.innerHTML = "Add Custom Break";
+        buttonAddCustomBreak.onclick = () => {
+            this.closeMenu();
+            this.addBreak((dayOfWeek, startTime, endTime, school) => {
+                const newBreak = {
+                    start: startTime.hour.toString().padStart(2, "0") + ":" + startTime.minute.toString().padStart(2, "0"),
+                    end: endTime.hour.toString().padStart(2, "0") + ":" + endTime.minute.toString().padStart(2, "0"),
+                    school: school,
+                    uuid: Utils.uuidv4Exclude(UserManagement.ALL_DATA!.breaks[dayOfWeek].map(e => e.uuid))
+                };
+                UserManagement.ALL_DATA!.breaks[dayOfWeek].push(newBreak);
+
+                const data: UpdateDataBreaks = {
+                    [dayOfWeek]: [newBreak]
+                };
+
+                UserManagement.updateBreaks("add", data);
+
+                this.updateTable();
+            });
+        };
+
+        this.mainMenuWrapper.appendChild(buttonAddPreset);
+        this.mainMenuWrapper.appendChild(buttonAddCustomBreak);
+        titleRow.appendChild(this.mainMenuWrapper);
 
         this.examRows = [];
 
@@ -76,14 +145,43 @@ export class SettingsBreakList extends SettingsElement {
         teacherTable.appendChild(this.examTableHead);
         teacherTable.appendChild(this.examTableBody);
 
-        this.tableStatText = document.createElement("p");
-        this.tableStatText.classList.add("tableStatText");
 
         this.element.appendChild(teacherTable);
-        this.element.appendChild(this.tableStatText);
 
     }
 
+    private showPresetSelector() {
+        this.mainMenuWrapper?.classList.add("presetSelector");
+        this.mainMenuWrapper?.classList.add("open");
+        this.addOnclickOutside(this.mainMenuWrapper!, this.hidePresetSelector.bind(this));
+    }
+
+    private hidePresetSelector() {
+        this.mainMenuWrapper?.classList.remove("open");
+        this.mainMenuWrapper?.addEventListener("transitionend", () => {
+            this.mainMenuWrapper?.classList.remove("presetSelector");
+        }, { once: true });
+    }
+
+    private openMenu() {
+        this.mainMenuWrapper?.classList.add("open");
+        this.addOnclickOutside(this.mainMenuWrapper!, this.closeMenu.bind(this));
+    }
+
+    private closeMenu() {
+        this.mainMenuWrapper?.classList.remove("open");
+    }
+
+    private addOnclickOutside(element: HTMLElement, closeCallback: () => void) {
+        const onclick = (e: PointerEvent) => {
+            if (!e.target) return;
+            if (element.contains(e.target as Node)) return;
+            closeCallback();
+            document.removeEventListener("click", onclick);
+            console.log("Closed", e);
+        };
+        document.addEventListener("click", onclick);
+    }
 
     private updateTable() {
         this.examRows.forEach(e => e.remove());
@@ -101,6 +199,10 @@ export class SettingsBreakList extends SettingsElement {
                 })
             }
         }
+
+
+        let removedSince: string[] = [];
+        let timeoutId = -1;
 
         for (let breakV of allBreaks) {
             const row = this.examTableBody.insertRow();
@@ -130,15 +232,23 @@ export class SettingsBreakList extends SettingsElement {
             trashDiv.classList.add("trash");
             trashDiv.onclick = () => {
                 for (const key of (Object.keys(UserManagement.ALL_DATA!.breaks) as (keyof BreaksRawByDay)[])) {
-                    UserManagement.ALL_DATA!.breaks[key] = UserManagement.ALL_DATA!.breaks[key].filter(e => e != breakV);
+                    UserManagement.ALL_DATA!.breaks[key] = UserManagement.ALL_DATA!.breaks[key].filter(e => e.uuid != breakV.uuid);
                 }
 
-                UserManagement.updateBreaks("remove", [breakV.uuid]);
+                removedSince.push(breakV.uuid);
 
                 const row = this.examRows.find((r) => r.break == breakV) as HTMLTableRowElement;
                 this.examRows = this.examRows.filter(row => row.break != breakV);
                 this.examTableBody.removeChild(row);
-                Utils.success("Deleted Break Successfully");
+                Utils.success(removedSince.length == 1 ? "Deleted Break Successfully" : "Deleted " + removedSince.length + " Breaks Successfully", "breakDeleteToast");
+                if (timeoutId != -1) {
+                    clearTimeout(timeoutId);
+                }
+
+                timeoutId = setTimeout(() => {
+                    UserManagement.updateBreaks("remove", removedSince);
+                    removedSince = [];
+                }, 500);
             };
             trash.appendChild(trashDiv);
 
@@ -443,22 +553,6 @@ export class SettingsBreakList extends SettingsElement {
         addBtn.classList.add("addBtn");
         addBtn.innerText = "Add";
         addBtn.onclick = () => {
-            const notify = (msg: string) => {
-                const toasts = toast({
-                    text: msg,
-                    duration: 3000,
-                    position: "right",
-                    stopOnFocus: true,
-                    gravity: "bottom",
-                    style: {
-                        background: "linear-gradient(135deg, #ff7373, #f55454)",
-                        boxShadow: "0 3px 6px -1px rgba(0, 0, 0, 0.12), 0 10px 36px -4px rgba(232, 77, 77, 0.3)",
-                        zIndex: "10000000"
-                    }
-                });
-                toasts.showToast();
-                return;
-            };
 
             const validSchool = (school: string): boolean => {
                 if ((UserManagement.ALL_DATA!.schools as string[]).includes(school)) return true;
@@ -466,7 +560,17 @@ export class SettingsBreakList extends SettingsElement {
             }
 
             if (!validSchool(schoolInput.value)) {
-                notify("The School " + schoolInput.value + " is not valid!");
+                Utils.error("The School " + schoolInput.value + " is not valid!");
+            }
+
+            if (!startTimeData.getTime() || isNaN(startTimeData.getTime().hour) || isNaN(startTimeData.getTime().minute)) {
+                Utils.error("Start Time must be set");
+                return;
+            }
+
+            if (!endTimeData.getTime() || isNaN(endTimeData.getTime().hour) || isNaN(endTimeData.getTime().minute)) {
+                Utils.error("Start Time must be set");
+                return;
             }
 
             const startMinutes = startTimeData.getTime().hour * 60 + startTimeData.getTime().minute;
@@ -484,22 +588,10 @@ export class SettingsBreakList extends SettingsElement {
             });
 
             if (found) {
-                notify("This break overlaps with another break!");
+                Utils.error("This break overlaps with another break!");
                 return;
             }
 
-            // if (!selectedLesson) {
-            //     notify("You have to select a lesson");
-            //     return;
-            // }
-            // if (!selectedDate) {
-            //     notify("You have to select a date");
-            //     return;
-            // }
-            // if (!selectedSubject) {
-            //     notify("You have to select a subject");
-            //     return;
-            // }
             document.body.removeChild(addBreakDialogWrapper);
             callback((dayOfWeekSelect.value).toLowerCase() as DayName, startTimeData.getTime(), endTimeData.getTime(), schoolInput.value as School);
         };

@@ -1,0 +1,25 @@
+.offlineMode {
+
+
+    .settings-exam-list .examButton,
+    .settings-break-list .breakButton,
+    .settings-untis-accesses-list .untisAccessButton,
+    .settings-teacher-list .addTeacherBtn {
+        pointer-events: none;
+        color: transparent;
+    }
+
+    .settings-current-color-reset {
+        display: none;
+        pointer-events: none;
+    }
+
+    .settings-current-color {
+        pointer-events: none;
+    }
+
+    .settings-input .switch {
+        pointer-events: none;
+    }
+
+}

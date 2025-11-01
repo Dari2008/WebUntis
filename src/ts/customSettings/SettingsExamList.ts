@@ -3,7 +3,6 @@ import customParseFormat from "dayjs/plugin/customParseFormat.js";
 import { SettingsElement, type SettingsFunctionData } from "../settings/SettingsTitleElement";
 import { Images } from "./Images";
 import { easepick } from "@easepick/core";
-import toast from "toastify-js";
 import type { LessonRaw } from "../@types/Schedule";
 import type { Exam } from "../@types/Exam";
 import { UserManagement } from "../userManagement/UserManagement";
@@ -57,6 +56,11 @@ export class SettingsExamsList extends SettingsElement {
                 titleCell.innerHTML = "+";
                 titleCell.classList.add("examButton");
                 titleCell.onclick = () => {
+                    if (!navigator.onLine) {
+                        Utils.error("You Are offline and can't change settings");
+                        return;
+                    }
+
                     this.addExam((lesson, date, subject) => {
                         const ex = UserManagement.ALL_DATA!.exams;
                         const newExam = {
@@ -251,32 +255,16 @@ export class SettingsExamsList extends SettingsElement {
         addBtn.classList.add("addBtn");
         addBtn.innerText = "Add";
         addBtn.onclick = () => {
-            const notify = (msg: string) => {
-                const toasts = toast({
-                    text: msg,
-                    duration: 3000,
-                    position: "right",
-                    stopOnFocus: true,
-                    gravity: "bottom",
-                    style: {
-                        background: "linear-gradient(135deg, #ff7373, #f55454)",
-                        boxShadow: "0 3px 6px -1px rgba(0, 0, 0, 0.12), 0 10px 36px -4px rgba(232, 77, 77, 0.3)",
-                        zIndex: "10000000"
-                    }
-                });
-                toasts.showToast();
-                return;
-            };
             if (!selectedLesson) {
-                notify("You have to select a lesson");
+                Utils.error("You have to select a lesson");
                 return;
             }
             if (!selectedDate) {
-                notify("You have to select a date");
+                Utils.error("You have to select a date");
                 return;
             }
             if (!selectedSubject) {
-                notify("You have to select a subject");
+                Utils.error("You have to select a subject");
                 return;
             }
             addExamDialog.close();

@@ -1,3 +1,4 @@
+import { SETTINGS_ELEMENTS } from "./SettingsGenerator";
 import type { SettingsContentElement } from "./SettingsTitleElement";
 import { HexColorPicker } from "vanilla-colorful";
 
@@ -133,7 +134,6 @@ export class SettingsColorSelectorElement {
     private description: HTMLSpanElement;
     private name: string = "";
     private data: SettingsColorSelectorData;
-    private elements: SettingsContentElement[] = [];
     // private colorpicker: HexColorPicker;
     private divWrapper: HTMLDivElement;
     private currentColorDiv: HTMLDivElement
@@ -150,7 +150,7 @@ export class SettingsColorSelectorElement {
 
 
 
-    constructor(data: SettingsColorSelectorData, elements: SettingsContentElement[]) {
+    constructor(data: SettingsColorSelectorData) {
 
         this.data = data;
 
@@ -298,7 +298,6 @@ export class SettingsColorSelectorElement {
             }
         }
 
-        this.elements = elements || [];
         this.onload = () => {
             if ((this.data.disabled || false)) return;
             (data.onload || ((value: Color, func: (name: string) => SettingsContentElement | undefined) => { }))(this.validateInput(this.currentColor), this.getOtherElement);
@@ -333,7 +332,7 @@ export class SettingsColorSelectorElement {
     }
 
     getOtherElement(name: string = ""): SettingsContentElement | undefined {
-        return this.elements.find(e => e.getName() === name);
+        return SETTINGS_ELEMENTS.find(e => e.getName() === name);
     }
 
     setValue(value: string) {

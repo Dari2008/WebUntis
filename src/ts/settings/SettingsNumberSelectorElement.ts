@@ -1,3 +1,4 @@
+import { SETTINGS_ELEMENTS } from "./SettingsGenerator";
 import type { SettingsContentData, SettingsContentElement } from "./SettingsTitleElement";
 
 
@@ -45,7 +46,6 @@ export class SettingsNumberSelectorElelement {
     private increaseIcon?: HTMLDivElement;
     private name: string = "";
     private data: SettingsNumberSelectorData;
-    private elements: SettingsContentElement[] = [];
 
     private validateInput: (input: string) => string = (input: string) => { return input; };
 
@@ -53,7 +53,7 @@ export class SettingsNumberSelectorElelement {
 
     type: string = "number";
 
-    constructor(data: SettingsNumberSelectorData, elements: SettingsContentElement[]) {
+    constructor(data: SettingsNumberSelectorData) {
 
         this.data = data;
 
@@ -132,7 +132,6 @@ export class SettingsNumberSelectorElelement {
             }
         }
 
-        this.elements = elements || [];
         this.onload = () => {
             if ((this.data.disabled || false)) return;
             (data.onload || ((checked: string, func: (name: string) => SettingsContentElement | undefined) => { }))(this.validateInput(localStorage.getItem(this.name) || ""), this.getOtherElement);
@@ -167,7 +166,7 @@ export class SettingsNumberSelectorElelement {
     }
 
     getOtherElement(name: string = ""): SettingsContentElement | undefined {
-        return this.elements.find(e => e.getName() === name);
+        return SETTINGS_ELEMENTS.find(e => e.getName() === name);
     }
 
     setValue(value: string) {

@@ -10,6 +10,7 @@ import type { CompiledLesson } from "./@types/Schedule";
 import { UserManagement } from "./userManagement/UserManagement";
 import Utils from "./Utils";
 import type { AllData } from "./@types/UserManagement";
+import { SWManager } from "./SWManager";
 // import { HolidayLoader } from "./untis/HolidayLoader";
 
 let env: {
@@ -24,6 +25,15 @@ type EnvSchoolData = {
     host: string;
 }
 
+window.addEventListener("online", () => {
+    document.documentElement.classList.remove("offlineMode");
+});
+
+window.addEventListener("offline", () => {
+    document.documentElement.classList.add("offlineMode");
+});
+
+
 async function initEnv() {
 
     UserManagement.init();
@@ -33,7 +43,7 @@ async function initEnv() {
         Utils.error("Failed to load Data From Account");
         return;
     }
-
+    SWManager.install(allData.preferences.notificationsEnabled);
 
 
     // const CLASS_NAME_GROOTMOOR = env.Grootmoor.className;

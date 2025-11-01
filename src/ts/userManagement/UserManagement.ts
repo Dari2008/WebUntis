@@ -51,16 +51,28 @@ export class UserManagement {
             return;
         }
         this.validJwt = true;
-
     }
 
     public static async loadAll(): Promise<boolean | AllData> {
+        if (!navigator.onLine) {
+            const localStorageOfflineData = localStorage.getItem("OFFLINE_ALL_DATA");
+            if (localStorageOfflineData) {
+                const all = JSON.parse(localStorageOfflineData) as AllData;
+                this.compileAll(all);
+                this.ALL_DATA = all;
+                return all;
+            } else {
+                Utils.error("You Are offline! <br> No offline Data available!");
+                return {} as any;
+            }
+        }
         if (this.ALL_DATA) return this.ALL_DATA;
         const result = await this.request("http://" + HOST + "/untis/users/data/getData.php", { "jwt": this.jwt, dataType: "allData" });
         if (!result) return false;
         const all = result as AllData;
         this.compileAll(all);
         this.ALL_DATA = all;
+        localStorage.setItem("OFFLINE_ALL_DATA", JSON.stringify(this.ALL_DATA));
         return all;
     }
 
@@ -209,7 +221,7 @@ export class UserManagement {
     }
 
     private static async request(url: string, payload: any): Promise<boolean | any> {
-        const result = await (await fetch(url, {
+        const result = await (await fetch(url + "?noCache", {
             body: JSON.stringify(payload),
             mode: "cors",
             method: "post"

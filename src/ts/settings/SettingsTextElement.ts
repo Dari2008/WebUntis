@@ -1,4 +1,4 @@
-import type { SettingsContentData, SettingsContentElement } from "./SettingsTitleElement";
+import type { SettingsContentElement } from "./SettingsTitleElement";
 
 export type SettingsTextData = {
     type: "text",
@@ -14,7 +14,6 @@ export class SettingsTextElement {
 
 
     private data: SettingsTextData;
-    private elements: SettingsContentElement[] = [];
     private element: HTMLElement;
 
     type: string = "text";
@@ -22,8 +21,7 @@ export class SettingsTextElement {
 
     onload: (checked?: boolean, func?: (name: string) => SettingsContentElement | undefined) => void = (checked?: boolean, func?: (name: string) => SettingsContentElement | undefined) => { }
 
-    constructor(data: SettingsTextData, elements: SettingsContentElement[]) {
-        this.elements = elements;
+    constructor(data: SettingsTextData) {
         this.element = document.createElement(data.elementType) as HTMLElement;
         this.element.classList.add("settings-title-element");
         this.element.id = data.id || "";
@@ -85,13 +83,6 @@ export class SettingsTextElement {
 
     isDisabled() {
         return this.element.getAttribute("disabled") === "true";
-    }
-
-    load() {
-        for (let element of this.elements) {
-            if (!element.onload) continue;
-            element.onload();
-        }
     }
 
 }
