@@ -490,6 +490,47 @@ export async function initSettings() {
                 }
             ],
             elements: []
+        },
+        {
+            id: "tools",
+            label: "Tools",
+            options: [
+                {
+                    title: "Tools",
+                    hnumber: 1,
+                    type: "title",
+                    id: "title",
+                    name: "title",
+                    content: [
+                        {
+                            type: "foldableSection",
+                            name: "foldableExcuseSystem",
+                            open: false,
+                            content: {
+                                type: "title",
+                                title: "Excuse System",
+                                hnumber: 2,
+                                content: [
+                                    {
+                                        type: "foldableSection",
+                                        name: "foldableExcuseSystemGrootmoor",
+                                        open: false,
+                                        content: {
+                                            type: "title",
+                                            title: "Grootmoor",
+                                            hnumber: 3,
+                                            content: [
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ],
+            elements: [],
+            selected: false
         }
     ];
 

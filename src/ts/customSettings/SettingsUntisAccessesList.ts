@@ -69,7 +69,7 @@ export class SettingsUntisAccessesList extends SettingsElement {
                         Utils.error("You Are offline and can't change settings");
                         return;
                     }
-                    this.addUntisAccess((schoolData, username, password) => {
+                    this.addUntisAccess((schoolData, classesLast, username, password) => {
                         const accesses = UserManagement.ALL_DATA!.untisAccesses;
                         const newAccess = {
                             school: schoolData.displayName as School,
@@ -77,7 +77,7 @@ export class SettingsUntisAccessesList extends SettingsElement {
                             username: username,
                             password: password,
                             host: schoolData.server.startsWith("https://") ? schoolData.server : "https://" + schoolData.server,
-                            classNames: [],
+                            classNames: classesLast,
                             uuid: Utils.uuidv4Exclude(UserManagement.ALL_DATA!.untisAccesses.map(e => e.uuid))
                         };
                         accesses.push(newAccess);
@@ -99,10 +99,12 @@ export class SettingsUntisAccessesList extends SettingsElement {
 
     }
 
-    private addUntisAccess(callback: (selected: SchoolData, username: string, password: string) => void) {
+    private addUntisAccess(callback: (selected: SchoolData, classesLast: string[], username: string, password: string) => void) {
         let SELECTED: SchoolData | null = null;
         const addUntisAccessDialogWrapper = document.createElement("div");
         addUntisAccessDialogWrapper.classList.add("dialogWrapper");
+
+        let CURRENT_POSSIBLE_CLASS_PREDICTIONS: string[] = [];
 
         const allreadyRequested: {
             [key: string]: SchoolData[];
@@ -123,7 +125,7 @@ export class SettingsUntisAccessesList extends SettingsElement {
         addUntisAccessDialog.appendChild(passwordInputWrapper);
 
 
-        const [classesInputWrapper, classesInput] = createInputWithLabel(undefined, "Password", /.+/, true);
+        const [classesInputWrapper, classesInput] = createInputWithLabel(undefined, "Class Names (comma seperated)", /.+/, true);
         classesInput.autocomplete = "";
         classesInput.classList.add("classesInput");
         addUntisAccessDialog.appendChild(classesInputWrapper);
@@ -150,6 +152,13 @@ export class SettingsUntisAccessesList extends SettingsElement {
         title.innerText = "Add Untis Access";
         addUntisAccessDialog.appendChild(title);
 
+        classesInput.addEventListener("input", () => {
+            const value = classesInput.value;
+            const classArray = value.split(",").map(e => e.trim()).filter(e => e !== "");
+            const newStringvalue = classArray.join(",");
+            classesInput.value = newStringvalue;
+        });
+
         const schoolInput = document.createElement("input");
         schoolInput.placeholder = "Search School...";
         schoolInput.classList.add("school");
@@ -164,7 +173,7 @@ export class SettingsUntisAccessesList extends SettingsElement {
                     updateList(allreadyRequested[value]);
                     return;
                 }
-                const response = await (await fetch("http://" + HOST + "/untis/querySchools.php?q=" + encodeURIComponent(value), {
+                const response = await (await fetch("http://" + HOST + "/untis/querySchools.php?noCache&q=" + encodeURIComponent(value), {
                     method: "GET"
                 })).json();
                 allreadyRequested[value] = response;
@@ -176,9 +185,32 @@ export class SettingsUntisAccessesList extends SettingsElement {
         const okBtn = document.createElement("button");
         okBtn.classList.add("addBtn");
         okBtn.innerText = "Add";
+
+        let classesLast: string[] = [];
+
         okBtn.onclick = () => {
 
             console.log(SELECTED);
+
+            const classes = classesInput.value.split(",").map(e => e.trim()).filter(e => e != "");
+            if (classesLast != classes) {
+
+                classesLast = classes;
+                let any = false;
+                classes.forEach(c => {
+                    if (!CURRENT_POSSIBLE_CLASS_PREDICTIONS.includes(c)) {
+                        any = true;
+                        Utils.error("The Class " + c + " doesn't exist! Press Add again to ignore!");
+                    }
+                });
+
+                if (any) return;
+            }
+
+            if (classesLast.length == 0) {
+                Utils.error("At least one class must exist");
+                return;
+            }
 
             if (SELECTED) {
                 if (usernameInput.value.trim() === "" || passwordInput.value.trim() === "") {
@@ -192,7 +224,7 @@ export class SettingsUntisAccessesList extends SettingsElement {
                 }
 
                 document.body.removeChild(addUntisAccessDialogWrapper);
-                callback(SELECTED, usernameInput.value, passwordInput.value);
+                callback(SELECTED, classesLast, usernameInput.value, passwordInput.value);
             } else {
                 Utils.error("Please select a school!");
             }
@@ -225,8 +257,9 @@ export class SettingsUntisAccessesList extends SettingsElement {
                 schoolCell.innerText = schoolData.displayName;
                 schoolIdCell.innerText = schoolData.loginName;
                 usernameCell.innerText = schoolData.address;
-                row.onclick = () => {
+                row.onclick = async () => {
                     SELECTED = schoolData;
+                    CURRENT_POSSIBLE_CLASS_PREDICTIONS = await this.loadPossibleClassNames(SELECTED, usernameInput.value, passwordInput.value);
                     row.classList.add("selected");
                     okBtn.disabled = false;
                 };
@@ -237,6 +270,18 @@ export class SettingsUntisAccessesList extends SettingsElement {
         addUntisAccessDialogWrapper.appendChild(addUntisAccessDialog);
 
         document.body.appendChild(addUntisAccessDialogWrapper);
+    }
+
+    private async loadPossibleClassNames(SELECTED: SchoolData, username: string, password: string): Promise<string[]> {
+        return await (await fetch("http://" + HOST + "/untis/getClassNames.php?noCache", {
+            method: "POST",
+            body: JSON.stringify({
+                username: username,
+                password: password,
+                school: SELECTED.displayName,
+                baseurl: SELECTED.serverUrl
+            })
+        })).json() as string[];
     }
 
     private updateTable() {

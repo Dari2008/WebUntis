@@ -3130,25 +3130,29 @@ body:has(#schedule[animatePrevious]) #previousSchedule {
   border-radius: 10px;
   padding: 20px;
   display: grid;
-  grid-template-columns: auto max(55px, 20%) max(55px, 20%);
-  grid-template-rows: 15% repeat(3, 7.5%) calc(52.5% - 30px) 10%;
+  grid-template-columns: auto repeat(2, max(55px, 20%));
+  grid-template-rows: 15% repeat(4, 7.5%) calc(45% - 60px) 10%;
   grid-column-gap: 10px;
   grid-row-gap: 10px;
 }
 .dialogWrapper .dialog div:has(.username)::before,
-.dialogWrapper .dialog div:has(.password)::before {
+.dialogWrapper .dialog div:has(.password)::before,
+.dialogWrapper .dialog div:has(.classesInput)::before {
   top: 35%;
   height: calc(90% - 15px);
   background-color: #2f2f2f;
 }
 .dialogWrapper .dialog div:has(.username) .inputWithLabel-asterisk, .dialogWrapper .dialog div:has(.username)::after,
 .dialogWrapper .dialog div:has(.password) .inputWithLabel-asterisk,
-.dialogWrapper .dialog div:has(.password)::after {
+.dialogWrapper .dialog div:has(.password)::after,
+.dialogWrapper .dialog div:has(.classesInput) .inputWithLabel-asterisk,
+.dialogWrapper .dialog div:has(.classesInput)::after {
   top: 35%;
 }
 .dialogWrapper .dialog .school,
 .dialogWrapper .dialog .username,
-.dialogWrapper .dialog .password {
+.dialogWrapper .dialog .password,
+.dialogWrapper .dialog .classesInput {
   width: 100%;
   outline: none;
   border: none;
@@ -3250,17 +3254,20 @@ body:has(#schedule[animatePrevious]) #previousSchedule {
 .dialogWrapper .dialog div:has(.password) {
   grid-area: 3/1/4/4;
 }
-.dialogWrapper .dialog .school {
+.dialogWrapper .dialog div:has(.classesInput) {
   grid-area: 4/1/5/4;
 }
-.dialogWrapper .dialog .tableWrapper {
+.dialogWrapper .dialog .school {
   grid-area: 5/1/6/4;
 }
+.dialogWrapper .dialog .tableWrapper {
+  grid-area: 6/1/7/4;
+}
 .dialogWrapper .dialog .cancelBtn {
-  grid-area: 6/2/7/3;
+  grid-area: 7/2/8/3;
 }
 .dialogWrapper .dialog .addBtn {
-  grid-area: 6/3/7/4;
+  grid-area: 7/3/8/4;
 }
 
 .settings-untis-accesses-list table {
