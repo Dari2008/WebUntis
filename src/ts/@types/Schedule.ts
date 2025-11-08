@@ -1,4 +1,4 @@
-import type { ShortData, WebAPITimetable, WebElement, WebElementData } from "../untis";
+import type { ShortData, WebAPITimetable, WebElement, WebElementData } from "../untis/types";
 import type { School } from "./School";
 import type { Teacher } from "./Teachers";
 
@@ -131,36 +131,68 @@ export type ScheduleRawData = {
     "friday": ScheduleRawDay;
 }
 
-export type ScheduleRawDay = {
-    "08:00"?: LessonRaw;
-    "08:45"?: LessonRaw;
-    "09:50"?: LessonRaw;
-    "10:35"?: LessonRaw;
-    "11:35"?: LessonRaw;
-    "12:20"?: LessonRaw;
-    "13:20"?: LessonRaw;
-    "14:05"?: LessonRaw;
-    "15:00"?: LessonRaw;
-    "15:45"?: LessonRaw;
-    "16:30"?: LessonRaw;
-    "17:50"?: LessonRaw;
+export const ScheduleRawDayTimes = [
+    "08:00",
+    "08:45",
+    "09:50",
+    "10:35",
+    "11:35",
+    "12:20",
+    "13:20",
+    "14:05",
+    "15:00",
+    "15:45",
+    "16:30",
+    "17:50",
+    "10:00",
+    "10:45",
+    "11:00",
+    "11:45",
+    "12:00",
+    "12:45",
+    "13:00",
+    "13:45",
+    "14:00",
+    "14:45",
+    "16:00",
+    "16:45",
+    "17:00",
+    "17:45"
+];
 
-    "10:00"?: LessonRaw;
-    "10:45"?: LessonRaw;
-    "11:00"?: LessonRaw;
-    "11:45"?: LessonRaw;
-    "12:00"?: LessonRaw;
-    "12:45"?: LessonRaw;
-    "13:00"?: LessonRaw;
-    "13:45"?: LessonRaw;
-    "14:00"?: LessonRaw;
-    "14:45"?: LessonRaw;
-    // "15:00"?: LessonDarius;
-    // "15:45"?: LessonDarius;
-    "16:00"?: LessonRaw;
-    "16:45"?: LessonRaw;
-    "17:00"?: LessonRaw;
-    "17:45"?: LessonRaw;
+export type TypeScheduleRawDayTimes = keyof typeof ScheduleRawDayTimes;
+
+export type ScheduleRawDay = {
+    [key in TypeScheduleRawDayTimes]?: LessonRaw;
+    // "08:00"?: LessonRaw;
+    // "08:45"?: LessonRaw;
+    // "09:50"?: LessonRaw;
+    // "10:35"?: LessonRaw;
+    // "11:35"?: LessonRaw;
+    // "12:20"?: LessonRaw;
+    // "13:20"?: LessonRaw;
+    // "14:05"?: LessonRaw;
+    // "15:00"?: LessonRaw;
+    // "15:45"?: LessonRaw;
+    // "16:30"?: LessonRaw;
+    // "17:50"?: LessonRaw;
+
+    // "10:00"?: LessonRaw;
+    // "10:45"?: LessonRaw;
+    // "11:00"?: LessonRaw;
+    // "11:45"?: LessonRaw;
+    // "12:00"?: LessonRaw;
+    // "12:45"?: LessonRaw;
+    // "13:00"?: LessonRaw;
+    // "13:45"?: LessonRaw;
+    // "14:00"?: LessonRaw;
+    // "14:45"?: LessonRaw;
+    // // "15:00"?: LessonDarius;
+    // // "15:45"?: LessonDarius;
+    // "16:00"?: LessonRaw;
+    // "16:45"?: LessonRaw;
+    // "17:00"?: LessonRaw;
+    // "17:45"?: LessonRaw;
 };
 
 export type BreaksRawByDay = {
@@ -180,7 +212,6 @@ export type ScheduleBreak = {
 }
 
 export type LessonRaw = {
-    id: number;
     school: School;
     sign: string;
     uuid: string;

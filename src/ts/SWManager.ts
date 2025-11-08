@@ -1,3 +1,4 @@
+import NotificationManager from "./notificationManager/NotificationManager";
 import { PushService } from "./notifications/PushService";
 
 export class SWManager {
@@ -19,6 +20,12 @@ export class SWManager {
                 PushService.updateEndpoint().then(console.log);
             }
         }
+        navigator.serviceWorker.addEventListener("message", (event) => {
+            console.log(event);
+            if (event.data.type == "newNotifications") {
+                NotificationManager.updateList();
+            }
+        });
     }
 
 }

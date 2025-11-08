@@ -39,7 +39,7 @@ export class SettingsBreakList extends SettingsElement {
     }
 
     private initElements() {
-        const teacherTable = document.createElement("table");
+        const examTable = document.createElement("table");
 
         const titleRow = this.examTableHead.insertRow();
         for (const title of ["Day", "StartTime", "EndTime", "Duration", "School", ""]) {
@@ -142,11 +142,11 @@ export class SettingsBreakList extends SettingsElement {
 
         this.updateTable();
 
-        teacherTable.appendChild(this.examTableHead);
-        teacherTable.appendChild(this.examTableBody);
+        examTable.appendChild(this.examTableHead);
+        examTable.appendChild(this.examTableBody);
 
 
-        this.element.appendChild(teacherTable);
+        this.element.appendChild(examTable);
 
     }
 

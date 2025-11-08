@@ -23,6 +23,7 @@
 </head>
 
 <body class="dark">
+
     <div id="settingsDialog">
         <div class="overflow">
             <div id="settingsList">
@@ -40,15 +41,112 @@
             </svg>
         </button>
     </div>
+    <div id="menuOverlay">
+        <button>Timetable</button>
+        <button>Grades</button>
+        <button id="settingsOpenBtn">Settings</button>
 
-    <div id="titleBar">
+        <button id="logout">Logout</button>
+
+        <div id="notificationsBell">
+            <img src="./imgs/notification_themeColor.svg" alt="Notifications">
+            <div class="notificationList">
+                <div class="markAllRead">
+                    &checkmark;&checkmark;
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="logoutQuestion">
+        <span>Do you want to logout?</span>
+        <button class="no">No</button>
+        <button class="yes">Yes</button>
+    </div>
+
+    <header class="hamburger">
+        <!-- <button id="settingsOpenBtn">
+            <img src="./imgs/settings.svg" alt="Settings">
+        </button> -->
+        <!-- <svg id="hamburger" class="Header__toggle-svg" viewbox="0 0 60 40">
+            <g stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+                <path id="top-line" d="M10,10 L50,10 Z"></path>
+                <path id="middle-line" d="M10,20 L50,20 Z"></path>
+                <path id="bottom-line" d="M10,30 L50,30 Z"></path>
+            </g>
+        </svg> -->
+        <svg id="hamburger" viewbox="-7 0 55 30" version="1.1" width="40" height="28">
+            <g stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" id="g1"
+                transform="translate(-10,-6)">
+                <path id="top-line" d="M 10,8 H 50 Z" />
+                <path id="middle-line" d="M 10,20 H 50 Z" />
+                <path id="bottom-line" d="M 10,32 H 50 Z" />
+            </g>
+        </svg>
+    </header>
+    <script>
+
+        const allButtons = document.querySelectorAll("#menuOverlay button");
+        allButtons.forEach(e => {
+            if (e.id === "logout") return;
+            e.addEventListener("click", () => {
+                document.documentElement.classList.remove("menuOpen");
+            });
+        });
+
+        const hamburger = document.querySelector("header.hamburger");
+        const menuOverlay = document.getElementById("menuOverlay");
+        hamburger.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            document.documentElement.classList.toggle("menuOpen");
+
+            const keyCallback = (e) => {
+                if (e.key == "Escape") {
+
+                    document.removeEventListener("keydown", keyCallback);
+                    document.removeEventListener("click", eventCallback);
+                    document.documentElement.classList.remove("menuOpen");
+                }
+            };
+
+            const eventCallback = (e) => {
+                if (!e.target) return;
+                if (hamburger.contains(e.target)) return;
+                if (menuOverlay.contains(e.target) && menuOverlay !== e.target) return;
+                const rect = menuOverlay.getBoundingClientRect();
+                const x = e.clientX;
+                const y = e.clientY;
+                if (x < rect.width) return;
+
+                document.removeEventListener("click", eventCallback);
+                document.removeEventListener("keydown", keyCallback);
+                document.documentElement.classList.remove("menuOpen");
+            };
+            document.addEventListener("click", eventCallback);
+            document.addEventListener("keydown", keyCallback);
+
+        };
+    </script>
+    <main>
+        <div id="timeSchedule">
+            <!-- <div class="schedule currentSchedule" id="schedule"></div>
+            <div class="schedule nextSchedule" id="nextSchedule"></div>
+            <div class="schedule previousSchedule" id="previousSchedule"></div> -->
+        </div>
+    </main>
+
+
+
+    <!-- <div id="titleBar">
         <button id="prevWeek">Previous Week</button>
         <span>Untis Schedule Combiner</span>
         <button id="nextWeek">Next Week</button>
         <button id="settingsOpenBtn">
             <img src="./imgs/settings.svg" alt="Settings">
         </button>
-    </div>
+    </div> -->
 
     <dialog id="teacherViewer">
         <table id="teacherViewerTable">
@@ -103,11 +201,6 @@
         <embed src="./imgs/LoadingAnimation.html" type="image/svg+xml" />
     </dialog>
 
-    <div id="timeSchedule">
-        <div class="schedule currentSchedule" id="schedule"></div>
-        <div class="schedule nextSchedule" id="nextSchedule"></div>
-        <div class="schedule previousSchedule" id="previousSchedule"></div>
-    </div>
 </body>
 
 </html>

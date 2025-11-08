@@ -188,7 +188,7 @@ export class SettingsExamsList extends SettingsElement {
                 this.examRows = this.examRows.filter(row => row.exam != exam);
                 this.examTableBody.removeChild(row);
                 if (this.tableStatText) this.tableStatText.innerHTML = this.examTableBody.children.length + " of " + UserManagement.ALL_DATA!.exams.length + this.examsVisibleText + " " + this.writtenOf;
-                Utils.success("Deleted Exam Successfully");
+                Utils.success("Deleted Exam Successfully", "deletedExam");
             };
             trash.appendChild(trashDiv);
 

@@ -3,7 +3,9 @@ import { SettingsBreakList } from "../customSettings/SettingsBreakList";
 import { SettingsExamsList } from "../customSettings/SettingsExamList";
 import { SettingsNotificationMessageLayoutElement, type SettingsNotificationMessageLayoutData } from "../customSettings/SettingsNotificationMessageLayoutElement";
 import { SettingsPushServiceSubscribedDevicesList } from "../customSettings/SettingsPushServiceSubscribedDevicesList";
+import { SettingsScheduleList, type SettingsScheduleData } from "../customSettings/SettingsScheduleList";
 import { SettingsTeacherList, type SettingsTeacherListData } from "../customSettings/SettingsTeacherList";
+import { SettingsToolsExcuseSystemGrootmoor, type SettingsToolsExcuseSystemGrootmoorData } from "../customSettings/SettingsToolsExcuseSystemGrootmoor";
 import { SettingsUntisAccessesList } from "../customSettings/SettingsUntisAccessesList";
 import { PushService } from "../notifications/PushService";
 import { SyntaxInputField } from "../syntaxInputField/SyntaxInputField";
@@ -24,6 +26,8 @@ export async function initSettings() {
     const NOTIFICATION_MESSAGE_LAYOUT = generateNotificationsMessageLayout();
 
     const ALL_SUBSCRIBED_DEVICES = await PushService.getAllSubscriptions();
+
+    const SCHEDULE_SETTINGS = generateScheduleSettings();
 
     let settingsPushServiceList: SettingsPushServiceSubscribedDevicesList | undefined;
 
@@ -271,6 +275,28 @@ export async function initSettings() {
                             },
                         },
                         {
+                            type: "color",
+                            label: "Holiday Color",
+                            description: "Color of the Holidays",
+                            name: "holidayColor",
+                            id: "holidayColor",
+                            title: "Holiday Color",
+                            color: Settings.colors.holidayColor,
+                            onchange(value, getOtherElement) {
+                                if (!value.hex) return;
+                                document.documentElement.style.setProperty("--holidayColor", value.hex + "");
+                                changed("holidayColor", Settings.colors.examColor, value.hex);
+                            },
+                            onload(value, getOtherElement) {
+                                if (!value.hex) return;
+                                document.documentElement.style.setProperty("--holidayColor", value.hex + "");
+                                if (UserManagement.ALL_DATA) {
+                                    if (UserManagement.ALL_DATA.preferences.holidayColor)
+                                        document.documentElement.style.setProperty("--holidayColor", UserManagement.ALL_DATA.preferences.holidayColor + "");
+                                }
+                            },
+                        },
+                        {
                             type: "title",
                             hnumber: 3,
                             title: "Lesson Event Change Colors",
@@ -492,6 +518,22 @@ export async function initSettings() {
             elements: []
         },
         {
+            id: "schedule",
+            label: "Schedule",
+            selected: false,
+            options: [
+                {
+                    title: "Schedule",
+                    type: "title",
+                    hnumber: 1,
+                    content: [
+                        ...SCHEDULE_SETTINGS
+                    ]
+                }
+            ],
+            elements: []
+        },
+        {
             id: "tools",
             label: "Tools",
             options: [
@@ -520,6 +562,11 @@ export async function initSettings() {
                                             title: "Grootmoor",
                                             hnumber: 3,
                                             content: [
+                                                {
+                                                    type: <SettingsToolsExcuseSystemGrootmoorData>(data: SettingsToolsExcuseSystemGrootmoorData) => new SettingsToolsExcuseSystemGrootmoor(data as any),
+                                                    name: "settingsToolsExcuseSystemGrootmoor",
+                                                    illDates: UserManagement.ALL_DATA!.illDates ?? []
+                                                }
                                             ]
                                         }
                                     }
@@ -682,4 +729,30 @@ function generateNotificationsMessageLayout(): SettingsNotificationMessageLayout
         notificationMessageLayout.push(settingElement);
     }
     return notificationMessageLayout;
+}
+
+function generateScheduleSettings(): SettingsFoldableSectionData[] {
+    const scheduleSettings: SettingsFoldableSectionData[] = [];
+
+    for (const access of UserManagement.ALL_DATA!.untisAccesses) {
+        const settings: SettingsScheduleData = {
+            type: () => new SettingsScheduleList(access.uuid, access.school),
+            name: "settingsScheduleList" + access.school
+        };
+
+        const foldable: SettingsFoldableSectionData = {
+            type: "foldableSection",
+            name: "settingsScheduleListFoldable" + access.school,
+            content: {
+                type: "title",
+                hnumber: 2,
+                title: access.school,
+                content: [settings]
+            }
+        }
+
+        scheduleSettings.push(foldable);
+    }
+
+    return scheduleSettings;
 }

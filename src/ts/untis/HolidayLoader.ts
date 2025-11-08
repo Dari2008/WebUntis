@@ -1,5 +1,7 @@
+import dayjs from "dayjs";
 import type { School } from "../@types/School";
 import { HOST } from "../ScheduleDarius_old";
+import Utils from "../Utils";
 import type { Holiday } from "./types";
 import UntisManager from "./UntisManager";
 
@@ -13,7 +15,7 @@ export class HolidayLoader {
 
     constructor(private managers: UntisManager[]) { }
 
-    public async getHolidays(): Promise<CompiledHoliday[]> {
+    public async getHolidays(): Promise<{ [key: string]: CompiledHoliday[] }> {
         const holidays: {
             [key: string]: Holiday[];
         } = {};
@@ -24,7 +26,7 @@ export class HolidayLoader {
         for (const manager of this.managers) {
             const promise = this.getHolidayOfManager(manager);
             promise.then(h => {
-                holidays[manager.getSchool()] = h;
+                holidays[manager.getSchoolUUID()] = h;
             })
             holidayLoadPromises.push(promise);
         }
@@ -34,10 +36,14 @@ export class HolidayLoader {
         const startDates: Date[] = [];
         const endDates: Date[] = [];
 
-        const holidaysList: CompiledHoliday[] = [];
+        const holidaysList: {
+            [key: string]: CompiledHoliday[];
+        } = {};
         const currentYear = new Date().getFullYear();
 
         for (const key of Object.keys(holidays)) {
+            if (!holidays[key]) continue;
+
             for (const holiday of holidays[key]) {
                 const startDate = UntisManager.formatUntisDateAsDate(holiday.startDate + "");
                 const endDate = UntisManager.formatUntisDateAsDate(holiday.endDate + "");
@@ -55,7 +61,8 @@ export class HolidayLoader {
                 holidayCompiled.school = key as School;
                 holidayCompiled.startDateParsed = startDate;
                 holidayCompiled.endDateParsed = endDate;
-                holidaysList.push(holidayCompiled);
+                if (!holidaysList[key]) holidaysList[key] = [];
+                holidaysList[key].push(holidayCompiled);
             }
         }
 
@@ -63,9 +70,31 @@ export class HolidayLoader {
     }
 
     private async getHolidayOfManager(manager: UntisManager): Promise<Holiday[]> {
+        const reloadHolidays = localStorage.getItem("lastReloadOfHolidays");
+        let forceReload = false;
+        if (reloadHolidays) {
+            const lastReloadOfHolidays = new Date();
+            lastReloadOfHolidays.setUTCDate(parseInt(reloadHolidays))
+            const today = new Date();
+            const diff = dayjs(today).diff(lastReloadOfHolidays, "days");
+            if (diff > 10) {
+                forceReload = true;
+            }
+        }
+        if (!forceReload) {
+            const contantFromDB = await Utils.loadFromDB("OfflineData", "UntisHolidays", manager.getSchool());
+            if (contantFromDB) {
+                try {
+                    return contantFromDB as Holiday[];
+                } catch (e) {
+                    console.error("Error loading holidays from DB:", e);
+                }
+            }
+        }
+
         try {
             const untis = manager.getUntis();
-            const response = await fetch("http://" + HOST + "/untis/getHolidays.php", {
+            const response = await fetch("http://" + HOST + "/untis/getHolidays.php?noCache", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -73,8 +102,8 @@ export class HolidayLoader {
                 body: JSON.stringify({
                     username: untis.username,
                     password: untis.password,
-                    school: untis.school,
-                    baseurl: "https://" + untis.host
+                    school: untis.schoolId,
+                    baseurl: untis.host
                 })
             });
 
@@ -92,7 +121,10 @@ export class HolidayLoader {
                 return [];
             }
 
-            return responseData;
+            const holidays = responseData as Holiday[];
+            Utils.saveInDB("OfflineData", "UntisHolidays", manager.getSchool(), holidays);
+
+            return holidays;
 
             // return this.compileLesson(responseData as WebAPITimetable[]);
         } catch (e) {

@@ -1,9 +1,10 @@
-import type { CompiledLesson, DayName, LessonSlot, ScheduleBreak, Time } from "../@types/Schedule";
+import type { AllLessons, CompiledLesson, DayName, LessonSlot, ScheduleBreak, ScheduleDay, Time } from "../@types/Schedule";
 import type { School } from "../@types/School";
+import type Lesson from "../untis/old/Lesson";
 // import { Utils.checkForExam } from "../ScheduleDarius_old";
 import { getColumnForSchool } from "../untis/TeacherDatabase";
 import UntisManager from "../untis/UntisManager";
-import UntisSchedule from "../untis/UntisSchedule";
+import UntisSchedule, { type HolidayScheduleDay, type TimedScheduleDay } from "../untis/UntisSchedule";
 import { UserManagement } from "../userManagement/UserManagement";
 import Utils from "../Utils";
 
@@ -12,7 +13,7 @@ export class HTMLTableManager {
 
     public static CURRENT_LESSON_OPEN: CompiledLesson | undefined = undefined;
 
-    private tableElement: HTMLDivElement | undefined;
+    public tableElement: HTMLDivElement | undefined;
     private headerRow: HeaderRow[] = [];
     private startTimesNeededParsedToIndex: { [key: string]: number } = {};
     private id: string;
@@ -20,9 +21,12 @@ export class HTMLTableManager {
     private heightHeaderPercentage = 2.5;
     private schoolTimesBackgroundDiv: HTMLDivElement | undefined;
 
-    constructor(classs: string, id: string) {
+    constructor(classs: string, id: string, public week: number) {
         this.id = id;
-        this.tableElement = document.querySelector("." + classs) as HTMLDivElement;
+        // this.tableElement = document.querySelector("." + classs) as HTMLDivElement;
+        this.tableElement = document.createElement("div");
+        this.tableElement.classList.add(classs);
+        this.tableElement.classList.add("schedule");
         if (!this.tableElement) {
             console.error("Table element with id " + classs + " not found!");
             return;
@@ -89,11 +93,14 @@ export class HTMLTableManager {
         this.tableElement.appendChild(this.schoolTimesBackgroundDiv);
 
         this.setCurrentDate(100);
+        this.initUpdateCycle();
         // this.calculateHeight(LESSON_TIMES);
 
     }
 
+
     private setCurrentDate(maxHeightIndex: number) {
+
         const indexToday = this.getDayAsIndex(new Date().toLocaleDateString("en-US", { weekday: "long" }).toLowerCase());
 
         if (indexToday == -1) this.currentDayDiv.style.display = "none";
@@ -101,7 +108,40 @@ export class HTMLTableManager {
         this.currentDayDiv.style.gridArea = "1 / " + (indexToday) + " / " + (maxHeightIndex + 2) + " / " + (indexToday + 1);
         this.schoolTimesBackgroundDiv!.style.gridArea = "2 / 1 / " + (maxHeightIndex + 2) + " / " + (UserManagement.ALL_DATA!.schools.length + 1);
 
+        const pixelsPerMinute = (this.tableElement?.getBoundingClientRect().height || 0) / this.totalLessonMinutes;
+
+        const updateCurrentTime = () => {
+            if (this.currentDayDiv.style.getPropertyValue("--currentTimeDisplay") == "none") {
+                delete this.updateCallbacks["currentTimeUpdater"];
+                return;
+            }
+            const currentDate = new Date();
+            let currentTimeMinutes = currentDate.getMinutes() + currentDate.getHours() * 60 + currentDate.getSeconds() / 60;
+            currentTimeMinutes -= 8 * 60; // Start schule um 8
+            if (currentTimeMinutes > this.totalLessonMinutes || currentTimeMinutes < 0) {
+                this.currentDayDiv.style.setProperty("--currentTimeDisplay", "none");
+            }
+
+            const posFromTop = pixelsPerMinute * currentTimeMinutes;
+            this.currentDayDiv.style.setProperty("--currentPosFromTop", posFromTop + "px");
+        };
+        updateCurrentTime();
+        this.updateCallbacks["currentTimeUpdater"] = updateCurrentTime;
+
+
         this.tableElement!.appendChild(this.currentDayDiv);
+    }
+
+    private lastIntervalId = -1;
+    private updateCallbacks: ({
+        [key: string]: () => void;
+    }) = {};
+    private initUpdateCycle() {
+
+        if (this.lastIntervalId != -1) clearInterval(this.lastIntervalId);
+        this.lastIntervalId = setInterval(() => {
+            (Object.values(this.updateCallbacks)).forEach(e => e());
+        }, 1000);
     }
 
     private getDayAsIndex(day: string): number {
@@ -117,7 +157,7 @@ export class HTMLTableManager {
         return column + UserManagement.ALL_DATA!.schools.length;
     }
 
-    private sortTimeArray(a: string, b: string) {
+    public static sortTimeArray(a: string, b: string) {
         const aParts = a.split(":");
         const bParts = b.split(":");
         const aHour = parseInt(aParts[0], 10);
@@ -155,6 +195,7 @@ export class HTMLTableManager {
 
     }
 
+
     public clear() {
 
         this.tableElement!.querySelectorAll(":not(.header):not(.currentDay):not(.doNotRemove):not(.schoolTimesBackground)").forEach(c => c.remove());
@@ -162,8 +203,7 @@ export class HTMLTableManager {
 
     private calculateHeight(lessonTimes: string[], school: School, startTime: Time) {
 
-        lessonTimes.sort(this.sortTimeArray);
-
+        lessonTimes.sort(HTMLTableManager.sortTimeArray);
         const columnCount = 6;
 
         let countingRowNumber = 0;
@@ -199,7 +239,6 @@ export class HTMLTableManager {
                     cell.classList.add(school);
                     cell.classList.add("doNotRemove");
                     cell.style.gridArea = (gridRowIndexStart + 2) + " / " + (getColumnForSchool(school) + 1) + " / " + (gridRowIndexEnd + 2) + " / " + (getColumnForSchool(school) + 2);
-
                     if (this.isBreakString(lessonTime, nextLesson)) {
                         cell.classList.add("break");
                     }
@@ -231,6 +270,10 @@ export class HTMLTableManager {
         this.setCurrentDate(this.rowCount);
     }
 
+    public updateCurrentDayPosition() {
+        this.setCurrentDate(this.rowCount);
+    }
+
     private isBreakString(start: string, end: string | undefined): boolean {
         const found = Object.values(UserManagement.ALL_DATA!.breaks).flat().find(b => {
             return b.start == start && b.end == end && end;
@@ -238,19 +281,18 @@ export class HTMLTableManager {
         return !!found;
     }
 
-    public reloadFromId() {
-        const element = document.getElementById(this.id) as HTMLDivElement;
-        this.tableElement = (element ? element : undefined);
+    // public reloadFromId() {
+    //     const element = document.getElementById(this.id) as HTMLDivElement;
+    //     this.tableElement = (element ? element : undefined);
 
-        this.headerRow = [...this.tableElement?.querySelectorAll(".header") as NodeListOf<HTMLDivElement>];
-        this.currentDayDiv = this.tableElement?.querySelector(".currentDay") as HTMLDivElement;
-        this.schoolTimesBackgroundDiv = this.tableElement?.querySelector(".schoolTimesBackground") as HTMLDivElement;
+    //     this.headerRow = [...this.tableElement?.querySelectorAll(".header") as NodeListOf<HTMLDivElement>];
+    //     this.currentDayDiv = this.tableElement?.querySelector(".currentDay") as HTMLDivElement;
+    //     this.schoolTimesBackgroundDiv = this.tableElement?.querySelector(".schoolTimesBackground") as HTMLDivElement;
 
 
-    }
+    // }
 
     public clearLessons() {
-        console.log("clearing");
         this.tableElement!.querySelectorAll(":not(.header):not(.currentDay):not(.doNotRemove):not(.schoolTimesBackground)").forEach(c => c.remove());
     }
 
@@ -261,7 +303,7 @@ export class HTMLTableManager {
 
         for (const key of Object.keys(startTimesNeeded) as School[]) {
             if (startTimesNeeded[key]) {
-                startTimesNeeded[key].sort(this.sortTimeArray);
+                startTimesNeeded[key].sort(HTMLTableManager.sortTimeArray);
             }
         }
 
@@ -275,8 +317,8 @@ export class HTMLTableManager {
         }
     }
 
-    public showSchedule(...schedules: UntisSchedule[]) {
-        if (!this.tableElement) return;
+    public showSchedule(schedules: UntisSchedule[]) {
+        if (!this.tableElement) return
 
 
         const pairedIfPossibleLessons: { [key: string]: LessonSlot[] } = {};
@@ -296,6 +338,9 @@ export class HTMLTableManager {
         //     }
         // }
 
+        const holidaysOnDays: {
+            [key in DayName]?: false | HolidayScheduleDay
+        } = {};
 
         for (const schedule of schedules) {
             for (const lessonSlot of schedule.getAllLessonSlots()) {
@@ -317,6 +362,37 @@ export class HTMLTableManager {
                 }
             }
         }
+        for (const schedule of schedules) {
+            const weekDays: DayName[] = [
+                "monday",
+                "tuesday",
+                "wednesday",
+                "thursday",
+                "friday"
+            ];
+            for (const day of weekDays) {
+                let lessons = schedule.getDayLessons(day);
+                if (!lessons) continue;
+                if (holidaysOnDays[day]) {
+                    if ((holidaysOnDays[day] as HolidayScheduleDay).type == "HolidayScheduleDay") continue;
+
+                    if (lessons?.type == "HolidayScheduleDay") {
+                        holidaysOnDays[day] = lessons as HolidayScheduleDay;
+                    } else {
+                        holidaysOnDays[day] = false;
+                    }
+                } else {
+                    if (lessons.type == "HolidayScheduleDay") {
+                        holidaysOnDays[day] = lessons as HolidayScheduleDay;
+                    } else {
+                        holidaysOnDays[day] = false;
+                    }
+                }
+
+            }
+        }
+
+        console.log(holidaysOnDays);
 
         const pairedIfPossibleLessonsResult = [];
 
@@ -334,7 +410,7 @@ export class HTMLTableManager {
                 times.push(UntisManager.formatTime(lessonSlot.lessons[0].endTime));
             }
 
-            times.sort(this.sortTimeArray);
+            times.sort(HTMLTableManager.sortTimeArray);
 
 
             const splitMinutes: number[] = [];
@@ -454,14 +530,20 @@ export class HTMLTableManager {
 
         }
 
+        [...Object.keys(this.updateCallbacks)].forEach(e => {
+            if (e.endsWith("lesson")) {
+                delete this.updateCallbacks[e];
+            }
+        });
+
         for (const lessonSlotData of pairedIfPossibleLessonsCompiled) {
             if (lessonSlotData && lessonSlotData.lessonSlotExample) {
                 const start = lessonSlotData.startTime;
                 const end = lessonSlotData.endTime;
                 const day = (lessonSlotData.lessonSlotExample as LessonSlot)?.lessons[0].dayName as DayName;
-                const position = this.getGridPositionOfTime(start, end, day, UserManagement.ALL_DATA!.START_TIME);
+                const position = HTMLTableManager.getGridPositionOfTime(start, end, day, UserManagement.ALL_DATA!.START_TIME);
                 if (position) {
-                    const cell = this.insertCellInto(position.rowStart, position.column, position.rowSpan);
+                    const cell = this.insertCellInto(position.rowStart, position.column + UserManagement.ALL_DATA!.schools.length, position.rowSpan);
                     if (cell) {
                         const lesson = (lessonSlotData.lessonSlotExample as LessonSlot)?.lessons[0];
                         if (!lesson) continue;
@@ -471,6 +553,16 @@ export class HTMLTableManager {
                         this.insertLessonIntoDiv(cell, lesson, isExam);
                         this.addOpenAndInfoDialog(cell, lesson, isExam);
                         this.addHoverEffect(cell, lesson, lessonSlotData);
+
+                        if (this.isLessonInPast(lesson)) {
+                            cell.classList.add("past");
+                        }
+
+                        this.updateCallbacks[lesson.id + "lesson"] = () => {
+                            if (this.isLessonInPast(lesson)) {
+                                cell.classList.add("past");
+                            }
+                        };
 
                         cell.classList.add("lesson");
                         this.tableElement.appendChild(cell);
@@ -482,9 +574,9 @@ export class HTMLTableManager {
                 const start = lessonSlotData.startTime;
                 const end = lessonSlotData.endTime;
                 const day = lessonSlotData.lessonSlotExample?.lessons[0].dayName as DayName;
-                const position = this.getGridPositionOfTime(start, end, day, UserManagement.ALL_DATA!.START_TIME);
+                const position = HTMLTableManager.getGridPositionOfTime(start, end, day, UserManagement.ALL_DATA!.START_TIME);
                 if (position) {
-                    const cell = this.insertCellInto(position.rowStart, position.column, position.rowSpan);
+                    const cell = this.insertCellInto(position.rowStart, position.column + UserManagement.ALL_DATA!.schools.length, position.rowSpan);
                     if (cell) {
                         const lessons = lessonSlotData.lessonSlotExample?.lessons;
                         if (!lessons) continue;
@@ -503,6 +595,21 @@ export class HTMLTableManager {
                         this.addMoreLessonsOpenAndInfoDialog(cell, lessons);
                         this.addMultiHoverEffect(cell, lessons, lessonSlotData);
 
+                        const isOneInFuture = lessons.map(e => !this.isLessonInPast(e)).some(e => e);
+
+                        if (!isOneInFuture) {
+                            cell.classList.add("past");
+                        }
+
+
+                        this.updateCallbacks[lessons.map(e => e.id).join(",") + "lesson"] = () => {
+                            const isOneInFuture = lessons.map(e => !this.isLessonInPast(e)).some(e => e);
+
+                            if (!isOneInFuture) {
+                                cell.classList.add("past");
+                            }
+                        };
+
                         cell.classList.add("lesson");
                         this.tableElement.appendChild(cell);
                     }
@@ -514,13 +621,14 @@ export class HTMLTableManager {
 
         for (const day of Object.keys(UserManagement.ALL_DATA!.breaks)) {
             if (day == "others") continue;
+            if (holidaysOnDays[day as DayName] != false) continue;
             for (const br of UserManagement.ALL_DATA!.breaks[day as DayName]) {
                 const breakStartTime = UntisManager.parseTime(br.start);
                 const breakEndTime = UntisManager.parseTime(br.end);
 
-                const position = this.getGridPositionOfTime(breakStartTime, breakEndTime, day as DayName, UserManagement.ALL_DATA!.START_TIME);
+                const position = HTMLTableManager.getGridPositionOfTime(breakStartTime, breakEndTime, day as DayName, UserManagement.ALL_DATA!.START_TIME);
                 if (position && position.rowSpan > 0 && position.column != -1 && position.rowEnd != -1 && position.rowStart != -1) {
-                    const cell = this.insertCellInto(position.rowStart, position.column, position.rowSpan);
+                    const cell = this.insertCellInto(position.rowStart, position.column + UserManagement.ALL_DATA!.schools.length, position.rowSpan);
                     if (cell) {
                         cell.classList.add("break");
 
@@ -546,11 +654,45 @@ export class HTMLTableManager {
             }
         }
 
+        for (const day of Object.keys(holidaysOnDays) as DayName[]) {
+            if (!holidaysOnDays[day]) continue;
+            const holiday = holidaysOnDays[day];
+            const holidayStartTime = UserManagement.ALL_DATA!.START_TIME;
+            const holidayEndTime = UserManagement.ALL_DATA!.END_TIME;
+            const position = HTMLTableManager.getGridPositionOfTime(holidayStartTime, holidayEndTime, day as DayName, UserManagement.ALL_DATA!.START_TIME);
+            if (position && position.rowSpan > 0 && position.column != -1 && position.rowEnd != -1 && position.rowStart != -1) {
+                const cell = this.insertCellInto(position.rowStart, position.column + UserManagement.ALL_DATA!.schools.length, position.rowSpan);
+                if (cell) {
+                    cell.classList.add("holiday");
+
+                    const spanHolidayName = document.createElement("span");
+                    spanHolidayName.classList.add("holidayNameLabel");
+                    spanHolidayName.innerText = holiday.holidayLongName;
+
+                    cell.appendChild(spanHolidayName);
+
+                    this.tableElement.appendChild(cell);
+                }
+            }
+
+
+        }
+
     }
 
-    private getGridPositionOfTime(startS: Time, endS: Time, day: DayName, offsetTime: Time): { rowStart: number, rowEnd: number, rowSpan: number, column: number } | undefined {
-        if (!this.tableElement) return;
+    private isLessonInPast(lesson: AllLessons): boolean {
 
+        const lessonDateTime = UntisManager.formatUntisDateAsDate(lesson.date + "");
+        const lessonEndTime = lesson.endTimeParsed;
+        lessonDateTime.setHours(lessonEndTime.hour, lessonEndTime.minute, 0);
+        const currentDate = new Date();
+        if (lessonDateTime < currentDate) {
+            return true;
+        }
+        return false;
+    }
+
+    public static getGridPositionOfTime(startS: Time, endS: Time, day: DayName, offsetTime: Time): { rowStart: number, rowEnd: number, rowSpan: number, column: number } | undefined {
         let startPosition = -1;
         let endPosition = -1;
 
@@ -575,13 +717,17 @@ export class HTMLTableManager {
         endPosition += 2;
 
         if (startPosition != -1 && endPosition != -1) {
-            return { rowStart: startPosition, rowEnd: endPosition, rowSpan: endPosition - startPosition, column: column + UserManagement.ALL_DATA!.schools.length }
+            return { rowStart: startPosition, rowEnd: endPosition, rowSpan: endPosition - startPosition, column: column }
         }
         return undefined;
     }
 
     private insertCellInto(row: number, column: number, span: number): HTMLDivElement | undefined {
-        if (!this.tableElement) return;
+
+        const maxRows = this.rowCount + 1; // Because of Header
+        const maxRowsEnd = this.rowCount + 2; // Because of Header + 1 because its end
+        if (row >= maxRows) row = maxRows;
+        if ((row + span) >= maxRowsEnd + 2) span = maxRowsEnd - row;
 
         const cell = document.createElement("div");
         cell.style.gridArea = row + " / " + column + " / " + (row + span) + " / " + (column + 1);
@@ -1045,7 +1191,6 @@ export class HTMLTableManager {
 
         list.innerHTML = "";
 
-        console.log(lesson);
         if (!lesson.multipleTeachers) {
             if (lesson.teacher) {
                 for (const subject of lesson.teacher!.subjects) {

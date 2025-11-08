@@ -85,13 +85,11 @@ iframe {
 }
 
 .h-s {
-  font-family: "Poppins";
   font-weight: 400;
   font-style: normal;
 }
 
 * {
-  font-family: "Poppins";
   font-weight: 400;
   font-style: normal;
   box-sizing: content-box;
@@ -99,14 +97,12 @@ iframe {
 
 .title {
   line-height: 2.5rem;
-  font-family: "Agrandir Bold";
   font-weight: 600;
   color: #EEEEEE;
 }
 
 .text {
   line-height: 2em;
-  font-family: "Poppins";
   color: #EEEEEE;
 }
 

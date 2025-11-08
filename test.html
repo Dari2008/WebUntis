@@ -10,96 +10,107 @@
 </head>
 
 <body>
+    <table id="mainTable" border="1" style="border-collapse: collapse; width: 100%;">
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Quantity</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="parent-row">
+                <td>Fruits</td>
+                <td>3</td>
+                <td><button class="toggle-btn">+</button></td>
+            </tr>
+            <tr class="child-row" style="display: none;">
+                <td colspan="3">
+                    <table border="1" style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Price</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Apple</td>
+                                <td>$1</td>
+                            </tr>
+                            <tr>
+                                <td>Banana</td>
+                                <td>$2</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
 
-    <div class="syntax-input-wrapper" contenteditable="true">
-        <color on color="red">asdasdasd</color>asdasdasd
-    </div>
-
-    <style>
-        .syntax-input-wrapper .unknown {
-            color: red;
-        }
-
-        .syntax-input-wrapper .known {
-            text-decoration: underline 2px;
-        }
-
-        .syntax-input-wrapper .hello {
-            color: yellow;
-        }
-
-        .syntax-input-wrapper .hallo2 {
-            color: green;
-        }
-    </style>
+            <tr class="parent-row">
+                <td>Vegetables</td>
+                <td>2</td>
+                <td><button class="toggle-btn">+</button></td>
+            </tr>
+            <tr class="child-row" style="display: none;">
+                <td colspan="3">
+                    <table border="1" style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Price</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Carrot</td>
+                                <td>$1</td>
+                            </tr>
+                            <tr>
+                                <td>Broccoli</td>
+                                <td>$3</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 
     <script>
+        document.querySelectorAll(".toggle-btn").forEach((btn) => {
+            btn.addEventListener("click", () => {
+                const parentRow = btn.closest(".parent-row");
+                if (!parentRow) return;
 
-        const element = document.querySelector(".syntax-input-wrapper");
+                const childRow = parentRow.nextElementSibling;
+                if (!childRow || !childRow.classList.contains("child-row")) return;
 
-        element.addEventListener("input", (e) => {
-            const value = element.innerText;
-            let htmlValue = value;
-            const matches = new Set(value.match(/{([^ }{,]*)}/g));
-            for (const match of matches) {
-                htmlValue = htmlValue.replaceAll(match, getHtmlFor(match))
-            }
-            const cursorPosition = getCaretCharacterOffsetWithin(element);
-            console.log(cursorPosition);
-            element.innerHTML = htmlValue;
-            setCaretAtPosition(element, cursorPosition);
+                if (childRow.style.display === "none") {
+                    childRow.style.display = "table-row";
+                    btn.textContent = "−"; // collapse icon
+                } else {
+                    childRow.style.display = "none";
+                    btn.textContent = "+"; // expand icon
+                }
+            });
         });
 
-        function getHtmlFor(match) {
-            if (match == "{Hallo}") return `<color class='hallo known'>${match}</color>`;
-            if (match == "{Hallo2}") return `<color class='hallo2 known'>${match}</color>`;
-            return `<color class='unknown'>${match}</color>`;
-        }
-
-        function getCaretCharacterOffsetWithin(element) {
-            const selection = window.getSelection();
-            if (!selection || selection.rangeCount === 0) return 0;
-
-            const range = selection.getRangeAt(0).cloneRange();
-            // Range von Anfang des Elements bis zur Cursor-Position
-            const preRange = document.createRange();
-            preRange.selectNodeContents(element);
-            preRange.setEnd(range.endContainer, range.endOffset);
-
-            return preRange.toString().length;
-        }
-
-        function setCaretAtPosition(el, charIndex) {
-            const range = document.createRange();
-            const sel = window.getSelection();
-
-            let nodeStack = [el];
-            let foundStart = false;
-            let charCount = 0;
-            let node;
-
-            while (!foundStart && (node = nodeStack.pop())) {
-                if (node.nodeType === 3) { // Text node
-                    const nextCount = charCount + node.length;
-                    if (charIndex >= charCount && charIndex <= nextCount) {
-                        range.setStart(node, charIndex - charCount);
-                        range.collapse(true);
-                        foundStart = true;
-                        break;
-                    }
-                    charCount = nextCount;
-                } else {
-                    let i = node.childNodes.length;
-                    while (i--) nodeStack.push(node.childNodes[i]);
-                }
-            }
-
-            if (!foundStart) range.selectNodeContents(el); // fallback
-            sel.removeAllRanges();
-            sel.addRange(range);
-        }
-
     </script>
+    <style>
+        .parent-row {
+            background-color: #f0f0f0;
+            cursor: pointer;
+        }
+
+        .child-row td {
+            padding: 0;
+        }
+
+        .child-row table {
+            margin: 0;
+        }
+    </style>
 
 </body>
 

@@ -112,4 +112,99 @@ export default class Utils {
         return `${day}.${month}`;
     }
 
+
+
+    public static async openDB(DB_NAME: string, STORE_NAME: string): Promise<IDBDatabase> {
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open(DB_NAME, 9);
+            request.onupgradeneeded = event => {
+                if (!event.target) return;
+                const db = (event.target as IDBOpenDBRequest).result;
+                if (!db.objectStoreNames.contains(STORE_NAME)) {
+                    db.createObjectStore(STORE_NAME, { keyPath: "key" });
+                }
+
+                if (DB_NAME == "NotificationStorage") {
+                    if (!db.objectStoreNames.contains("notifications")) {
+                        db.createObjectStore("notifications", { keyPath: "key" });
+                    }
+                } else if (DB_NAME == "OfflineData") {
+                    if (!db.objectStoreNames.contains("OfflineAllData")) {
+                        db.createObjectStore("OfflineAllData", { keyPath: "key" });
+                    }
+                    if (!db.objectStoreNames.contains("OfflineStorageOfTimetable")) {
+                        db.createObjectStore("OfflineStorageOfTimetable", { keyPath: "key" });
+                    }
+                    if (!db.objectStoreNames.contains("UntisHolidays")) {
+                        db.createObjectStore("UntisHolidays", { keyPath: "key" });
+                    }
+                }
+
+
+            };
+
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
+        });
+    }
+
+    public static async contains(DB_NAME: string, STORE_NAME: string): Promise<boolean> {
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open(DB_NAME);
+
+            request.onsuccess = () => {
+                const db = request.result;
+                const hasStore = db.objectStoreNames.contains(STORE_NAME);
+                db.close();
+                resolve(hasStore);
+            };
+
+            request.onerror = () => reject(request.error);
+            request.onblocked = () => reject(new Error("Database is blocked"));
+        });
+    }
+
+
+    public static async saveInDB(DB_NAME: string, STORE_NAME: string, key: string, offlineData: any) {
+        return new Promise<void>(async (resolve, reject) => {
+
+            // const STORE_NAME = "OfflineStorageOfTimetable";
+            // const DB_NAME = "OfflineData";
+            const db = await this.openDB(DB_NAME, STORE_NAME);
+            // const db = event.target.result;
+
+            // Add data
+            const tx = db.transaction(STORE_NAME, "readwrite");
+            const store = tx.objectStore(STORE_NAME);
+            offlineData.key = key;
+            store.put(offlineData);
+
+            tx.oncomplete = () => resolve();
+            tx.onerror = (e) => reject(e);
+        })
+    }
+
+    public static async loadFromDB(DB_NAME: string, STORE_NAME: string, key: string): Promise<any> {
+        return new Promise<any>(async (resolve, reject) => {
+
+            // const STORE_NAME = "OfflineStorageOfTimetable";
+            // const DB_NAME = "OfflineData";
+            const db = await this.openDB(DB_NAME, STORE_NAME);
+
+            const tx2 = db.transaction(STORE_NAME, "readonly");
+            const store2 = tx2.objectStore(STORE_NAME);
+            const getRequest = store2.get(key);
+
+            getRequest.onsuccess = () => {
+                resolve(getRequest.result);
+            };
+            getRequest.onerror = reject;
+        });
+    }
+
+    public static clearAllDBs() {
+        indexedDB.deleteDatabase("OfflineData");
+        indexedDB.deleteDatabase("NotificationStorage");
+    }
+
 }

@@ -46,7 +46,7 @@ async function init() {
 
         try {
 
-            const response = await (await fetch("http://localhost:2222/untis/users/register.php", {
+            const response = await (await fetch("http://localhost:2222/untis/users/register.php?noCache", {
                 method: "post",
                 body: JSON.stringify({
                     username: valueUsername,

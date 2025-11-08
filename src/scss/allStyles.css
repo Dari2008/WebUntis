@@ -86,13 +86,11 @@ iframe {
 }
 
 .h-s {
-  font-family: "Poppins";
   font-weight: 400;
   font-style: normal;
 }
 
 * {
-  font-family: "Poppins";
   font-weight: 400;
   font-style: normal;
   box-sizing: content-box;
@@ -100,14 +98,12 @@ iframe {
 
 .title {
   line-height: 2.5rem;
-  font-family: "Agrandir Bold";
   font-weight: 600;
   color: #EEEEEE;
 }
 
 .text {
   line-height: 2em;
-  font-family: "Poppins";
   color: #EEEEEE;
 }
 
@@ -1087,11 +1083,21 @@ body[lang=es] #touapp a {
   justify-self: center;
 }
 
-.settings-foldable-section-element h2 {
+.settings-foldable-section-element h1,
+.settings-foldable-section-element h2,
+.settings-foldable-section-element h3,
+.settings-foldable-section-element h4,
+.settings-foldable-section-element h5,
+.settings-foldable-section-element h6 {
   cursor: pointer;
   position: relative;
 }
-.settings-foldable-section-element h2::after {
+.settings-foldable-section-element h1::after,
+.settings-foldable-section-element h2::after,
+.settings-foldable-section-element h3::after,
+.settings-foldable-section-element h4::after,
+.settings-foldable-section-element h5::after,
+.settings-foldable-section-element h6::after {
   content: ">";
   position: absolute;
   top: 50%;
@@ -1099,7 +1105,12 @@ body[lang=es] #touapp a {
   transform: translateY(-50%) rotateZ(180deg);
   font-size: 1.5em;
 }
-.settings-foldable-section-element h2::before {
+.settings-foldable-section-element h1::before,
+.settings-foldable-section-element h2::before,
+.settings-foldable-section-element h3::before,
+.settings-foldable-section-element h4::before,
+.settings-foldable-section-element h5::before,
+.settings-foldable-section-element h6::before {
   content: ">";
   position: absolute;
   top: 50%;
@@ -1110,18 +1121,18 @@ body[lang=es] #touapp a {
 .settings-foldable-section-element .settings-foldable-section-element-content {
   overflow-y: clip;
 }
-.settings-foldable-section-element.hasToAnimate.open h2::after {
+.settings-foldable-section-element.hasToAnimate.open > h1::after, .settings-foldable-section-element.hasToAnimate.open > h2::after, .settings-foldable-section-element.hasToAnimate.open > h3::after, .settings-foldable-section-element.hasToAnimate.open > h4::after, .settings-foldable-section-element.hasToAnimate.open > h5::after, .settings-foldable-section-element.hasToAnimate.open > h6::after {
   transform: translateY(-50%) rotateZ(90deg);
   transition: transform 0.1s ease-in-out;
 }
-.settings-foldable-section-element.hasToAnimate h2::after {
+.settings-foldable-section-element.hasToAnimate h1::after, .settings-foldable-section-element.hasToAnimate h2::after, .settings-foldable-section-element.hasToAnimate h3::after, .settings-foldable-section-element.hasToAnimate h4::after, .settings-foldable-section-element.hasToAnimate h5::after, .settings-foldable-section-element.hasToAnimate h6::after {
   transition: transform 0.1s ease-in-out;
 }
-.settings-foldable-section-element.hasToAnimate.open h2::before {
+.settings-foldable-section-element.hasToAnimate.open > h1::before, .settings-foldable-section-element.hasToAnimate.open > h2::before, .settings-foldable-section-element.hasToAnimate.open > h3::before, .settings-foldable-section-element.hasToAnimate.open > h4::before, .settings-foldable-section-element.hasToAnimate.open > h5::before, .settings-foldable-section-element.hasToAnimate.open > h6::before {
   transform: translateY(-50%) rotateZ(90deg);
   transition: transform 0.1s ease-in-out;
 }
-.settings-foldable-section-element.hasToAnimate h2::before {
+.settings-foldable-section-element.hasToAnimate h1::before, .settings-foldable-section-element.hasToAnimate h2::before, .settings-foldable-section-element.hasToAnimate h3::before, .settings-foldable-section-element.hasToAnimate h4::before, .settings-foldable-section-element.hasToAnimate h5::before, .settings-foldable-section-element.hasToAnimate h6::before {
   transition: transform 0.1s ease-in-out;
 }
 .settings-foldable-section-element.hasToAnimate.open .settings-foldable-section-element-content {
@@ -1130,10 +1141,10 @@ body[lang=es] #touapp a {
 .settings-foldable-section-element.hasToAnimate:not(.open) .settings-foldable-section-element-content {
   animation: foldIn 0.3s ease-in-out 0ms 1 forwards;
 }
-.settings-foldable-section-element:not(.hasToAnimate).open h2::before {
+.settings-foldable-section-element:not(.hasToAnimate).open > h1::before, .settings-foldable-section-element:not(.hasToAnimate).open > h2::before, .settings-foldable-section-element:not(.hasToAnimate).open > h3::before, .settings-foldable-section-element:not(.hasToAnimate).open > h4::before, .settings-foldable-section-element:not(.hasToAnimate).open > h5::before, .settings-foldable-section-element:not(.hasToAnimate).open > h6::before {
   transform: translateY(-50%) rotateZ(90deg);
 }
-.settings-foldable-section-element:not(.hasToAnimate).open h2::after {
+.settings-foldable-section-element:not(.hasToAnimate).open > h1::after, .settings-foldable-section-element:not(.hasToAnimate).open > h2::after, .settings-foldable-section-element:not(.hasToAnimate).open > h3::after, .settings-foldable-section-element:not(.hasToAnimate).open > h4::after, .settings-foldable-section-element:not(.hasToAnimate).open > h5::after, .settings-foldable-section-element:not(.hasToAnimate).open > h6::after {
   transform: translateY(-50%) rotateZ(90deg);
 }
 .settings-foldable-section-element:not(.hasToAnimate).open .settings-foldable-section-element-content {
@@ -1142,7 +1153,7 @@ body[lang=es] #touapp a {
 .settings-foldable-section-element:not(.hasToAnimate):not(.open) .settings-foldable-section-element-content {
   height: 0vh;
 }
-.settings-foldable-section-element .settings-foldable-section-element-content .settings-title-element:first-of-type {
+.settings-foldable-section-element .settings-foldable-section-element-content .settings-title-element-wrapper > .settings-title-element {
   display: none;
 }
 
@@ -1544,6 +1555,931 @@ body[lang=es] #touapp a {
   pointer-events: none;
 }
 
+.settings-tools-excuse-system-element table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.settings-tools-excuse-system-element table .printBtn {
+  background-color: #2f2f2f;
+  color: white;
+  border-radius: 10px;
+  width: min-content;
+  padding-inline: 20px;
+  padding-block: 5px;
+  justify-self: center;
+  align-self: center;
+  cursor: pointer;
+}
+.settings-tools-excuse-system-element table td[colspan] {
+  display: table-cell;
+}
+.settings-tools-excuse-system-element table .printBtn:hover {
+  background-color: #424242;
+}
+.settings-tools-excuse-system-element table .printBtn:active {
+  background-color: #212121;
+}
+.settings-tools-excuse-system-element table .print {
+  color: rgb(242.25, 242.25, 242.25);
+  cursor: pointer;
+}
+.settings-tools-excuse-system-element table .print:hover {
+  color: rgb(249.9, 249.9, 249.9);
+}
+.settings-tools-excuse-system-element table .print:active {
+  color: rgb(229.5, 229.5, 229.5);
+}
+.settings-tools-excuse-system-element table .dropDownDivLeft,
+.settings-tools-excuse-system-element table .dropDownDivRight {
+  position: relative;
+}
+.settings-tools-excuse-system-element table .dropDownDivLeft::after,
+.settings-tools-excuse-system-element table .dropDownDivRight::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  font-size: 200%;
+}
+.settings-tools-excuse-system-element table .dropDownDivLeft::after {
+  content: ">";
+  transform: translate(-50%, -50%) rotate(0deg);
+  transition: transform 0.2s ease-in-out;
+}
+.settings-tools-excuse-system-element table .dropDownDivRight::after {
+  content: ">";
+  transform: translate(-50%, -50%) rotate(180deg);
+  transition: transform 0.2s ease-in-out;
+}
+.settings-tools-excuse-system-element table .lessonsToExcuse {
+  transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out;
+  visibility: collapse;
+  opacity: 0;
+}
+.settings-tools-excuse-system-element table .lessonsToExcuse .addIllLesson {
+  text-align: right;
+  margin: 10px;
+  width: fit-content;
+  margin-left: auto;
+  cursor: pointer;
+  user-select: none;
+}
+.settings-tools-excuse-system-element table .lessonsToExcuse .addIllLesson:hover {
+  color: rgb(171, 71.4303797468, 0);
+}
+.settings-tools-excuse-system-element table .lessonsToExcuse .addIllLesson:active {
+  color: rgb(255, 146.6962025316, 69);
+}
+.settings-tools-excuse-system-element table tr:has(+ .lessonsToExcuse) .dropDownDivLeft,
+.settings-tools-excuse-system-element table tr:has(+ .lessonsToExcuse) .dropDownDivRight {
+  cursor: pointer;
+}
+.settings-tools-excuse-system-element table .lessonsToExcuse .additionalExcuse {
+  background-color: color-mix(in srgb, #FF7512 25%, #212121 75%) !important;
+}
+.settings-tools-excuse-system-element table .lessonsToExcuse > td {
+  margin: 0;
+  padding: 0;
+}
+.settings-tools-excuse-system-element table .lessonsToExcuse table tbody tr:nth-of-type(2n) {
+  background-color: rgb(40.625, 40.625, 40.625);
+}
+.settings-tools-excuse-system-element table .lessonsToExcuse table tbody tr:nth-of-type(2n+1) {
+  background-color: rgb(59.625, 59.625, 59.625);
+}
+.settings-tools-excuse-system-element table .lessonsToExcuse table .lessonCountCell {
+  text-align: center;
+}
+.settings-tools-excuse-system-element table .lessonsToExcuse table .lessonCountIncrCell,
+.settings-tools-excuse-system-element table .lessonsToExcuse table .lessonCountDecrCell {
+  text-align: center;
+  font-size: 150%;
+  padding: 0;
+  cursor: pointer;
+  user-select: none;
+}
+.settings-tools-excuse-system-element table .lessonsToExcuse table .lessonCountIncrCell:hover,
+.settings-tools-excuse-system-element table .lessonsToExcuse table .lessonCountDecrCell:hover {
+  color: rgb(178.5, 178.5, 178.5);
+}
+.settings-tools-excuse-system-element table .lessonsToExcuse table .lessonCountIncrCell:active,
+.settings-tools-excuse-system-element table .lessonsToExcuse table .lessonCountDecrCell:active {
+  color: rgb(229.5, 229.5, 229.5);
+}
+.settings-tools-excuse-system-element table .lessonsToExcuse table tbody td:first-of-type {
+  padding-left: 5vw;
+}
+.settings-tools-excuse-system-element table .lessonsToExcuse table tbody td:last-of-type {
+  padding-right: 5vw;
+}
+.settings-tools-excuse-system-element table tr.open .dropDownDivLeft::after {
+  transition: transform 0.2s ease-in-out;
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+.settings-tools-excuse-system-element table tr.open .dropDownDivRight::after {
+  transition: transform 0.2s ease-in-out;
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+.settings-tools-excuse-system-element table tr.open + .lessonsToExcuse {
+  transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out;
+  visibility: visible;
+  opacity: 1;
+}
+
+table {
+  border-collapse: collapse;
+}
+table thead {
+  position: sticky;
+  top: 0;
+  background-color: #424242;
+  height: 4vh;
+}
+table thead td:last-of-type {
+  width: 5%;
+  min-width: 30px;
+}
+table tbody tr:not(.lessonsToExcuse):nth-of-type(2n) {
+  background-color: #2f2f2f;
+}
+table td {
+  padding-block: 10px;
+}
+table tr td:last-of-type {
+  padding-right: 20px;
+}
+table tr td:first-of-type {
+  padding-left: 20px;
+}
+
+.trash {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.trash {
+  color: #990000;
+  cursor: pointer;
+}
+
+.trash:hover {
+  color: #cc0000;
+}
+
+.trash:active {
+  color: rgb(178.5, 0, 0);
+}
+
+.addIllDayDialogWrapper {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000000000000;
+}
+.addIllDayDialogWrapper.addIllLessonDialogWrapper .inputWithLabel-wrapper {
+  margin-bottom: 10% !important;
+}
+.addIllDayDialogWrapper.addIllLessonDialogWrapper .addIllDayDialog {
+  height: auto;
+}
+.addIllDayDialogWrapper .addIllDayDialog:has(.dateRangePicker) {
+  height: 25vh;
+  min-height: 250px;
+  max-height: 500px;
+}
+.addIllDayDialogWrapper .addIllDayDialog {
+  width: 30vw;
+  height: 60vh;
+  background-color: #212121;
+  padding: 20px;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  color: #EEEEEE;
+  position: relative;
+}
+.addIllDayDialogWrapper .addIllDayDialog .toggleWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 5%;
+}
+.addIllDayDialogWrapper .addIllDayDialog .toggleWrapper label {
+  margin-left: auto;
+}
+.addIllDayDialogWrapper .addIllDayDialog .easepick-wrapper {
+  z-index: 10000000;
+}
+.addIllDayDialogWrapper .addIllDayDialog .inputWithLabel-wrapper {
+  margin-bottom: 5%;
+}
+.addIllDayDialogWrapper .addIllDayDialog .inputWithLabel-wrapper input {
+  width: 100%;
+  background-color: #212121;
+  color: #EEEEEE;
+}
+.addIllDayDialogWrapper .addIllDayDialog .inputWithLabel-wrapper::before {
+  background-color: #212121;
+}
+.addIllDayDialogWrapper .addIllDayDialog h2 {
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 5%;
+}
+.addIllDayDialogWrapper .addIllDayDialog input:not(.labelInput) {
+  max-height: 5vh;
+  outline: none;
+  border: none;
+  background-color: #2f2f2f;
+}
+.addIllDayDialogWrapper .addIllDayDialog input:not(.labelInput):hover {
+  background-color: #424242;
+}
+.addIllDayDialogWrapper .addIllDayDialog input:not(.labelInput):active {
+  background-color: rgb(34.25, 34.25, 34.25);
+}
+.addIllDayDialogWrapper .addIllDayDialog .buttonWrapper {
+  display: flex;
+  align-items: center;
+  height: 50px;
+  position: absolute;
+  bottom: 0;
+  width: calc(100% - 40px);
+}
+.addIllDayDialogWrapper .addIllDayDialog .buttonWrapper button {
+  width: calc(50% - 20px);
+  margin: 10px;
+  height: calc(100% - 20px);
+  background-color: #424242;
+  color: #EEEEEE;
+  border-radius: 10px;
+}
+.addIllDayDialogWrapper .addIllDayDialog .buttonWrapper button:hover {
+  background-color: rgb(53.25, 53.25, 53.25);
+}
+.addIllDayDialogWrapper .addIllDayDialog .buttonWrapper button:active {
+  background-color: rgb(35.75, 35.75, 35.75);
+}
+.addIllDayDialogWrapper .addIllDayDialog .dateRangePicker {
+  flex-grow: 1;
+  flex-flow: row;
+  max-height: 5vh;
+  position: relative;
+  cursor: pointer;
+  border: 2px solid #424242;
+}
+.addIllDayDialogWrapper .addIllDayDialog .dateRangePicker input {
+  cursor: pointer;
+}
+.addIllDayDialogWrapper .addIllDayDialog .dateRangePicker .divForParsedDate {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-inline: 10%;
+}
+.addIllDayDialogWrapper .addIllDayDialog .dateRangePicker .divForParsedDate span {
+  position: relative;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 110%;
+}
+.addIllDayDialogWrapper .addIllDayDialog .dateRangePicker .divForParsedDate span::after {
+  background-color: #212121;
+  padding-inline: 10px;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 75%;
+}
+.addIllDayDialogWrapper .addIllDayDialog .dateRangePicker .divForParsedDate span:first-of-type::after {
+  content: "From";
+}
+.addIllDayDialogWrapper .addIllDayDialog .dateRangePicker .divForParsedDate span:last-of-type::after {
+  content: "To";
+}
+.addIllDayDialogWrapper .addIllDayDialog .dateRangePicker .dataPickerInput {
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}
+
+@media print {
+  html,
+  body {
+    background-color: white;
+    margin: 0 !important;
+    padding: 0 !important;
+    padding-inline: 0 !important;
+  }
+  html body *:not(.printCanvas) {
+    display: none !important;
+  }
+  .printCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: auto;
+    z-index: 1000000000000000000;
+    object-fit: contain;
+  }
+}
+#menuOverlay {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  justify-content: center;
+}
+#menuOverlay > button {
+  margin: 10px;
+  padding: 10px;
+  background-color: #2f2f2f;
+  color: white;
+  height: 5%;
+  font-size: 120%;
+  cursor: pointer;
+  border-radius: 10px;
+}
+#menuOverlay > button:hover {
+  background-color: rgb(72.5, 72.5, 72.5);
+}
+#menuOverlay > button:active {
+  background-color: rgb(21.5, 21.5, 21.5);
+}
+
+#menuOverlay {
+  transition: left 0.3s ease-in-out, padding 0.3s ease-in-out, margin 0.3s ease-in-out;
+  width: 50vw;
+  max-width: 400px;
+  min-width: 200px;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10000000;
+  background-color: #212121;
+}
+
+#menuOverlay::after {
+  transition: backdrop-filter 0.4s ease-in-out, opacity 0.4s ease-in-out, left 0.4s ease-in-out;
+  content: "";
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100%;
+  left: max(min(50vw, 200px), 400px);
+  z-index: 10000000;
+  opacity: 1;
+  backdrop-filter: blur(4px) brightness(0.3);
+}
+
+html:not(.menuOpen) #menuOverlay {
+  left: -100%;
+}
+html:not(.menuOpen) #menuOverlay::after {
+  opacity: 0;
+  left: 0;
+  pointer-events: none;
+  backdrop-filter: blur(0px) brightness(0.3);
+}
+
+header.hamburger {
+  position: fixed;
+  top: 2px;
+  left: 2px;
+  z-index: 100000;
+  transition: left 0.3s ease-in-out;
+  transform: scale(0.75);
+  background: rgb(171, 71.4303797468, 0);
+  border-radius: 100%;
+  padding: 10px;
+  height: calc(var(--titleBarHeight) + 20px);
+  width: calc(var(--titleBarHeight) + 20px);
+  aspect-ratio: 1;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.menuOpen header.hamburger {
+  position: fixed;
+  top: 2px;
+  left: calc(max(min(50vw, 200px), 400px) + 10px);
+  z-index: 100000000;
+}
+
+#top-line,
+#bottom-line,
+#middle-line {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.menuOpen #hamburger #top-line {
+  animation: down-rotate 0.3s ease-out both;
+}
+.menuOpen #hamburger #bottom-line {
+  animation: up-rotate 0.3s ease-out both;
+}
+.menuOpen #hamburger #middle-line {
+  animation: hide 0.3s ease-out forwards;
+}
+
+@keyframes up-rotate {
+  0% {
+    animation-timing-function: cubic-bezier(0.16, -0.88, 0.97, 0.53);
+    transform: translateY(0px);
+  }
+  30% {
+    transform-origin: center;
+    animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform: translateY(-11px) translateX(1px);
+  }
+  100% {
+    transform-origin: center;
+    transform: translateY(-11px) translateX(1px) rotate(45deg) scale(0.9);
+  }
+}
+@keyframes down-rotate {
+  0% {
+    animation-timing-function: cubic-bezier(0.16, -0.88, 0.97, 0.53);
+    transform: translateY(0px);
+  }
+  30% {
+    transform-origin: center;
+    animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform: translateY(13px);
+  }
+  100% {
+    transform-origin: center;
+    transform: translateY(13px) rotate(-45deg) scale(0.9);
+  }
+}
+@keyframes hide {
+  29% {
+    opacity: 1;
+  }
+  30% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+.menuOpen header.hamburger::after {
+  opacity: 0;
+}
+
+header.hamburger::after {
+  padding: 13px;
+}
+
+header.hamburger:not([data-notificationCount])::after,
+#notificationsBell:not([data-notificationCount])::after {
+  content: "";
+  opacity: 0;
+}
+header.hamburger::after,
+#notificationsBell::after {
+  content: attr(data-notificationCount);
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #c30000;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.2rem;
+  text-align: center;
+  width: 1vw;
+  height: 1vw;
+  max-width: 30px;
+  min-width: 10px;
+  max-height: 30px;
+  min-height: 10px;
+  color: white;
+  box-shadow: -3px 3px 5px #2e2e2e;
+  opacity: 1;
+  transition: opacity 0.3s ease-out;
+  user-select: none;
+}
+header.hamburger.noNotifications::after,
+#notificationsBell.noNotifications::after {
+  transition: opacity 0.3s ease-in;
+  content: "";
+  opacity: 0;
+}
+
+html:has(#loadingAnimation[open]) header.hamburger::after {
+  opacity: 0;
+  transition: opacity 0.3s ease-in;
+}
+
+html:not(.menuOpen) #notificationsBell {
+  opacity: 0;
+  pointer-events: none;
+}
+
+#notificationsBell {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000000000;
+  height: 3vh;
+  width: 3vh;
+  opacity: 1;
+  transition: opacity 0.3s ease-out;
+}
+#notificationsBell::after {
+  font-size: 80%;
+  width: 1.1vw;
+  height: 1.1vw;
+  top: -10px;
+  right: -10px;
+}
+#notificationsBell img {
+  height: 100%;
+  aspect-ratio: 1/1;
+}
+
+#notificationsBell:not(:hover) .notificationList {
+  opacity: 0;
+  visibility: collapse;
+}
+
+#notificationsBell .notificationList {
+  width: max-content;
+  min-width: 300px;
+  max-width: min(40vw, 700px);
+  position: absolute;
+  bottom: -20px;
+  transform: translate(0%, 100%);
+  background: rgba(103, 103, 103, 0.2);
+  backdrop-filter: blur(4px) brightness(2);
+  right: 0;
+  transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
+  border-radius: 30px;
+}
+#notificationsBell .notificationList .notificationWrapper.old {
+  opacity: 0.2;
+}
+#notificationsBell .notificationList .notificationWrapper:first-of-type {
+  margin-top: 10px;
+}
+#notificationsBell .notificationList:not(:has(> .notificationWrapper))::before {
+  content: "No Notifications";
+  position: absolute;
+  color: white;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+#notificationsBell .notificationList:not(:has(> .notificationWrapper)) .markAllRead {
+  opacity: 0;
+  pointer-events: none;
+}
+#notificationsBell .notificationList .markAllRead {
+  color: white;
+  font-size: 150%;
+  text-align: right;
+  padding-inline: 20px;
+  margin-top: 5px;
+  cursor: pointer;
+  width: min-content;
+  margin-left: auto;
+}
+#notificationsBell .notificationList .markAllRead:hover {
+  color: #666666;
+}
+#notificationsBell .notificationList .markAllRead:active {
+  color: #999999;
+}
+
+#notificationsBell:hover .notificationList {
+  opacity: 1;
+  visibility: visible;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+#notificationsBell:hover .notificationList::after {
+  content: "";
+  position: absolute;
+  top: 0px;
+  right: 0px;
+}
+
+.notificationWrapper {
+  display: grid;
+  grid-template-columns: 1fr 50px;
+  grid-template-rows: 50px 1fr;
+  grid-column-gap: 0px;
+  grid-row-gap: 0px;
+  margin: 20px;
+  padding: 10px;
+  border: 2px solid #FF7512;
+  border-radius: 20px;
+  box-shadow: 0px 0px 5px rgb(222, 92.7341772152, 0);
+}
+.notificationWrapper .title {
+  grid-area: 1/1/2/2;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.notificationWrapper .text {
+  grid-area: 2/1/3/2;
+  text-align: center;
+  margin: 2px;
+}
+.notificationWrapper .close {
+  grid-area: 1/2/2/3;
+  background-color: transparent;
+  color: white;
+  font-size: 200%;
+  cursor: pointer;
+}
+.notificationWrapper .close:hover {
+  color: #666666;
+}
+.notificationWrapper .close:active {
+  color: #999999;
+}
+
+#logout {
+  position: absolute;
+  bottom: 0px;
+  left: 20px;
+  width: calc(100% - 60px);
+  background-color: color-mix(in srgb, #830000 20%, #2f2f2f 80%) !important;
+  color: #ff3333 !important;
+}
+
+#logoutQuestion.open {
+  opacity: 1;
+  pointer-events: all;
+}
+
+#logoutQuestion {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #2f2f2f;
+  padding: 20px;
+  border-radius: 20px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  grid-column-gap: 0px;
+  grid-row-gap: 0px;
+  width: 20vw;
+  min-width: 100px;
+  max-width: 500px;
+  z-index: 1000000000;
+  box-shadow: 0px 0px 20px #830000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease-in-out;
+}
+#logoutQuestion span {
+  grid-area: 1/1/2/3;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 120%;
+  color: white;
+}
+#logoutQuestion .no {
+  grid-area: 2/1/3/2;
+}
+#logoutQuestion .yes {
+  grid-area: 2/2/3/3;
+}
+#logoutQuestion .yes {
+  background-color: #830000;
+  color: white;
+}
+#logoutQuestion .yes:hover {
+  background-color: #b60000;
+}
+#logoutQuestion .yes:active {
+  background-color: #500000;
+}
+#logoutQuestion button {
+  margin: 10px;
+  padding: 10px;
+  background-color: #424242;
+  color: white;
+  height: 5%;
+  font-size: 120%;
+  cursor: pointer;
+  border-radius: 10px;
+  height: 100%;
+  max-height: min(3vh, 50px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+#logoutQuestion button:hover {
+  background-color: rgb(91.5, 91.5, 91.5);
+}
+#logoutQuestion button:active {
+  background-color: rgb(40.5, 40.5, 40.5);
+}
+
+html.offlineMode .settings-schedule .addlessonButton {
+  display: none;
+}
+
+.settings-schedule-table .settings-schedule-title {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+}
+.settings-schedule-table .settings-schedule-wrapper {
+  height: 80vh;
+  width: 100%;
+  padding: 20px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.settings-schedule-table .settings-schedule-wrapper .settings-schedule {
+  width: 100%;
+  display: grid;
+  --minutesToDisplayOnScreen: calc(var(--totalMinutes) / 1.2);
+  --pixelPerMinute: calc(var(--windowHeight) / var(--minutesToDisplayOnScreen));
+  height: calc(var(--totalMinutes) * var(--pixelPerMinute));
+}
+.settings-schedule-table .settings-schedule-wrapper .settings-schedule .header {
+  text-align: center;
+}
+.settings-schedule-table .settings-schedule-wrapper .settings-schedule .addlessonButton {
+  width: calc(100% - 20px);
+  height: calc(100% - 20px);
+  padding: 10px;
+  margin: 10px;
+  border-radius: 10px;
+  background-color: rgb(52.1, 52.1, 52.1);
+  font-size: 200%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  cursor: pointer;
+}
+.settings-schedule-table .settings-schedule-wrapper .settings-schedule .addlessonButton:hover {
+  background-color: rgb(72.5, 72.5, 72.5);
+}
+.settings-schedule-table .settings-schedule-wrapper .settings-schedule .addlessonButton:active {
+  background-color: rgb(21.5, 21.5, 21.5);
+}
+.settings-schedule-table .settings-schedule-wrapper .settings-schedule .lesson-time-slot {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 150%;
+}
+.settings-schedule-table .settings-schedule-wrapper .settings-schedule .lesson-time-slot::after {
+  content: ".";
+}
+.settings-schedule-table .settings-schedule-wrapper .settings-schedule .lessonLoaded {
+  position: relative;
+  border: 2px solid #424242;
+  border-radius: 10px;
+  padding-inline: 10px;
+  margin-inline: 10px;
+  padding-block: 2px;
+  margin-block: 2px;
+  border-radius: 10px;
+  cursor: not-allowed;
+}
+.settings-schedule-table .settings-schedule-wrapper .settings-schedule .lessonLoaded span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-overflow: ellipsis;
+  overflow: hidden;
+  text-wrap: nowrap;
+  max-width: 80%;
+}
+
+#addScheduleDialogWrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000000;
+  background-color: rgba(23, 23, 23, 0.2);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+#addScheduleDialogWrapper #addScheduleDialog {
+  width: 30vw;
+  height: 60vh;
+  background-color: #2f2f2f;
+  padding: 20px;
+  border-radius: 20px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: min-content auto 1fr auto;
+  grid-column-gap: 20px;
+  grid-row-gap: 0px;
+}
+#addScheduleDialogWrapper #addScheduleDialog h2 {
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+}
+#addScheduleDialogWrapper #addScheduleDialog input {
+  padding: 20px;
+  height: 5vh;
+  font-size: 120%;
+}
+#addScheduleDialogWrapper #addScheduleDialog .signSuggestion {
+  overflow-y: auto;
+  list-style: none;
+}
+#addScheduleDialogWrapper #addScheduleDialog .signSuggestion .option {
+  padding: 10px;
+  display: flex;
+  color: white;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+#addScheduleDialogWrapper #addScheduleDialog .signSuggestion .option:hover {
+  color: #999999;
+}
+#addScheduleDialogWrapper #addScheduleDialog .signSuggestion .option:active {
+  color: #cccccc;
+}
+#addScheduleDialogWrapper #addScheduleDialog .addBtn,
+#addScheduleDialogWrapper #addScheduleDialog .cancelbtn,
+#addScheduleDialogWrapper #addScheduleDialog input {
+  outline: none;
+  border: none;
+  width: 100%;
+  background-color: #424242;
+  color: white;
+  border-radius: 12px;
+  padding: 10px;
+}
+#addScheduleDialogWrapper #addScheduleDialog .addBtn:hover,
+#addScheduleDialogWrapper #addScheduleDialog .cancelbtn:hover {
+  background-color: #676767;
+}
+#addScheduleDialogWrapper #addScheduleDialog .addBtn:active,
+#addScheduleDialogWrapper #addScheduleDialog .cancelbtn:active {
+  background-color: #2f2f2f;
+}
+#addScheduleDialogWrapper #addScheduleDialog h2 {
+  grid-area: 1/1/2/3;
+}
+#addScheduleDialogWrapper #addScheduleDialog input {
+  grid-area: 2/1/3/3;
+}
+#addScheduleDialogWrapper #addScheduleDialog .signSuggestion {
+  grid-area: 3/1/4/3;
+}
+#addScheduleDialogWrapper #addScheduleDialog .addBtn {
+  grid-area: 4/1/5/2;
+}
+#addScheduleDialogWrapper #addScheduleDialog .cancelBtn {
+  grid-area: 4/2/5/3;
+}
+
 /*!
  * Toastify js 1.12.0
  * https://github.com/apvarun/toastify-js
@@ -1636,10 +2572,16 @@ body[lang=es] #touapp a {
   --defaultBorder: rgb(76.5, 76.5, 76.5);
   --additionalLessonBorderColor: rgb(27.4042553191, 0, 184);
   --examColor: #664200;
+  --titleBarHeight: 4vh;
+  --holidayColor: #222243;
 }
 
-body {
-  padding-inline: 20px;
+@font-face {
+  font-family: "Inter";
+  src: url("../../fonts/Inter-VariableFont_opsz,wght.ttf") format("truetype");
+}
+* {
+  font-family: "Inter", Tahoma, Geneva, Verdana, sans-serif;
 }
 
 #titleBar {
@@ -1652,11 +2594,10 @@ body {
 }
 
 #timeSchedule {
-  --titleBarHeight: 4vh;
-  height: calc(100vh - var(--titleBarHeight) - 40px);
+  height: 100%;
   overflow-y: auto;
   position: absolute;
-  width: calc(100% - 40px);
+  width: 100%;
   overflow-x: hidden;
 }
 
@@ -1689,17 +2630,15 @@ body {
   height: var(--titleBarHeight, 4vh);
 }
 
-#titleBar #settingsOpenBtn {
-  grid-area: 1/4/2/5;
+#settingsOpenBtn {
   max-height: 100%;
-  max-width: 100%;
+  aspect-ratio: 1;
   background: transparent;
-  width: 100%;
   height: var(--titleBarHeight, 4vh);
   padding: 5px;
   cursor: pointer;
 }
-#titleBar #settingsOpenBtn img {
+#settingsOpenBtn img {
   max-width: 100%;
   max-height: 100%;
   width: 100%;
@@ -1736,6 +2675,10 @@ body {
 .lesson.additional {
   border: 5px solid var(--additionalLessonBorderColor);
   border-radius: 15px;
+}
+
+.lesson.past {
+  opacity: 0.2;
 }
 
 .lesson:not(.infoTextHidden) {
@@ -2362,11 +3305,12 @@ body {
   --minutesToDisplayOnScreen: calc(var(--totalMinutes) / 1.2);
   --pixelPerMinute: calc(var(--windowHeight) / var(--minutesToDisplayOnScreen));
   height: calc(var(--totalMinutes) * var(--pixelPerMinute));
+  user-select: none;
 }
 .schedule .header {
   position: sticky;
   top: 0px;
-  background: #171717;
+  background: #424242;
   z-index: 1000;
   display: flex;
   justify-content: center;
@@ -2378,6 +3322,19 @@ body {
 }
 .schedule .header .longName {
   display: inline;
+}
+.schedule .holiday {
+  margin: 5px;
+  padding: 5px;
+  position: relative;
+  background-color: var(--holidayColor);
+}
+.schedule .holiday .holidayNameLabel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(90deg);
+  font-size: 200%;
 }
 .schedule .break:not(.lessonTime) {
   background: rgba(47, 47, 47, 0.5);
@@ -2400,13 +3357,13 @@ body {
 }
 .schedule .lessonTime .start {
   position: absolute;
-  top: 0px;
+  top: 5px;
   left: 50%;
   transform: translateX(-50%);
 }
 .schedule .lessonTime .end {
   position: absolute;
-  bottom: 0px;
+  bottom: 5px;
   left: 50%;
   transform: translateX(-50%);
 }
@@ -2458,8 +3415,21 @@ body {
 }
 
 .currentDay {
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: rgba(255, 117, 18, 0.0352941176);
   pointer-events: none;
+  position: relative;
+}
+.currentDay::after {
+  content: "";
+  display: var(--currentTimeDisplay, block);
+  position: absolute;
+  top: var(--currentPosFromTop);
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background-color: #FF7512;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgb(255, 176.3924050633, 120);
 }
 
 .schoolTimesBackground {
@@ -2467,67 +3437,50 @@ body {
   background: rgba(47, 47, 47, 0.5);
 }
 
-#prevWeek,
-#nextWeek {
-  background-color: rgba(100, 100, 100, 0.2);
-  border: none;
-  color: white;
-  font-size: clamp(0.5em, 0.5526315789em + 0.8421052632vw, 1.5em);
-  cursor: pointer;
+.schedule:not(.nextSchedule):not(.previousSchedule):not(.currentSchedule) {
+  visibility: hidden;
 }
 
-#prevWeek:not(.disabled):hover,
-#nextWeek:not(.disabled):hover {
-  background-color: rgba(150, 150, 150, 0.2);
+.schedule,
+.nextSchedule,
+.previousSchedule {
+  transition: transform ease-in-out var(--animationTime) !important;
 }
 
-#prevWeek:not(.disabled):active,
-#nextWeek:not(.disabled):active {
-  background-color: rgba(200, 200, 200, 0.2);
+.nextSchedule {
+  transform: translateX(100vw) !important;
+  right: 0;
+  width: 100%;
 }
 
-#schedule,
-#nextSchedule,
-#previousSchedule {
+.previousSchedule {
+  transform: translateX(-100vw) !important;
+  left: 0;
+  width: 100%;
+}
+
+.nextSchedule.animateToCurrent {
+  transform: translateX(0vw) !important;
+}
+
+.previousSchedule.animateToCurrent {
+  transform: translateX(0vw) !important;
+}
+
+.schedule {
   position: absolute;
-  top: 0;
-}
-
-#schedule[animate],
-#nextSchedule[animate],
-#previousSchedule[animate] {
-  transition: transform 0.5s;
-}
-
-#nextSchedule {
-  transform: translate(calc(100% + 500px));
+  transform: translateX(0%);
   right: 0;
-  width: 100%;
+  --animationTime: .5s;
 }
 
-#previousSchedule {
-  transform: translate(calc(-1 * (100% + 500px)));
-  left: 0;
-  width: 100%;
-}
-
-body:has(#schedule[animateNext]) #nextSchedule {
-  transform: translate(0%);
-  right: 0;
-}
-
-body:has(#schedule[animatePrevious]) #previousSchedule {
-  transform: translate(0%);
-  right: 0;
-}
-
-#schedule[animatePrevious] {
-  transform: translate(calc(100% + 500px));
+.schedule.animateToPrevious {
+  transform: translateX(100vw) !important;
   left: 0;
 }
 
-#schedule[animateNext] {
-  transform: translate(calc(-1 * (100% + 500px)));
+.schedule.animateToNext {
+  transform: translateX(-100vw) !important;
   left: 0;
 }
 
@@ -2742,7 +3695,9 @@ body:has(#schedule[animatePrevious]) #previousSchedule {
 .examButton,
 .breakButton,
 .untisAccessButton,
-.settings-teacher-list .addTeacherBtn {
+.settings-teacher-list .addTeacherBtn,
+.illDayAddBtn,
+.illDayRangeAddBtn {
   text-align: center;
   height: 100%;
   font-size: 2em;
@@ -2755,14 +3710,18 @@ body:has(#schedule[animatePrevious]) #previousSchedule {
 .examButton:hover,
 .breakButton:hover,
 .untisAccessButton:hover,
-.settings-teacher-list .addTeacherBtn:hover {
+.settings-teacher-list .addTeacherBtn:hover,
+.illDayAddBtn:hover,
+.illDayRangeAddBtn:hover {
   color: rgb(127.5, 127.5, 127.5);
 }
 
 .examButton:active,
 .breakButton:active,
 .untisAccessButton:active,
-.settings-teacher-list .addTeacherBtn:active {
+.settings-teacher-list .addTeacherBtn:active,
+.illDayAddBtn:active,
+.illDayRangeAddBtn:active {
   color: #cccccc;
 }
 

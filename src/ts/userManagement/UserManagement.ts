@@ -4,10 +4,11 @@ import type { BreaksRawByDay, DayName, LessonRaw, LessonTime, LessonTimes, Lesso
 import type { School } from "../@types/School";
 import type { Teacher, TeacherDatabase } from "../@types/Teachers";
 import type { UntisAccess } from "../@types/UntisAccess";
-import type { AllData, UpdateDataBreaks, UpdateDataExams, UpdateDataPreferences, UpdateDataSchedule, UpdateDataTeachers, UpdateDataUntisAccess, UpdateMethod } from "../@types/UserManagement";
+import type { AllData, SchoolTimes, UpdateDataBreaks, UpdateDataExams, UpdateDataIllDays, UpdateDataPreferences, UpdateDataSchedule, UpdateDataTeachers, UpdateDataUntisAccess, UpdateMethod } from "../@types/UserManagement";
 import { HOST } from "../ScheduleDarius_old";
 import UntisManager from "../untis/UntisManager";
 import Utils from "../Utils";
+import { SettingsScheduleList } from "../customSettings/SettingsScheduleList";
 
 type RequestResponse = {
     status: "error" | "success";
@@ -17,6 +18,7 @@ type RequestResponse = {
 
 type UpdateResponse = {
     success: boolean;
+    schoolTimes?: SchoolTimes;
 }
 
 export class UserManagement {
@@ -53,11 +55,19 @@ export class UserManagement {
         this.validJwt = true;
     }
 
+    public static async logout() {
+        localStorage.setItem("allowedUntil", "");
+        localStorage.setItem("jwt", "");
+        localStorage.setItem("endpointLastValue", "");
+        Utils.clearAllDBs();
+        location.replace("/login/");
+    }
+
     public static async loadAll(): Promise<boolean | AllData> {
         if (!navigator.onLine) {
-            const localStorageOfflineData = localStorage.getItem("OFFLINE_ALL_DATA");
+            const localStorageOfflineData = await Utils.loadFromDB("OfflineData", "OfflineAllData", "OFFLINE_ALL_DATA");
             if (localStorageOfflineData) {
-                const all = JSON.parse(localStorageOfflineData) as AllData;
+                const all = localStorageOfflineData as AllData;
                 this.compileAll(all);
                 this.ALL_DATA = all;
                 return all;
@@ -72,14 +82,11 @@ export class UserManagement {
         const all = result as AllData;
         this.compileAll(all);
         this.ALL_DATA = all;
-        localStorage.setItem("OFFLINE_ALL_DATA", JSON.stringify(this.ALL_DATA));
+        Utils.saveInDB("OfflineData", "OfflineAllData", "OFFLINE_ALL_DATA", this.ALL_DATA);
         return all;
     }
 
     private static compileAll(all: AllData) {
-
-
-
         function getEndOfLesson(start: string): string {
             const parsed = UntisManager.parseTime(start);
             parsed.minute += 45;
@@ -136,7 +143,11 @@ export class UserManagement {
             return filtered;
         }
 
-        all.schools = all.untisAccesses.map(e => e.school) as School[];
+        const allSchools = new Set<School>();
+        all.untisAccesses.map(e => e.school).forEach(s => allSchools.add(s));
+        Object.values(all.breaks).flat().forEach(b => allSchools.add(b.school));
+
+        all.schools = Array.from(allSchools).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
         all.LESSON_TIMES = compileScheduleToLessonTimes();
         all.LESSON_TIMES_STRING = (() => {
 
@@ -214,6 +225,13 @@ export class UserManagement {
         return result as ScheduleRawData;
     }
 
+
+    public static async getIllDates(): Promise<UntisAccess[] | boolean> {
+        const result = await this.request("http://" + HOST + "/untis/users/data/getData.php", { "jwt": this.jwt, dataType: "illDates" });
+        if (!result) return false;
+        return result as UntisAccess[];
+    }
+
     public static async getExams(): Promise<ExamList | boolean> {
         const result = await this.request("http://" + HOST + "/untis/users/data/getData.php", { "jwt": this.jwt, dataType: "exams" });
         if (!result) return false;
@@ -244,6 +262,12 @@ export class UserManagement {
             updateMethod: updateMethod
         }) as UpdateResponse;
         if (!result) return false;
+
+        if (result.schoolTimes) {
+            this.ALL_DATA!.schoolTimes = result.schoolTimes;
+            SettingsScheduleList.INSTANCES.forEach(e => e.updateTable());
+        }
+
         return result.success;
     }
 
@@ -284,6 +308,17 @@ export class UserManagement {
         const result = await this.request("http://" + HOST + "/untis/users/data/updateData.php", {
             "jwt": this.jwt,
             dataType: "exams",
+            data: data,
+            updateMethod: updateMethod
+        }) as UpdateResponse;
+        if (!result) return false;
+        return result.success;
+    }
+
+    public static async updateIllDays(updateMethod: UpdateMethod | "update", data: UpdateDataIllDays): Promise<boolean> {
+        const result = await this.request("http://" + HOST + "/untis/users/data/updateData.php", {
+            "jwt": this.jwt,
+            dataType: "illDates",
             data: data,
             updateMethod: updateMethod
         }) as UpdateResponse;

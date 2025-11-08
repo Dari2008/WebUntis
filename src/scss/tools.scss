@@ -1,0 +1,441 @@
+@use "Variables.scss" as vars;
+
+
+.settings-tools-excuse-system-element {
+    table {
+        width: 100%;
+        border-collapse: collapse;
+
+        .printBtn {
+            background-color: vars.$gray-700;
+            color: white;
+            border-radius: 10px;
+            width: min-content;
+            padding-inline: 20px;
+            padding-block: 5px;
+            justify-self: center;
+            align-self: center;
+            cursor: pointer;
+        }
+
+
+        td[colspan] {
+            display: table-cell;
+        }
+
+        .printBtn:hover {
+            background-color: vars.$gray-600;
+        }
+
+        .printBtn:active {
+            background-color: vars.$gray-800;
+        }
+
+        .print {
+            color: darken(white, 5%);
+            cursor: pointer;
+        }
+
+        .print:hover {
+            color: darken(white, 2%);
+        }
+
+        .print:active {
+            color: darken(white, 10%);
+        }
+
+        .dropDownDivLeft,
+        .dropDownDivRight {
+            position: relative;
+        }
+
+        .dropDownDivLeft::after,
+        .dropDownDivRight::after {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            font-size: 200%;
+        }
+
+        $transitionTime: 0.2s;
+
+        .dropDownDivLeft::after {
+            content: ">";
+            transform: translate(-50%, -50%) rotate(0deg);
+            transition: transform $transitionTime ease-in-out;
+        }
+
+        .dropDownDivRight::after {
+            content: ">";
+            transform: translate(-50%, -50%) rotate(180deg);
+            transition: transform $transitionTime ease-in-out;
+        }
+
+        .lessonsToExcuse {
+            transition: opacity $transitionTime ease-in-out, visibility $transitionTime ease-in-out;
+            visibility: collapse;
+            opacity: 0;
+
+            .addIllLesson {
+                text-align: right;
+                margin: 10px;
+                width: fit-content;
+                margin-left: auto;
+                cursor: pointer;
+                user-select: none;
+            }
+
+            .addIllLesson:hover {
+                color: darken(vars.$themeColor, 20%);
+            }
+
+            .addIllLesson:active {
+                color: lighten(vars.$themeColor, 10%);
+            }
+
+        }
+
+        tr:has(+.lessonsToExcuse) {
+
+            .dropDownDivLeft,
+            .dropDownDivRight {
+                cursor: pointer;
+            }
+        }
+
+        .lessonsToExcuse .additionalExcuse {
+            background-color: color-mix(in srgb, vars.$themeColor 25%, vars.$gray-800 75%) !important;
+        }
+
+        .lessonsToExcuse>td {
+            margin: 0;
+            padding: 0;
+        }
+
+        .lessonsToExcuse table {
+            tbody tr:nth-of-type(2n) {
+                background-color: darken(vars.$gray-700, 2.5%);
+            }
+
+            tbody tr:nth-of-type(2n+1) {
+                background-color: darken(vars.$gray-600, 2.5%);
+            }
+
+            .lessonCountCell {
+                text-align: center;
+            }
+
+            .lessonCountIncrCell,
+            .lessonCountDecrCell {
+                text-align: center;
+                font-size: 150%;
+                padding: 0;
+                cursor: pointer;
+                user-select: none;
+            }
+
+            .lessonCountIncrCell:hover,
+            .lessonCountDecrCell:hover {
+                color: darken(white, 30%);
+            }
+
+            .lessonCountIncrCell:active,
+            .lessonCountDecrCell:active {
+                color: darken(white, 10%);
+            }
+
+            tbody td {
+                &:first-of-type {
+                    padding-left: 5vw;
+                }
+
+                &:last-of-type {
+                    padding-right: 5vw;
+                }
+
+            }
+
+        }
+
+        tr.open {
+
+            .dropDownDivLeft::after {
+                transition: transform $transitionTime ease-in-out;
+                transform: translate(-50%, -50%) rotate(90deg);
+            }
+
+            .dropDownDivRight::after {
+                transition: transform $transitionTime ease-in-out;
+                transform: translate(-50%, -50%) rotate(90deg);
+            }
+
+            &+.lessonsToExcuse {
+                transition: opacity $transitionTime ease-in-out, visibility $transitionTime ease-in-out;
+                visibility: visible;
+                opacity: 1;
+            }
+
+        }
+
+    }
+}
+
+table {
+    border-collapse: collapse;
+
+    thead {
+        position: sticky;
+        top: 0;
+        background-color: vars.$gray-600;
+        height: 4vh;
+    }
+
+    thead td:last-of-type {
+        width: 5%;
+        min-width: 30px;
+    }
+
+    tbody tr:not(.lessonsToExcuse):nth-of-type(2n) {
+        background-color: vars.$gray-700;
+    }
+
+    // tbody tr td:last-of-type {
+    //     display: flex;
+    //     justify-content: center;
+    //     align-items: center;
+    // }
+
+    // .hidden {
+    //     display: none;
+    // }
+
+    td {
+        padding-block: 10px;
+    }
+
+    tr td:last-of-type {
+        padding-right: 20px;
+    }
+
+    tr td:first-of-type {
+        padding-left: 20px;
+    }
+}
+
+
+.trash {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.trash {
+    color: darken(red, 20%);
+    cursor: pointer;
+}
+
+.trash:hover {
+    color: darken(red, 10%);
+}
+
+.trash:active {
+    color: darken(red, 15%);
+}
+
+.addIllDayDialogWrapper {
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(4px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000000000000;
+
+    &.addIllLessonDialogWrapper {
+        .inputWithLabel-wrapper {
+            margin-bottom: 10% !important;
+        }
+
+        .addIllDayDialog {
+            height: auto;
+        }
+    }
+
+    .addIllDayDialog:has(.dateRangePicker) {
+        height: 25vh;
+        min-height: 250px;
+        max-height: 500px;
+    }
+
+    .addIllDayDialog {
+        width: 30vw;
+        height: 60vh;
+        background-color: vars.$gray-800;
+        padding: 20px;
+        border-radius: 20px;
+        display: flex;
+        flex-direction: column;
+        color: vars.$textColor;
+        position: relative;
+
+
+
+        .toggleWrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 5%;
+
+            label {
+                margin-left: auto;
+            }
+        }
+
+        .easepick-wrapper {
+            z-index: 10000000;
+        }
+
+        .inputWithLabel-wrapper {
+            margin-bottom: 5%;
+
+            input {
+                width: 100%;
+                background-color: vars.$gray-800;
+                color: vars.$textColor;
+            }
+
+            &::before {
+                background-color: vars.$gray-800;
+            }
+
+        }
+
+        h2 {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 5%;
+        }
+
+        input:not(.labelInput) {
+            max-height: 5vh;
+            outline: none;
+            border: none;
+            background-color: vars.$gray-700;
+        }
+
+        input:not(.labelInput):hover {
+            background-color: vars.$gray-600;
+        }
+
+        input:not(.labelInput):active {
+            background-color: darken(vars.$gray-700, 5%);
+        }
+
+        .buttonWrapper {
+            display: flex;
+            align-items: center;
+            height: 50px;
+            position: absolute;
+            bottom: 0;
+            width: calc(100% - 40px);
+
+            button {
+                width: calc(50% - 20px);
+                margin: 10px;
+                height: calc(100% - 20px);
+                background-color: vars.$gray-600;
+                color: vars.$textColor;
+                border-radius: 10px;
+            }
+
+            button:hover {
+                background-color: darken(vars.$gray-600, 5%);
+            }
+
+            button:active {
+                background-color: lighten(vars.$gray-900, 5%);
+            }
+
+        }
+
+        .dateRangePicker {
+            flex-grow: 1;
+            flex-flow: row;
+            max-height: 5vh;
+            position: relative;
+            cursor: pointer;
+            border: 2px solid vars.$gray-600;
+
+            input {
+                cursor: pointer;
+            }
+
+            .divForParsedDate {
+                width: 100%;
+                height: 100%;
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                $padding: 10%;
+                padding-inline: $padding;
+
+                span {
+                    position: relative;
+                    height: 100%;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    font-size: 110%;
+                }
+
+                span::after {
+                    background-color: vars.$gray-800;
+                    padding-inline: 10px;
+                    position: absolute;
+                    top: 0;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    font-size: 75%;
+                }
+
+
+
+                & span:first-of-type::after {
+                    content: "From";
+                }
+
+                & span:last-of-type::after {
+                    content: "To";
+                }
+
+                // & span:last-of-type {
+                //     margin-right: auto;
+                // }
+
+            }
+
+
+            .dataPickerInput {
+                width: 100%;
+                height: 100%;
+                opacity: 0;
+                position: absolute;
+                bottom: 0;
+                left: 0;
+            }
+
+        }
+
+    }
+
+}

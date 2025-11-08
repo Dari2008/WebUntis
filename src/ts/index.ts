@@ -11,19 +11,13 @@ import { UserManagement } from "./userManagement/UserManagement";
 import Utils from "./Utils";
 import type { AllData } from "./@types/UserManagement";
 import { SWManager } from "./SWManager";
+import { GestureHandler } from "./gestures/gestures";
+import NotificationManager from "./notificationManager/NotificationManager";
+import { AllLessonsManager } from "./untis/AllLessonsManager";
+import { getDateWithOptions } from "date-fns/fp";
+import { HolidayLoader } from "./untis/HolidayLoader";
+import type { UntisAccess } from "./@types/UntisAccess";
 // import { HolidayLoader } from "./untis/HolidayLoader";
-
-let env: {
-    [key: string]: EnvSchoolData;
-} = {};
-
-type EnvSchoolData = {
-    className: string;
-    schoolId: string;
-    username: string;
-    password: string;
-    host: string;
-}
 
 window.addEventListener("online", () => {
     document.documentElement.classList.remove("offlineMode");
@@ -33,8 +27,36 @@ window.addEventListener("offline", () => {
     document.documentElement.classList.add("offlineMode");
 });
 
+if (!navigator.onLine) {
+    document.documentElement.classList.add("offlineMode");
+}
+
+let MIN_LIMIT_TABLES = 0;
+let MAX_LIMIT_TABLES = 0;
+
+let MIN_LIMIT_SET = false;
+let MAX_LIMIT_SET = false;
+
+
+const lessonsLoaded: {
+    [key: string]: UntisSchedule[];
+} = {};
+
+const currentlyLoadingHtmlTableManagers: {
+    [key: string]: Promise<HTMLTableManager | null>;
+} = {};
+
+function updateLimits(week: number) {
+    MIN_LIMIT_TABLES = Math.min(MIN_LIMIT_TABLES, week);
+    MAX_LIMIT_TABLES = Math.max(MAX_LIMIT_TABLES, week);
+}
 
 async function initEnv() {
+
+    const timeSchedule = document.getElementById("timeSchedule") as HTMLElement;
+    if (!timeSchedule) return;
+
+    (document.getElementById("loadingAnimation") as HTMLDialogElement)?.showModal();
 
     UserManagement.init();
 
@@ -44,6 +66,9 @@ async function initEnv() {
         return;
     }
     SWManager.install(allData.preferences.notificationsEnabled);
+
+    NotificationManager.initNotificationManager();
+
 
 
     // const CLASS_NAME_GROOTMOOR = env.Grootmoor.className;
@@ -59,21 +84,99 @@ async function initEnv() {
         UNTIS_MANAGERS.push(manager);
     }
 
+    const HOLIDAY_LOADER = new HolidayLoader(UNTIS_MANAGERS);
+    if (UserManagement.ALL_DATA) {
+        UserManagement.ALL_DATA.holidays = await HOLIDAY_LOADER.getHolidays();
+    }
+    // console.log(await HOLIDAY_LOADER.getHolidays());
 
-    const htmlTableManagerCurrently: HTMLTableManager = new HTMLTableManager("currentSchedule", "schedule");
-    const htmlTableManagerNext: HTMLTableManager = new HTMLTableManager("nextSchedule", "nextSchedule");
-    const htmlTableManagerPrevious: HTMLTableManager = new HTMLTableManager("previousSchedule", "previousSchedule");
+    // const htmlTableManagerCurrently: HTMLTableManager = new HTMLTableManager("currentSchedule", "schedule", new Date());
+    // const htmlTableManagerNext: HTMLTableManager = new HTMLTableManager("nextSchedule", "nextSchedule", getWeeksMonday(new Date(), 1));
+    // const htmlTableManagerPrevious: HTMLTableManager = new HTMLTableManager("previousSchedule", "previousSchedule", getWeeksFriday(new Date(), -1));
+    //htmlTableManagerCurrently, htmlTableManagerNext, htmlTableManagerPrevious
+    const htmlTableManagers: HTMLTableManager[] = [];
 
-    const htmlTableManagers = [htmlTableManagerCurrently, htmlTableManagerNext, htmlTableManagerPrevious];
+    for (const date of [{ week: -1, date: getWeeksFriday(new Date(), -1) }, { week: 0, date: new Date() }, { week: 1, date: getWeeksMonday(new Date(), 1) }]) {
+        if (date.week != 0) {
+            const promise = createHtmlTableManagerForDate(date);
+            currentlyLoadingHtmlTableManagers[date.week] = promise;
+            promise.then(manager => {
+                if (!manager) return;
+                updateLimits(date.week);
+                htmlTableManagers.push(manager);
+                delete currentlyLoadingHtmlTableManagers[date.week];
+            });
+        }
 
-    // const holidayLoader = new HolidayLoader(UNTIS_MANAGERS);
-    // console.log(await holidayLoader.getHolidays());
+        if (date.week == 0) {
+            const manager = await createHtmlTableManagerForDate(date);
+            if (!manager) continue;
+            updateLimits(date.week);
+            htmlTableManagers.push(manager);
+            if (manager.tableElement) timeSchedule.appendChild(manager.tableElement);
+            manager.tableElement?.classList.add("currentSchedule");
+            manager.updateCurrentDayPosition();
+        }
+
+    }
+
+    async function loadHtmlTableManagerForCurrentIndexOfWeek() {
+        if (MIN_LIMIT_SET && MAX_LIMIT_SET) return;
+        const nextPreviousIndex = currentIndexOfWeek - 1;
+        const nextNextIndex = currentIndexOfWeek + 1;
+
+        const foundNextPrevious = htmlTableManagers.find((manager) => {
+            return manager.week == nextPreviousIndex;
+        });
+        const foundNextNext = htmlTableManagers.find((manager) => {
+            return manager.week == nextNextIndex;
+        });
+
+        if (!foundNextNext && !MAX_LIMIT_SET) {
+            const manager = await createHtmlTableManagerForDate({
+                date: getWeeksMonday(new Date(), nextNextIndex),
+                week: nextNextIndex
+            });
+            if (manager) {
+                updateLimits(nextNextIndex);
+                htmlTableManagers.push(manager);
+            } else {
+                MAX_LIMIT_SET = true;
+            }
+        }
+
+        if (!foundNextPrevious && !MIN_LIMIT_SET) {
+            const manager = await createHtmlTableManagerForDate({
+                date: getWeeksFriday(new Date(), nextPreviousIndex),
+                week: nextPreviousIndex
+            });
+            if (manager) {
+                updateLimits(nextPreviousIndex);
+                htmlTableManagers.push(manager);
+            } else {
+                MIN_LIMIT_SET = true;
+            }
+        }
+    }
+
+
+    function initGestures() {
+        const timeSchedule = document.getElementById("timeSchedule");
+        if (!timeSchedule) return;
+        const swipeGesture = new GestureHandler(timeSchedule);
+        swipeGesture.onSwipeLeft = () => {
+            animateToNext();
+        };
+        swipeGesture.onSwipeRight = () => {
+            animateToPrevious();
+        };
+    }
+    initGestures();
+
 
     async function initAll() {
 
         initSettings();
-
-        (document.getElementById("loadingAnimation") as HTMLDialogElement)?.showModal();
 
         window.addEventListener("resize", () => {
             document.body.style.setProperty("--windowHeight", window.innerHeight + "px");
@@ -81,120 +184,108 @@ async function initEnv() {
         });
         document.body.style.setProperty("--windowHeight", window.innerHeight + "px");
         document.body.style.setProperty("--windowWidth", window.innerWidth + "px");
-
-        htmlTableManagers.forEach(m => m.preloadTimes());
-
-        // await untisManagerGrootmoor.init();
-
-        // const classes = await untisManagerGrootmoor.getClasses();
-        // if(classes.length == 0)return;
-        // console.log(classes);
-
-        // const s = await untisManagerGrootmoor.getLessons(getWeeksMonday(1), getWeeksFriday(1), 1501);
-        // console.log(s);
-
-        // const classFiltered = classes.find(c => c.name == CLASS_NAME);
-        // if(!classFiltered){
-        //     console.log("Class " + CLASS_NAME + " not found!");
-        //     console.log("Possible classes are:");
-        //     classes.forEach(c => {
-        //         console.log("- " + c.name);
-        //     });
-        //     return;
-        // }
-
-        // console.log("Found class: " + classFiltered.name + " with id: " + classFiltered.id);
-
-        await loadAllWeeksFor(new Date());
         (document.getElementById("loadingAnimation") as HTMLDialogElement)?.close();
-
-        document.getElementById("nextWeek")!.onclick = animateToNext;
-        document.getElementById("prevWeek")!.onclick = animateToPrevious;
-
     }
 
     var currentIndexOfWeek: number = 0;
 
+    function getCurrentTableManager(offset: number = 0) {
+        const weekIndex = currentIndexOfWeek + offset;
+        return htmlTableManagers.find(e => e.week === weekIndex);
+    }
+    function getNextTableManager() {
+        return getCurrentTableManager(1);
+    }
+    function getPreviousTableManager() {
+        return getCurrentTableManager(-1);
+    }
 
+    let currentlyAnimates = false;
 
     function animateToPrevious() {
 
-        if (currentIndexOfWeek <= -1) {
-            document.getElementById("prevWeek")?.classList.add("disabled");
+        if (currentIndexOfWeek <= MIN_LIMIT_TABLES) {
             return;
         }
+        if (currentlyAnimates) return;
 
-        document.getElementById("nextWeek")?.classList.remove("disabled");
-        const nextSchedule = document.getElementById("nextSchedule");
-        const currentSchedule = document.getElementById("schedule");
-        const prevSchedule = document.getElementById("previousSchedule");
+        const currentManager = getCurrentTableManager();
+        const prevManager = getPreviousTableManager();
+
+        const currentSchedule = currentManager?.tableElement;
+        const prevSchedule = prevManager?.tableElement;
 
         currentIndexOfWeek--;
-        if (currentIndexOfWeek <= -1) {
-            document.getElementById("prevWeek")?.classList.add("disabled");
-        } else {
-            document.getElementById("prevWeek")?.classList.remove("disabled");
-        }
 
-        prevSchedule?.setAttribute("animate", "");
-        currentSchedule?.setAttribute("animate", "");
+        prevSchedule?.classList.add("previousSchedule");
+        if (prevSchedule) timeSchedule.appendChild(prevSchedule);
 
-        currentSchedule?.addEventListener("transitionend", () => {
-            prevSchedule?.removeAttribute("animate");
-            currentSchedule?.removeAttribute("animate");
+        currentlyAnimates = true;
 
-            nextSchedule!.id = "previousSchedule";
-            currentSchedule!.id = "nextSchedule";
-            prevSchedule!.id = "schedule";
+        setTimeout(() => {
+            prevSchedule?.classList.add("animateToCurrent");
+            currentSchedule?.classList.add("animateToPrevious");
+        }, 10);
 
-            currentSchedule?.removeAttribute("animatePrevious");
+        const animationTime = parseFloat((prevSchedule ? getComputedStyle(prevSchedule).getPropertyValue("--animationTime") : "1s").replace("s", ""));
 
-            // loadAllWeeksFor(getDateFroWeek(currentIndexOfWeek), false);
+        setTimeout(() => {
+            currentSchedule?.classList.remove("animateToPrevious");
+            currentSchedule?.classList.remove("currentSchedule");
 
-        }, { once: true });
+            prevSchedule?.classList.add("currentSchedule");
+            prevSchedule?.classList.remove("previousSchedule");
+            prevSchedule?.classList.remove("animateToCurrent");
+            if (currentSchedule) timeSchedule.removeChild(currentSchedule);
+            prevManager?.updateCurrentDayPosition();
+            currentlyAnimates = false;
+        }, (animationTime * 1000) + 200);
 
-        currentSchedule?.setAttribute("animatePrevious", "");
+        loadHtmlTableManagerForCurrentIndexOfWeek();
 
     }
 
     function animateToNext() {
-        if (currentIndexOfWeek >= 1) {
-            document.getElementById("nextWeek")?.classList.add("disabled");
+        if (currentIndexOfWeek >= MAX_LIMIT_TABLES) {
             return;
         }
 
-        document.getElementById("prevWeek")?.classList.remove("disabled");
 
-        const nextSchedule = document.getElementById("nextSchedule");
-        const currentSchedule = document.getElementById("schedule");
-        const prevSchedule = document.getElementById("previousSchedule");
+        if (currentlyAnimates) return;
 
+        const currentManager = getCurrentTableManager();
+        const nextManager = getNextTableManager();
+
+        const nextSchedule = nextManager?.tableElement;
+        const currentSchedule = currentManager?.tableElement;
+
+        nextSchedule?.classList.add("nextSchedule");
+        if (nextSchedule) timeSchedule.appendChild(nextSchedule);
+
+        setTimeout(() => {
+            nextSchedule?.classList.add("animateToCurrent");
+            currentSchedule?.classList.add("animateToNext");
+        }, 10);
+
+        currentlyAnimates = true;
         currentIndexOfWeek++;
-        if (currentIndexOfWeek >= 1) {
-            document.getElementById("nextWeek")?.classList.add("disabled");
-        } else {
-            document.getElementById("nextWeek")?.classList.remove("disabled");
-        }
 
-        nextSchedule?.setAttribute("animate", "");
-        currentSchedule?.setAttribute("animate", "");
+        const animationTime = parseFloat((nextSchedule ? getComputedStyle(nextSchedule).getPropertyValue("--animationTime") : "1s").replace("s", ""));
 
-        currentSchedule?.addEventListener("transitionend", () => {
-            nextSchedule?.removeAttribute("animate");
-            currentSchedule?.removeAttribute("animate");
+        setTimeout(() => {
 
-            nextSchedule!.id = "schedule";
-            currentSchedule!.id = "previousSchedule";
-            prevSchedule!.id = "nextSchedule";
+            currentSchedule?.classList.remove("animateToNext");
+            currentSchedule?.classList.remove("currentSchedule");
 
-            currentSchedule?.removeAttribute("animateNext");
+            nextSchedule?.classList.add("currentSchedule");
+            nextSchedule?.classList.remove("nextSchedule");
+            nextSchedule?.classList.remove("animateToCurrent");
+            if (currentSchedule) timeSchedule.removeChild(currentSchedule);
+            nextManager?.updateCurrentDayPosition();
+            currentlyAnimates = false;
+        }, (animationTime * 1000) + 200);
 
-            // loadAllWeeksFor(getDateFroWeek(currentIndexOfWeek), false);
-
-        }, { once: true });
-
-        currentSchedule?.setAttribute("animateNext", "");
-
+        loadHtmlTableManagerForCurrentIndexOfWeek();
     }
 
     function getWeeksMonday(date: Date, offsetWeeks: number): Date {
@@ -213,65 +304,28 @@ async function initEnv() {
         return date;
     }
 
-    let currentIdDisplayed: string | null = null;
+    // let currentIdDisplayed: string | null = null;
 
-    async function loadAllWeeksFor(date: Date, loadCurrentSchedule: boolean = true) {
+    async function createHtmlTableManagerForDate(date: {
+        week: number;
+        date: Date;
+    }): Promise<HTMLTableManager | null> {
+        const finding = htmlTableManagers.find(e => e.week === date.week);
+        if (finding) return finding;
 
-        const requests = [];
-
-        let currentPromise = null;
-        let idForDisplay = v4();
-        currentIdDisplayed = idForDisplay;
-
-        if (loadCurrentSchedule) {
-            htmlTableManagerCurrently.reloadFromId();
-            htmlTableManagerCurrently.clearLessons();
-            // if(loadCurrentSchedule)htmlTableManagerCurrently.showSchedule(...(await loadSchedule(date)));
-            const promise = loadSchedule(date);
-            currentPromise = promise;
-            requests.push({ promise: promise, htmlTableManager: htmlTableManagerCurrently });
+        if (currentlyLoadingHtmlTableManagers[date.week] != undefined) {
+            return currentlyLoadingHtmlTableManagers[date.week];
         }
 
-        const nextDate = getWeeksMonday(new Date(date), 1);
-        htmlTableManagerNext.reloadFromId();
-        htmlTableManagerNext.clearLessons();
-        // htmlTableManagerNext.showSchedule(...(await loadSchedule(nextDate)));
-        requests.push({ promise: loadSchedule(nextDate), htmlTableManager: htmlTableManagerNext });
-
-        const prevDate = getWeeksFriday(new Date(date), -1);
-        htmlTableManagerPrevious.reloadFromId();
-        htmlTableManagerPrevious.clearLessons();
-        // htmlTableManagerPrevious.showSchedule(...(await loadSchedule(prevDate)));
-        requests.push({ promise: loadSchedule(prevDate), htmlTableManager: htmlTableManagerPrevious });
-
-        for (const request of requests) {
-            request.promise.then((schedules) => {
-                if (currentIdDisplayed != idForDisplay) return;
-                request.htmlTableManager.showSchedule(...schedules);
-            });
-        }
-
-        if (currentPromise) {
-            await currentPromise;
-        } else {
-            await Promise.all(requests.map(r => r.promise));
-        }
-
+        const htmlTableManager = new HTMLTableManager("schedule" + date.week, "schedule" + date.week, date.week);
+        const allSchedules = await loadSchedule(date.date);
+        if (allSchedules.length == 0) return null;
+        if (allSchedules.map(e => e.lessons).flat().length == 0) return null;
+        AllLessonsManager.checkForNew(allSchedules);
+        htmlTableManager.preloadTimes();
+        htmlTableManager.showSchedule(allSchedules);
+        return htmlTableManager;
     }
-
-    // function isDateInCurrentWeek(date: Date): boolean {
-    //     const now = new Date();
-    //     const dayOfWeek = now.getDay() || 7; // Sunday → 0, so treat as 7
-    //     const monday = new Date(now);
-    //     monday.setDate(now.getDate() - dayOfWeek + 1);
-    //     monday.setHours(0, 0, 0, 0);
-
-    //     const sunday = new Date(monday);
-    //     sunday.setDate(monday.getDate() + 6);
-    //     sunday.setHours(23, 59, 59, 999);
-
-    //     return date >= monday && date <= sunday;
-    // }
 
     function getCurrentWeekRange(now: Date): { monday: Date; friday: Date } {
         const dayOfWeek = now.getDay() || 7; // Sunday → 0, so set to 7
@@ -289,105 +343,138 @@ async function initEnv() {
         return { monday, friday };
     }
 
-    const lessonsLoaded: {
-        [key: string]: UntisSchedule[];
-    } = {};
-
     async function loadSchedule(date: Date): Promise<UntisSchedule[]> {
+        if (allData.untisAccesses.length == 0) return [];
+        if (navigator.onLine) {
 
-        const schedules: UntisSchedule[] = [];
-        // const isCurrentWeek = isDateInCurrentWeek(date);
-        const isCurrentWeek = true; //Because it gets more information from getLessonForWeekCompiledViaProxy and it works (didint before ?)
-        const { monday, friday } = getCurrentWeekRange(date);
-        if (lessonsLoaded[formatDate(monday, "yyyyMMMdd")]) {
-            return lessonsLoaded[formatDate(monday, "yyyyMMMdd")];
-        }
-
-        const lessonsAll: TempLesson[] = [];
-        const scheduleDatas: {
-            [key: string]: {
-                className: string;
-                school: School;
+            const schedules: UntisSchedule[] = [];
+            // const isCurrentWeek = isDateInCurrentWeek(date);
+            const isCurrentWeek = true; //Because it gets more information from getLessonForWeekCompiledViaProxy and it works (didint before ?)
+            const { monday, friday } = getCurrentWeekRange(date);
+            if (lessonsLoaded[formatDate(monday, "yyyyMMMdd")]) {
+                return lessonsLoaded[formatDate(monday, "yyyyMMMdd")];
             }
-        } = {};
 
-        for (const manager of UNTIS_MANAGERS) {
-            for (const CLASS_NAME of manager.getClassNames()) {
+            const lessonsAll: TempLesson[] = [];
+            const scheduleDatas: {
+                [key: string]: UntisAccess & {
+                    className: string;
+                }
+            } = {};
 
-                // let CLASS_NAME = manager.getSchool() == "Grootmoor" ? CLASS_NAME_GROOTMOOR : CLASS_NAME_MEIENDORF;
-                if (isCurrentWeek) {
-                    await manager.getLessonForWeekCompiledViaProxy(CLASS_NAME, date);
-                    const lessons = manager.getRawLessons();
-                    if (!lessons) continue;
-                    const id = v4();
-                    console.log(lessons);
-                    lessons.map(l => {
-                        const tmp = l as TempLesson;
-                        tmp.scheduleId = id;
-                        tmp.school = manager.getSchool();
-                        return tmp;
-                    })
-                    lessonsAll.push(...(lessons as TempLesson[]));
-                    scheduleDatas[id] = {
-                        className: CLASS_NAME,
-                        school: manager.getSchool()
-                    };
+            for (const manager of UNTIS_MANAGERS) {
+                for (const CLASS_NAME of manager.getClassNames()) {
+                    if (isCurrentWeek) {
+                        await manager.getLessonForWeekCompiledViaProxy(CLASS_NAME, date);
+                        const lessons = manager.getRawLessons();
+                        if (!lessons) continue;
+                        const id = v4();
+                        lessons.map(l => {
+                            const tmp = l as TempLesson;
+                            tmp.scheduleId = id;
+                            tmp.school = manager.getSchool();
+                            return tmp;
+                        })
+                        lessonsAll.push(...(lessons as TempLesson[]));
+                        scheduleDatas[id] = {
+                            className: CLASS_NAME,
+                            ...manager.getUntis()
+                        };
 
-                } else {
-                    await manager.getCompiledLessonForRange(CLASS_NAME, monday, friday);
-                    const lessons = manager.getRawLessons();
-                    if (!lessons) continue;
-                    const id = v4();
-                    lessons.map(l => {
-                        const tmp = l as TempLesson;
-                        tmp.scheduleId = id;
-                        tmp.school = manager.getSchool();
-                        return tmp;
-                    })
-                    lessonsAll.push(...(lessons as TempLesson[]));
-                    scheduleDatas[id] = {
-                        className: CLASS_NAME,
-                        school: manager.getSchool()
-                    };
+                    } else {
+                        await manager.getCompiledLessonForRange(CLASS_NAME, monday, friday);
+                        const lessons = manager.getRawLessons();
+                        if (!lessons) continue;
+                        const id = v4();
+                        lessons.map(l => {
+                            const tmp = l as TempLesson;
+                            tmp.scheduleId = id;
+                            tmp.school = manager.getSchool();
+                            return tmp;
+                        })
+                        lessonsAll.push(...(lessons as TempLesson[]));
+                        scheduleDatas[id] = {
+                            className: CLASS_NAME,
+                            ...manager.getUntis()
+                        };
+                    }
                 }
             }
+
+
+            const compiledLessons = UntisManager.checkForMultipleLessons(lessonsAll);
+
+            const lessonsSorted: {
+                [key: string]: TempLesson[];
+            } = {};
+
+            for (const lesson of compiledLessons) {
+                if (!lessonsSorted[lesson.scheduleId]) lessonsSorted[lesson.scheduleId] = [];
+                lessonsSorted[lesson.scheduleId].push(lesson);
+            }
+
+            for (const scheduleKey of Object.keys(lessonsSorted)) {
+                if (!scheduleKey) continue;
+                const scheduleData = scheduleDatas[scheduleKey];
+                if (!scheduleData) continue;
+                const compiledLessons: CompiledLesson[] = UntisManager.compileLessons(lessonsSorted[scheduleKey]);
+                const schedule = new UntisSchedule(compiledLessons, scheduleData.className, getWeeksMonday(date, 0), scheduleData);
+                schedule.filter(allData.schedule);
+                const allLesonsFiltered = schedule.getAllLessons().map(e => {
+                    delete e.bkRemark;
+                    delete e.activityType;
+                    delete e.bkText;
+                    delete e.classes;
+                    delete e.statflags;
+                    delete e.bkText;
+                    delete e.elements;
+                    return e;
+                });
+                await Utils.saveInDB("OfflineData", "OfflineStorageOfTimetable", "OFFLINE_STORAGE_" + scheduleData.className + "_" + scheduleData.school, allLesonsFiltered);
+                schedules.push(schedule);
+            }
+
+
+
+            lessonsLoaded[formatDate(monday, "yyyyMMMdd")] = schedules;
+
+            return schedules;
+        } else {
+            const schedules = [];
+            for (const manager of UNTIS_MANAGERS) {
+                for (const CLASS_NAME of manager.getClassNames()) {
+                    const allLessons = await Utils.loadFromDB("OfflineData", "OfflineStorageOfTimetable", "OFFLINE_STORAGE_" + CLASS_NAME + "_" + manager.getSchool()) ?? [];
+                    if (!allLessons) continue;
+
+                    const schedule = new UntisSchedule(allLessons as CompiledLesson[], CLASS_NAME, getWeeksMonday(date, 0), manager.getUntis());
+                    schedules.push(schedule);
+                }
+            }
+            return schedules;
         }
-
-
-        const compiledLessons = UntisManager.checkForMultipleLessons(lessonsAll);
-
-        const lessonsSorted: {
-            [key: string]: TempLesson[];
-        } = {};
-
-        for (const lesson of compiledLessons) {
-            if (!lessonsSorted[lesson.scheduleId]) lessonsSorted[lesson.scheduleId] = [];
-            lessonsSorted[lesson.scheduleId].push(lesson);
-        }
-
-        console.log(scheduleDatas, lessonsSorted);
-
-        for (const scheduleKey of Object.keys(lessonsSorted)) {
-            if (!scheduleKey) continue;
-            const scheduleData = scheduleDatas[scheduleKey];
-            if (!scheduleData) continue;
-            const compiledLessons: CompiledLesson[] = UntisManager.compileLessons(lessonsSorted[scheduleKey]);
-            console.log("compiledLessons", compiledLessons, scheduleData);
-            const schedule = new UntisSchedule(compiledLessons, scheduleData.className, scheduleData.school);
-            schedule.filter(allData.schedule);
-            schedules.push(schedule);
-        }
-
-
-
-        lessonsLoaded[formatDate(monday, "yyyyMMMdd")] = schedules;
-
-        return schedules;
     }
-
-
-
     initAll();
-
 }
 initEnv();
+
+
+function initLogoutBtn() {
+    const logoutBtn = document.getElementById("logout");
+    const logoutQuestion = document.getElementById("logoutQuestion");
+    if (!logoutBtn) return;
+    if (!logoutQuestion) return;
+    logoutBtn.onclick = () => {
+        logoutQuestion.classList.add("open");
+    };
+    logoutQuestion.querySelector(".no")?.addEventListener("click", () => {
+        logoutQuestion.classList.remove("open");
+    });
+    logoutQuestion.querySelector(".yes")?.addEventListener("click", () => {
+        logoutQuestion.classList.remove("open");
+        Utils.success("Successfully Logged out!");
+        setTimeout(() => {
+            UserManagement.logout();
+        }, 1000);
+    });
+}
+initLogoutBtn();

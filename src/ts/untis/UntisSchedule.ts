@@ -1,16 +1,20 @@
-import type { CompiledLesson, LessonRaw, LessonSlot, ScheduleRawData, ScheduleRawDay } from "../@types/Schedule";
-import type { School } from "../@types/School";
+import dayjs from "dayjs";
+import type { CompiledLesson, DayName, LessonRaw, LessonSlot, ScheduleRawData, ScheduleRawDay, TypeScheduleRawDayTimes } from "../@types/Schedule";
+import { UserManagement } from "../userManagement/UserManagement";
 import UntisManager from "./UntisManager";
+import type { Holiday } from "./types";
+import Utils from "../Utils";
+import type { UntisAccess } from "../@types/UntisAccess";
 
 export default class UntisSchedule {
 
-    private mondayLessons: ScheduleDay = {};
-    private tuesdayLessons: ScheduleDay = {};
-    private wednesdayLessons: ScheduleDay = {};
-    private thursdayLessons: ScheduleDay = {};
-    private fridayLessons: ScheduleDay = {};
+    private mondayLessons: TimedScheduleDay | HolidayScheduleDay = {};
+    private tuesdayLessons: TimedScheduleDay | HolidayScheduleDay = {};
+    private wednesdayLessons: TimedScheduleDay | HolidayScheduleDay = {};
+    private thursdayLessons: TimedScheduleDay | HolidayScheduleDay = {};
+    private fridayLessons: TimedScheduleDay | HolidayScheduleDay = {};
 
-    constructor(public lessons: CompiledLesson[], public className: string, public school: School) {
+    constructor(public lessons: CompiledLesson[], public className: string, public mondayOfWeek: Date, public untisAccess: UntisAccess) {
         this.init();
     }
 
@@ -20,29 +24,109 @@ export default class UntisSchedule {
             const time = UntisManager.formatTime(clesson.startTime);
             const timeEnd = UntisManager.formatTime(clesson.endTime);
 
-            if (clesson.dayName && time) {
-                if ((this as any)[`${clesson.dayName}Lessons`][time] == undefined) {
-                    ((this as any)[`${clesson.dayName}Lessons`] as ScheduleDay)[time] = { lessons: [] };
-                }
-                if (((this as any)[`${clesson.dayName}Lessons`][time] as LessonSlot).lessons.find(l => (l.id === clesson.id && l.startTime === clesson.startTime && l.endTime === clesson.endTime))) {
-                    continue;
-                }
-                ((this as any)[`${clesson.dayName}Lessons`][time] as LessonSlot).lessons.push(clesson);
-            }
+            if (!clesson.dayName) continue;
 
-            if (clesson.dayName && timeEnd) {
-                const startTimeOfLesson = this.getTimeStartFromTimeEnd(timeEnd);
-                if ((this as any)[`${clesson.dayName}Lessons`][startTimeOfLesson] == undefined) {
-                    ((this as any)[`${clesson.dayName}Lessons`] as ScheduleDay)[startTimeOfLesson] = { lessons: [] };
+            let scheduleDay = (this as any)[`${clesson.dayName}Lessons`] as TimedScheduleDay | HolidayScheduleDay;
+            if (scheduleDay.type != "HolidayScheduleDay") {
+                scheduleDay = scheduleDay as TimedScheduleDay;
+                if (clesson.dayName && time) {
+                    if (scheduleDay[time] == undefined) {
+                        (this as any)[`${clesson.dayName}Lessons`][time] = { lessons: [] };
+                    }
+                    if (scheduleDay[time].lessons.find(l => (l.id === clesson.id && l.startTime === clesson.startTime && l.endTime === clesson.endTime))) {
+                        continue;
+                    }
+                    scheduleDay[time].lessons.push(clesson);
                 }
 
-                if (((this as any)[`${clesson.dayName}Lessons`][startTimeOfLesson] as LessonSlot).lessons.find(l => (l.id === clesson.id && l.startTime === clesson.startTime && l.endTime === clesson.endTime))) {
-                    continue;
+                if (clesson.dayName && timeEnd) {
+                    const startTimeOfLesson = this.getTimeStartFromTimeEnd(timeEnd);
+                    if (scheduleDay[startTimeOfLesson] == undefined) {
+                        (this as any)[`${clesson.dayName}Lessons`][startTimeOfLesson] = { lessons: [] };
+                    }
+
+                    if (scheduleDay[startTimeOfLesson].lessons.find(l => (l.id === clesson.id && l.startTime === clesson.startTime && l.endTime === clesson.endTime))) {
+                        continue;
+                    }
+                    scheduleDay[startTimeOfLesson].lessons.push(clesson);
                 }
-                ((this as any)[`${clesson.dayName}Lessons`][startTimeOfLesson] as LessonSlot).lessons.push(clesson);
             }
         }
-        console.log(this);
+        // console.log(this);
+        if (UserManagement.ALL_DATA) {
+
+            const datesInWeek = [];
+            const dayJsObj = dayjs(this.mondayOfWeek);
+            const daysOfWeek = [
+                "monday",
+                "tuesday",
+                "wednesday",
+                "thursday",
+                "friday"
+            ]
+            for (let i = 0; i < 5; i++) {
+                datesInWeek.push(dayJsObj.add(i, "days"));
+            }
+
+            const daysFree: {
+                [key: string]: Holiday & {
+                    days: Set<dayjs.Dayjs>;
+                }
+            } = {};
+            for (const holiday of UserManagement.ALL_DATA.holidays[this.untisAccess.uuid]) {
+                const startDate = holiday.startDateParsed;
+                const endDate = holiday.endDateParsed;
+
+                const uuid = Utils.uuidv4Exclude(Object.keys(daysFree));
+
+                daysFree[uuid] = {
+                    days: new Set(),
+                    ...holiday
+                };
+
+                datesInWeek.filter((date) => {
+                    if (date.isAfter(startDate, "days") && date.isBefore(endDate, "days") || date.isSame(startDate, "days") || date.isSame(endDate, "days")) {
+                        return true;
+                    }
+                    return false;
+                }).forEach(e => daysFree[uuid].days.add(e));
+                if (!daysFree[uuid] || daysFree[uuid].days.size <= 0) {
+                    delete daysFree[uuid];
+                }
+            }
+
+            if (Object.keys(daysFree).length > 0) {
+
+                for (const holiday of Object.values(daysFree)) {
+                    for (const freeDay of holiday.days) {
+                        const indexOfDayOfWeek: number = freeDay.day();
+                        if (indexOfDayOfWeek == 0 || indexOfDayOfWeek == 6) continue;
+                        const dayOfWeek = daysOfWeek[indexOfDayOfWeek - 1];
+
+                        // if((this as any)[`${dayOfWeek}Lessons`].type == "")
+                        let scheduleDay = (this as any)[`${dayOfWeek}Lessons`] as TimedScheduleDay | HolidayScheduleDay;
+                        if (!scheduleDay) continue;
+                        if (scheduleDay.type && scheduleDay.type == "HolidayScheduleDay") continue;
+                        // if ((scheduleDay as ScheduleDay).lessons) continue;
+                        scheduleDay = scheduleDay as HolidayScheduleDay;
+                        // if (scheduleDay == undefined) {
+                        scheduleDay = {
+                            endDate: UntisManager.formatUntisDateAsDate(holiday.endDate + ""),
+                            startDate: UntisManager.formatUntisDateAsDate(holiday.startDate + ""),
+                            holidayLongName: holiday.longName,
+                            holidayName: holiday.name,
+                            type: "HolidayScheduleDay"
+                        };
+                        (this as any)[`${dayOfWeek}Lessons`] = scheduleDay;
+                        // }
+                    }
+                }
+                console.log(this);
+
+            }
+
+
+        }
     }
 
     public filter(schedule: ScheduleRawData) {
@@ -52,17 +136,19 @@ export default class UntisSchedule {
             "wednesday",
             "thursday",
             "friday"
-        ]) {
+        ] as DayName[]) {
             let lessons = this.getDayLessons(day);
             if (lessons) {
+                if (lessons.type == "HolidayScheduleDay") continue;
+                lessons = lessons as TimedScheduleDay;
                 for (const time of Object.keys(lessons)) {
                     const slot = lessons[time];
                     slot.lessons = slot.lessons
                         .filter(lesson => lesson !== undefined)
                         .filter(l => l !== undefined)
-                        .filter(l => this.isIdContainedInSchedule(l, (l.studentGroup ? l.studentGroup : (l.sg ? l.sg : l.id)), schedule));
+                        .filter(l => this.isIdContainedInSchedule(day, l, (l.studentGroup ?? l.sg ?? ""), schedule));
 
-                    slot.lessons.forEach(lesson => lesson.school = this.school);
+                    slot.lessons.forEach(lesson => lesson.school = this.untisAccess.school);
                 }
                 (this as any)[`${day}Lessons`] = lessons;
             }
@@ -71,23 +157,11 @@ export default class UntisSchedule {
 
 
 
-    private isIdContainedInSchedule(lesson: CompiledLesson, sign: string | number, schedule: ScheduleRawData): boolean {
+    private isIdContainedInSchedule(day: DayName, lesson: CompiledLesson, sign: string, schedule: ScheduleRawData): boolean {
         if (lesson.lessonCode === "UNTIS_ADDITIONAL" || lesson.cellState == "ADDITIONAL" || lesson.cellState == "EVENT") return true;
-        if (typeof sign === "number") {
-            const ids = Object.values(schedule).flatMap((day: ScheduleRawDay) => {
-                return Object.values(day).flatMap((lesson: LessonRaw) => {
-                    return lesson ? [lesson.id] : [];
-                });
-            });
-            return ids.includes(sign);
-        } else {
-            const signs = Object.values(schedule).flatMap((day: ScheduleRawDay) => {
-                return Object.values(day).flatMap((lesson: LessonRaw) => {
-                    return lesson ? [lesson.sign] : [];
-                });
-            });
-            return signs.includes(sign);
-        }
+        const lessonStartString = lesson.startTimeParsed.hour.toString().padStart(2, "0") + ":" + lesson.startTimeParsed.minute.toString().padStart(2, '0');
+        const lessonSign = schedule[day][lessonStartString as TypeScheduleRawDayTimes]?.sign || [];
+        return lessonSign == sign;
     }
 
     public getAllLessons(): CompiledLesson[] {
@@ -101,10 +175,28 @@ export default class UntisSchedule {
         ]) {
             const lessons = this.getDayLessons(day);
             if (lessons) {
+                if (lessons.type == "HolidayScheduleDay") continue;
                 allLessons.push(...Object.values(lessons).flatMap(slot => slot.lessons));
             }
         }
         return allLessons;
+    }
+
+    public getHolidays(): HolidayScheduleDay[] {
+        const allHolidays: HolidayScheduleDay[] = [];
+        for (const day of [
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday"
+        ]) {
+            const lessons = this.getDayLessons(day);
+            if (lessons?.type == "HolidayScheduleDay") {
+                allHolidays.push(lessons as HolidayScheduleDay);
+            }
+        }
+        return allHolidays;
     }
 
     public getAllLessonSlots(): LessonSlot[] {
@@ -118,6 +210,7 @@ export default class UntisSchedule {
         ]) {
             const lessons = this.getDayLessons(day);
             if (lessons) {
+                if (lessons.type == "HolidayScheduleDay") continue;
                 allSlots.push(...Object.values(lessons));
             }
         }
@@ -154,7 +247,7 @@ export default class UntisSchedule {
         return specialties;
     }
 
-    public getDayLessons(day: string): ScheduleDay | null {
+    public getDayLessons(day: string): TimedScheduleDay | HolidayScheduleDay | null {
         switch (day.toLowerCase()) {
             case "monday": return this.mondayLessons;
             case "tuesday": return this.tuesdayLessons;
@@ -165,9 +258,11 @@ export default class UntisSchedule {
         }
     }
 
-    public getTimeSlot(day: string, time: keyof ScheduleDay): LessonSlot | null {
-        const lessons = this.getDayLessons(day);
-        return lessons ? lessons[time] || null : null;
+    public getTimeSlot(day: string, time: keyof TimedScheduleDay): LessonSlot | null {
+        let lessons = this.getDayLessons(day);
+        if (lessons?.type == "HolidayScheduleDay") return null;
+        lessons = lessons as TimedScheduleDay;
+        return lessons ? lessons[time] as LessonSlot || null : null;
     }
 
     public getTimeStartFromTimeEnd(timeEnd: string): string {
@@ -186,6 +281,14 @@ export default class UntisSchedule {
 
 }
 
-export type ScheduleDay = {
+export type TimedScheduleDay = ({
     [key: string]: LessonSlot;
+});
+
+export type HolidayScheduleDay = {
+    type: "HolidayScheduleDay";
+    holidayName: string;
+    holidayLongName: string;
+    startDate: Date;
+    endDate: Date;
 }

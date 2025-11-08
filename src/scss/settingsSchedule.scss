@@ -1,0 +1,208 @@
+@use "./Variables.scss" as vars;
+
+
+html.offlineMode .settings-schedule .addlessonButton {
+    display: none;
+}
+
+.settings-schedule-table {
+
+    .settings-schedule-title {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: white;
+    }
+
+    .settings-schedule-wrapper {
+        height: 80vh;
+        width: 100%;
+        padding: 20px;
+        overflow-y: auto;
+        overflow-x: hidden;
+
+        .settings-schedule {
+            width: 100%;
+            display: grid;
+
+            --minutesToDisplayOnScreen: calc(var(--totalMinutes) / 1.2);
+            --pixelPerMinute: calc(var(--windowHeight) / var(--minutesToDisplayOnScreen));
+            height: calc(var(--totalMinutes) * var(--pixelPerMinute));
+
+            .header {
+                text-align: center;
+            }
+
+            .addlessonButton {
+                width: calc(100% - 20px);
+                height: calc(100% - 20px);
+                padding: 10px;
+                margin: 10px;
+                border-radius: 10px;
+                background-color: lighten(vars.$gray-700, 2%);
+                font-size: 200%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                color: white;
+                cursor: pointer;
+            }
+
+            .addlessonButton:hover {
+                background-color: lighten(vars.$gray-700, 10%);
+            }
+
+            .addlessonButton:active {
+                background-color: darken(vars.$gray-700, 10%);
+            }
+
+            .lesson-time-slot {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-size: 150%;
+
+                &::after {
+                    content: ".";
+                }
+
+            }
+
+            .lessonLoaded {
+                position: relative;
+                border: 2px solid vars.$gray-600;
+                border-radius: 10px;
+                padding-inline: 10px;
+                margin-inline: 10px;
+
+                padding-block: 2px;
+                margin-block: 2px;
+
+                border-radius: 10px;
+                cursor: not-allowed;
+
+                span {
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    text-overflow: ellipsis;
+                    overflow: hidden;
+                    text-wrap: nowrap;
+                    max-width: 80%;
+                }
+            }
+
+        }
+    }
+}
+
+
+#addScheduleDialogWrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000000;
+    background-color: rgba(vars.$gray-900, 0.2);
+    backdrop-filter: blur(4px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    #addScheduleDialog {
+        width: 30vw;
+        height: 60vh;
+        background-color: vars.$gray-700;
+        padding: 20px;
+        border-radius: 20px;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: min-content auto 1fr auto;
+        grid-column-gap: 20px;
+        grid-row-gap: 0px;
+
+
+        h2 {
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+
+        input {
+            padding: 20px;
+            height: 5vh;
+            font-size: 120%;
+        }
+
+        .signSuggestion {
+            overflow-y: auto;
+            list-style: none;
+
+            .option {
+                padding: 10px;
+                display: flex;
+                color: white;
+                justify-content: center;
+                align-items: center;
+                cursor: pointer;
+            }
+
+            .option:hover {
+                color: darken(white, 40%);
+            }
+
+            .option:active {
+                color: darken(white, 20%);
+            }
+        }
+
+        .addBtn,
+        .cancelbtn,
+        input {
+            outline: none;
+            border: none;
+            width: 100%;
+            background-color: vars.$gray-600;
+            color: white;
+            border-radius: 12px;
+            padding: 10px;
+        }
+
+        .addBtn:hover,
+        .cancelbtn:hover {
+            background-color: vars.$gray-500;
+        }
+
+        .addBtn:active,
+        .cancelbtn:active {
+            background-color: vars.$gray-700;
+        }
+
+
+        h2 {
+            grid-area: 1 / 1 / 2 / 3;
+        }
+
+        input {
+            grid-area: 2 / 1 / 3 / 3;
+        }
+
+        .signSuggestion {
+            grid-area: 3 / 1 / 4 / 3;
+        }
+
+        .addBtn {
+            grid-area: 4 / 1 / 5 / 2;
+        }
+
+        .cancelBtn {
+            grid-area: 4 / 2 / 5 / 3;
+        }
+
+    }
+
+}

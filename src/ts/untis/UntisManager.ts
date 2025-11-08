@@ -36,6 +36,10 @@ export default class UntisManager {
         return this.untis.school;
     }
 
+    public getSchoolUUID(): string {
+        return this.untis.uuid;
+    }
+
     public getClassNames(): string[] {
         return this.untis.classNames;
     }
@@ -44,14 +48,7 @@ export default class UntisManager {
 
     // public async getCompiledLessonForRange(className: string, startDate: Date, endDate: Date): Promise<CompiledLesson[]> {
     public async getCompiledLessonForRange(className: string, startDate: Date, endDate: Date): Promise<void> {
-
-
-        const queryKey = "OFFLINE_TIMETABLE_" + (startDate ? startDate.toISOString().split("T")[0] : "NO_START_DATE") + (endDate ? endDate.toISOString().split("T")[0] : "NO_END_DATE") + "_" + className + "_" + this.untis.username + "_" + this.untis.school;
         if (!navigator.onLine) {
-            const localStorageData = localStorage.getItem(queryKey);
-            if (localStorageData) {
-                this.responseRange = JSON.parse(localStorageData) as Lesson[];
-            }
             return;
         }
 
@@ -68,7 +65,7 @@ export default class UntisManager {
                     className: className,
                     username: this.untis.username,
                     password: this.untis.password,
-                    school: this.untis.school,
+                    school: this.untis.schoolId,
                     baseurl: this.untis.host,
                 })
             });
@@ -87,7 +84,6 @@ export default class UntisManager {
                 // return [];
             }
             this.responseRange = responseData;
-            localStorage.setItem(queryKey, JSON.stringify(this.responseRange));
             // return this.compileLessonLesson(responseData as Lesson[]);
         } catch (e) {
             console.error("Error fetching timetable via proxy:", e);
@@ -101,12 +97,7 @@ export default class UntisManager {
     // public async getLessonForWeekCompiledViaProxy(className: string, startDate?: Date): Promise<CompiledLesson[]> {
     public async getLessonForWeekCompiledViaProxy(className: string, startDate?: Date): Promise<void> {
 
-        const queryKey = "OFFLINE_TIMETABLE_" + (startDate ? startDate.toISOString().split("T")[0] : "NO_START_DATE") + "_" + className + "_" + this.untis.username + "_" + this.untis.school;
         if (!navigator.onLine) {
-            const localStorageData = localStorage.getItem(queryKey);
-            if (localStorageData) {
-                this.responseWeek = JSON.parse(localStorageData) as WebAPITimetable[];
-            }
             return;
         }
 
@@ -121,7 +112,7 @@ export default class UntisManager {
                     className: className,
                     username: this.untis.username,
                     password: this.untis.password,
-                    school: this.untis.school,
+                    school: this.untis.schoolId,
                     baseurl: this.untis.host,
                 })
             });
@@ -141,8 +132,6 @@ export default class UntisManager {
             }
 
             this.responseWeek = responseData;
-            localStorage.setItem(queryKey, JSON.stringify(this.responseWeek));
-
             // return this.compileLesson(responseData as WebAPITimetable[]);
         } catch (e) {
             console.error("Error fetching timetable via proxy:", e);
@@ -199,8 +188,6 @@ export default class UntisManager {
             const keys = (Object.keys(UserManagement.ALL_DATA!.schedule[dayOfWeek]) as (keyof ScheduleRawDay)[]).filter(k => !!UserManagement.ALL_DATA!.schedule[dayOfWeek][k]);
             lessonStartTimes[dayOfWeek] = keys;
         }
-
-        console.log(lessonStartTimes);
 
         for (const lesson of ([...lessons] as TempLesson[])) {
             const startTime = UntisManager.parseTime(UntisManager.formatTime(lesson.startTime));

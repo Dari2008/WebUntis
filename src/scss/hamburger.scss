@@ -1,0 +1,481 @@
+@use "./Variables.scss" as vars;
+
+$menuMaxWidth: 400px;
+$menuMinWidth: 200px;
+
+$animationTime: 0.3s;
+
+#menuOverlay {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    justify-content: center;
+
+    &>button {
+        margin: 10px;
+        padding: 10px;
+        background-color: vars.$gray-700;
+        color: white;
+        height: 5%;
+        font-size: 120%;
+        cursor: pointer;
+        border-radius: 10px;
+    }
+
+    &>button:hover {
+        background-color: lighten(vars.$gray-700, 10%);
+    }
+
+    &>button:active {
+        background-color: darken(vars.$gray-700, 10%);
+    }
+
+}
+
+#menuOverlay {
+    transition: left $animationTime ease-in-out, padding $animationTime ease-in-out, margin $animationTime ease-in-out;
+    width: 50vw;
+    max-width: $menuMaxWidth;
+    min-width: $menuMinWidth;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 10000000;
+    // transform-origin: left top;
+    background-color: vars.$gray-800;
+}
+
+#menuOverlay::after {
+    transition: backdrop-filter ($animationTime + 0.1s) ease-in-out, opacity ($animationTime + 0.1s) ease-in-out, left ($animationTime + 0.1s) ease-in-out;
+    content: "";
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100%;
+    left: calc(max(min(50vw, $menuMinWidth), $menuMaxWidth));
+    z-index: 10000000;
+    opacity: 1;
+    backdrop-filter: blur(4px) brightness(0.3);
+}
+
+html:not(.menuOpen) {
+    #menuOverlay {
+        left: -100%;
+    }
+
+    #menuOverlay::after {
+        // transition: backdrop-filter $animationTime ease-in-out, opacity $animationTime ease-in-out, left $animationTime ease-in-out;
+        // left: 100vw;
+        opacity: 0;
+        left: 0;
+        pointer-events: none;
+        backdrop-filter: blur(0px) brightness(0.3);
+    }
+}
+
+header.hamburger {
+    position: fixed;
+    top: 2px;
+    left: 2px;
+    z-index: 100000;
+    transition: left $animationTime ease-in-out;
+    transform: scale(0.75);
+    background: vars.$themeColor-20-Dark;
+    border-radius: 100%;
+    padding: 10px;
+    height: calc(var(--titleBarHeight) + 20px);
+    width: calc(var(--titleBarHeight) + 20px);
+    aspect-ratio: 1;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.menuOpen header.hamburger {
+    position: fixed;
+    top: 2px;
+    left: calc(max(min(50vw, $menuMinWidth), $menuMaxWidth) + 10px);
+    z-index: 100000000;
+}
+
+#top-line,
+#bottom-line,
+#middle-line {
+    transform-box: fill-box;
+    transform-origin: center;
+}
+
+.menuOpen #hamburger {
+    #top-line {
+        animation: down-rotate 0.3s ease-out both;
+    }
+
+    #bottom-line {
+        animation: up-rotate 0.3s ease-out both;
+    }
+
+    #middle-line {
+        animation: hide 0.3s ease-out forwards;
+    }
+}
+
+@keyframes up-rotate {
+    0% {
+        animation-timing-function: cubic-bezier(0.16, -0.88, 0.97, 0.53);
+        transform: translateY(0px);
+    }
+
+    30% {
+        transform-origin: center;
+        animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+        transform: translateY(-11px) translateX(1px);
+    }
+
+    100% {
+        transform-origin: center;
+        transform: translateY(-11px) translateX(1px) rotate(45deg) scale(0.9);
+    }
+}
+
+@keyframes down-rotate {
+    0% {
+        animation-timing-function: cubic-bezier(0.16, -0.88, 0.97, 0.53);
+        transform: translateY(0px);
+    }
+
+    30% {
+        transform-origin: center;
+        animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+        transform: translateY(13px);
+    }
+
+    100% {
+        transform-origin: center;
+        transform: translateY(13px) rotate(-45deg) scale(0.9);
+    }
+}
+
+@keyframes hide {
+    29% {
+        opacity: 1;
+    }
+
+    30% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+.menuOpen header.hamburger {
+    &::after {
+        opacity: 0;
+    }
+}
+
+header.hamburger::after {
+    padding: 13px;
+}
+
+header.hamburger,
+#notificationsBell {
+
+    &:not([data-notificationCount]) {
+        &::after {
+            content: "";
+            opacity: 0;
+        }
+    }
+
+    &::after {
+        content: attr(data-notificationCount);
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background: #c30000;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 1.2rem;
+        text-align: center;
+        width: 1vw;
+        height: 1vw;
+        max-width: 30px;
+        min-width: 10px;
+        max-height: 30px;
+        min-height: 10px;
+        color: white;
+        box-shadow: -3px 3px 5px #2e2e2e;
+        opacity: 1;
+        transition: opacity 0.3s ease-out;
+        user-select: none;
+    }
+
+    &.noNotifications::after {
+        transition: opacity 0.3s ease-in;
+        content: "";
+        opacity: 0;
+    }
+}
+
+html:has(#loadingAnimation[open]) {
+    header.hamburger::after {
+        opacity: 0;
+        transition: opacity 0.3s ease-in;
+    }
+}
+
+html:not(.menuOpen) #notificationsBell {
+    opacity: 0;
+    pointer-events: none;
+}
+
+#notificationsBell {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000000000;
+    height: 3vh;
+    width: 3vh;
+    opacity: 1;
+    transition: opacity 0.3s ease-out;
+
+    &::after {
+        font-size: 80%;
+        width: 1.1vw;
+        height: 1.1vw;
+        top: -10px;
+        right: -10px;
+    }
+
+    img {
+        height: 100%;
+        aspect-ratio: 1/1;
+    }
+
+}
+
+#notificationsBell:not(:hover) {
+    .notificationList {
+        opacity: 0;
+        visibility: collapse;
+    }
+}
+
+#notificationsBell .notificationList {
+    width: max-content;
+    min-width: 300px;
+    max-width: min(40vw, 700px);
+    // height: auto;
+    position: absolute;
+    bottom: -20px;
+    transform: translate(0%, 100%);
+    background: rgba(vars.$gray-500, 0.2);
+    backdrop-filter: blur(4px) brightness(2);
+    right: 0;
+    transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
+    border-radius: 30px;
+
+    .notificationWrapper.old {
+        opacity: 0.2;
+    }
+
+    .notificationWrapper:first-of-type {
+        margin-top: 10px;
+    }
+
+    &:not(:has(>.notificationWrapper)) {
+        &::before {
+            content: "No Notifications";
+            position: absolute;
+            color: white;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .markAllRead {
+            opacity: 0;
+            pointer-events: none;
+        }
+    }
+
+    .markAllRead {
+        color: white;
+        font-size: 150%;
+        text-align: right;
+        padding-inline: 20px;
+        margin-top: 5px;
+        cursor: pointer;
+        width: min-content;
+        margin-left: auto;
+    }
+
+    .markAllRead:hover {
+        color: darken(white, 60%);
+    }
+
+    .markAllRead:active {
+        color: darken(white, 40%);
+    }
+
+}
+
+#notificationsBell:hover {
+    .notificationList {
+        opacity: 1;
+        visibility: visible;
+        overflow-x: hidden;
+        overflow-y: auto;
+
+        &::after {
+            content: "";
+            position: absolute;
+            top: 0px;
+            right: 0px;
+        }
+
+    }
+}
+
+.notificationWrapper {
+    display: grid;
+    grid-template-columns: 1fr 50px;
+    grid-template-rows: 50px 1fr;
+    grid-column-gap: 0px;
+    grid-row-gap: 0px;
+    margin: 20px;
+    padding: 10px;
+    border: 2px solid vars.$themeColor;
+    border-radius: 20px;
+    box-shadow: 0px 0px 5px vars.$themeColor-10-Dark;
+
+    .title {
+        grid-area: 1 / 1 / 2 / 2;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .text {
+        grid-area: 2 / 1 / 3 / 2;
+        text-align: center;
+        margin: 2px;
+    }
+
+    .close {
+        grid-area: 1 / 2 / 2 / 3;
+        background-color: transparent;
+        color: white;
+        font-size: 200%;
+        cursor: pointer;
+    }
+
+    .close:hover {
+        color: darken(white, 60%);
+    }
+
+    .close:active {
+        color: darken(white, 40%);
+    }
+
+}
+
+#logout {
+    position: absolute;
+    bottom: 0px;
+    left: 20px;
+    width: calc(100% - 60px);
+    background-color: color-mix(in srgb, vars.$errorColor 20%, vars.$gray-700 80%) !important;
+    color: lighten(red, 10%) !important;
+}
+
+#logoutQuestion.open {
+    opacity: 1;
+    pointer-events: all;
+}
+
+#logoutQuestion {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: vars.$gray-700;
+    padding: 20px;
+    border-radius: 20px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    grid-column-gap: 0px;
+    grid-row-gap: 0px;
+    width: 20vw;
+    min-width: 100px;
+    max-width: 500px;
+    z-index: 1000000000;
+    box-shadow: 0px 0px 20px vars.$errorColor;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease-in-out;
+
+    span {
+        grid-area: 1 / 1 / 2 / 3;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 120%;
+        color: white;
+    }
+
+    .no {
+        grid-area: 2 / 1 / 3 / 2;
+    }
+
+    .yes {
+        grid-area: 2 / 2 / 3 / 3;
+    }
+
+    .yes {
+        background-color: vars.$errorColor;
+        color: white;
+    }
+
+    .yes:hover {
+        background-color: lighten(vars.$errorColor, 10%);
+    }
+
+    .yes:active {
+        background-color: darken(vars.$errorColor, 10%);
+    }
+
+    button {
+        margin: 10px;
+        padding: 10px;
+        background-color: vars.$gray-600;
+        color: white;
+        height: 5%;
+        font-size: 120%;
+        cursor: pointer;
+        border-radius: 10px;
+        height: 100%;
+        max-height: min(3vh, 50px);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    button:hover {
+        background-color: lighten(vars.$gray-600, 10%);
+    }
+
+    button:active {
+        background-color: darken(vars.$gray-600, 10%);
+    }
+
+}

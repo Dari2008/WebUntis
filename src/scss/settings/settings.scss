@@ -696,12 +696,22 @@ body[lang="es"] #touapp a {
 
 .settings-foldable-section-element {
 
-    h2 {
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
         cursor: pointer;
         position: relative;
     }
 
-    h2::after {
+    h1::after,
+    h2::after,
+    h3::after,
+    h4::after,
+    h5::after,
+    h6::after {
         content: ">";
         position: absolute;
         top: 50%;
@@ -710,7 +720,12 @@ body[lang="es"] #touapp a {
         font-size: 1.5em;
     }
 
-    h2::before {
+    h1::before,
+    h2::before,
+    h3::before,
+    h4::before,
+    h5::before,
+    h6::before {
         content: ">";
         position: absolute;
         top: 50%;
@@ -727,22 +742,42 @@ body[lang="es"] #touapp a {
 
     &.hasToAnimate {
 
-        &.open h2::after {
+        &.open>h1::after,
+        &.open>h2::after,
+        &.open>h3::after,
+        &.open>h4::after,
+        &.open>h5::after,
+        &.open>h6::after {
             transform: translateY(-50%) rotateZ(90deg);
             transition: transform 0.1s ease-in-out;
         }
 
-        & h2::after {
+        & h1::after,
+        & h2::after,
+        & h3::after,
+        & h4::after,
+        & h5::after,
+        & h6::after {
 
             transition: transform 0.1s ease-in-out;
         }
 
-        &.open h2::before {
+        &.open>h1::before,
+        &.open>h2::before,
+        &.open>h3::before,
+        &.open>h4::before,
+        &.open>h5::before,
+        &.open>h6::before {
             transform: translateY(-50%) rotateZ(90deg);
             transition: transform 0.1s ease-in-out;
         }
 
-        & h2::before {
+        & h1::before,
+        & h2::before,
+        & h3::before,
+        & h4::before,
+        & h5::before,
+        & h6::before {
             transition: transform 0.1s ease-in-out;
         }
 
@@ -757,11 +792,21 @@ body[lang="es"] #touapp a {
 
     &:not(.hasToAnimate) {
 
-        &.open h2::before {
+        &.open>h1::before,
+        &.open>h2::before,
+        &.open>h3::before,
+        &.open>h4::before,
+        &.open>h5::before,
+        &.open>h6::before {
             transform: translateY(-50%) rotateZ(90deg);
         }
 
-        &.open h2::after {
+        &.open>h1::after,
+        &.open>h2::after,
+        &.open>h3::after,
+        &.open>h4::after,
+        &.open>h5::after,
+        &.open>h6::after {
             transform: translateY(-50%) rotateZ(90deg);
         }
 
@@ -774,7 +819,7 @@ body[lang="es"] #touapp a {
         }
     }
 
-    .settings-foldable-section-element-content .settings-title-element:first-of-type {
+    .settings-foldable-section-element-content .settings-title-element-wrapper>.settings-title-element {
         display: none;
     }
 

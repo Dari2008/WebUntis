@@ -38,7 +38,7 @@ async function init() {
 
         try {
 
-            const response = await (await fetch("http://localhost:2222/untis/users/login.php", {
+            const response = await (await fetch("http://localhost:2222/untis/users/login.php?noCache", {
                 method: "post",
                 body: JSON.stringify({
                     username: valueUsername,
