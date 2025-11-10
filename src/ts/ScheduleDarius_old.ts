@@ -7,7 +7,9 @@
 // import type { UntisAccess } from "./@types/UntisAccess";
 
 // dayjs.extend(customParseFormat);
-export const HOST = "localhost:2222";
+// export const HOST = "localhost:2222/untis";
+// export const HOST = "http://192.168.178.110:2222/untis";
+export const HOST = "https://untis.frobeen.com/php/";
 
 // export const SCHEDULE: ScheduleDarius = {
 

@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import type { CompiledLesson, DayName, LessonRaw, LessonSlot, ScheduleRawData, ScheduleRawDay, TypeScheduleRawDayTimes } from "../@types/Schedule";
+import type { CompiledLesson, DayName, LessonSlot, ScheduleRawData, TypeScheduleRawDayTimes } from "../@types/Schedule";
 import { UserManagement } from "../userManagement/UserManagement";
 import UntisManager from "./UntisManager";
 import type { Holiday } from "./types";

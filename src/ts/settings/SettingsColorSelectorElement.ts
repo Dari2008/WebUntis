@@ -143,10 +143,10 @@ export class SettingsColorSelectorElement {
 
     private validateInput: (input: string) => Color = (input: string) => { return toColor(input); };
 
-    onload: (value?: Color, func?: (name: string) => void) => void = (value?: Color, func?: (name: string) => void) => { }
+    onload: (value?: Color, func?: (name: string) => void) => void = () => { }
 
     type: string = "color";
-    onchange: (value?: Color, func?: (name: string) => SettingsContentElement | undefined) => void = (value?: Color, func?: (name: string) => SettingsContentElement | undefined) => { };
+    onchange: (value?: Color, func?: (name: string) => SettingsContentElement | undefined) => void = () => { };
 
 
 
@@ -300,7 +300,7 @@ export class SettingsColorSelectorElement {
 
         this.onload = () => {
             if ((this.data.disabled || false)) return;
-            (data.onload || ((value: Color, func: (name: string) => SettingsContentElement | undefined) => { }))(this.validateInput(this.currentColor), this.getOtherElement);
+            (data.onload || (() => { }))(this.validateInput(this.currentColor), this.getOtherElement);
         };
 
         this.setDisabled(!!data.disabled);

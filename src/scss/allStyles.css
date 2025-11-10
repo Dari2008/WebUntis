@@ -306,7 +306,314 @@ body {
   scrollbar-color: #212121 #676767;
 }
 
-@media (width < 1px) {
+html,
+body,
+dialog {
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  background-color: #212121;
+  color: #000000;
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  z-index: -1;
+}
+
+html.overflowWhenVisible:not(.visible) {
+  overflow: hidden;
+}
+
+html:has(iframe.open),
+html:has(iframe.opened) {
+  overflow: hidden;
+}
+
+html,
+body {
+  width: 100%;
+  min-height: 100%;
+  max-width: 100%;
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+  height: 100%;
+  overflow: hidden;
+}
+
+button {
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+.centerAll {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+:not(.slow-transition) * {
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s, box-shadow 0.3s;
+  box-sizing: border-box;
+}
+:not(.slow-transition) * ::after,
+:not(.slow-transition) * ::before {
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s, box-shadow 0.3s;
+  box-sizing: border-box;
+}
+
+.slow-transition * {
+  transition: all 5s !important;
+  box-sizing: border-box;
+}
+.slow-transition * ::after,
+.slow-transition * ::before {
+  transition: all 5s !important;
+  box-sizing: border-box;
+}
+
+iframe {
+  border: none !important;
+  outline: none !important;
+}
+
+.widthAvailable {
+  width: 100%;
+  width: fill-available;
+  width: -moz-available;
+  width: -webkit-fill-available;
+}
+
+.h-s {
+  font-weight: 400;
+  font-style: normal;
+}
+
+* {
+  font-weight: 400;
+  font-style: normal;
+  box-sizing: content-box;
+}
+
+.title {
+  line-height: 2.5rem;
+  font-weight: 600;
+  color: #EEEEEE;
+}
+
+.text {
+  line-height: 2em;
+  color: #EEEEEE;
+}
+
+p,
+a,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+li {
+  text-wrap: wrap;
+  word-break: break-word;
+  word-wrap: anywhere;
+}
+
+body {
+  --mobile: 0;
+}
+
+@media (width < 1200px) {
+  body {
+    --mobile: 1;
+  }
+}
+*::selection {
+  background: #90512e;
+  color: white;
+}
+
+.defaultElementOnMainPage {
+  color: #EEEEEE;
+  font-family: "Poppins";
+  font-weight: 400;
+  font-style: normal;
+  font-size: clamp(0.6em, 0.7111111111em + 0.8888888889vw, 1.6em);
+  line-height: clamp(1.4em, 1.4222222222em + 0.1777777778vw, 1.6em);
+}
+
+.defaultMainElement {
+  width: 80%;
+  margin: 0 auto;
+  text-align: justify;
+  align-self: center;
+}
+
+@media (width < 200px) {
+  * {
+    word-wrap: anywhere;
+    hyphens: auto;
+  }
+}
+.imageFade10 {
+  position: relative;
+}
+.imageFade10::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 10%;
+  z-index: 1000;
+  background: linear-gradient(to bottom, #212121, rgba(33, 33, 33, 0));
+}
+.imageFade10::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  height: 10%;
+  background: linear-gradient(to bottom, rgba(33, 33, 33, 0), #212121);
+}
+
+.imageFade15 {
+  position: relative;
+}
+.imageFade15::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 15%;
+  z-index: 1000;
+  background: linear-gradient(to bottom, #212121, rgba(33, 33, 33, 0));
+}
+.imageFade15::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 15%;
+  z-index: 1000;
+  background: linear-gradient(to bottom, rgba(33, 33, 33, 0), #212121);
+}
+
+.imageFade20 {
+  position: relative;
+}
+.imageFade20::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 20%;
+  z-index: 1000;
+  background: linear-gradient(to bottom, #212121, rgba(33, 33, 33, 0));
+}
+.imageFade20::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 20%;
+  z-index: 1000;
+  background: linear-gradient(to bottom, rgba(33, 33, 33, 0), #212121);
+}
+
+.imageFade25 {
+  position: relative;
+}
+.imageFade25::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 25%;
+  z-index: 1000;
+  background: linear-gradient(to bottom, #212121, rgba(33, 33, 33, 0));
+}
+.imageFade25::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 25%;
+  z-index: 1000;
+  background: linear-gradient(to bottom, rgba(33, 33, 33, 0), #212121);
+}
+
+.imageFade30 {
+  position: relative;
+}
+.imageFade30::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 30%;
+  z-index: 1000;
+  background: linear-gradient(to bottom, #212121, rgba(33, 33, 33, 0));
+}
+.imageFade30::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 30%;
+  z-index: 1000;
+  background: linear-gradient(to bottom, rgba(33, 33, 33, 0), #212121);
+}
+
+.imageFade35 {
+  position: relative;
+}
+.imageFade35::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 35%;
+  z-index: 1000;
+  background: linear-gradient(to bottom, #212121, rgba(33, 33, 33, 0));
+}
+.imageFade35::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 35%;
+  z-index: 1000;
+  background: linear-gradient(to bottom, rgba(33, 33, 33, 0), #212121);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #212121 #676767;
+}
+
+@media (width < 100px) {
   .schedule .lessonTime.break .start {
     left: 1px !important;
   }
@@ -324,22 +631,29 @@ body {
 }
 @media (width < 650px) {
   .lesson {
-    margin-inline: 1px !important;
-    margin-block: 1px !important;
+    margin: 1px !important;
+    width: calc(100% - 2px) !important;
   }
 }
 @media (width < 550px) {
   .lesson {
     padding: 1px !important;
   }
+  .lesson:has(+ .moreLessons) {
+    width: calc(80% - 1px) !important;
+  }
+  .lesson:has(+ .moreLessons) + .moreLessons {
+    padding: 0;
+    margin: 1px;
+  }
 }
 @media (width < 450px) {
   .lesson {
     padding: 2px !important;
-    border: 2px solid rgb(76.5, 76.5, 76.5) !important;
+    border-width: 2px !important;
   }
 }
-@media (width < 800px) {
+@media (width < 1100px) {
   .lesson {
     grid-column-gap: 0px !important;
   }
@@ -348,6 +662,29 @@ body {
   }
   .lesson .teacher {
     text-align: left !important;
+  }
+}
+@media (width < 760px) {
+  .lesson:has(+ .moreLessons) {
+    display: none !important;
+  }
+  .lesson:has(+ .moreLessons) + .moreLessons {
+    width: calc(100% - 10px);
+    position: relative;
+  }
+  .lesson:has(+ .moreLessons) + .moreLessons::after {
+    content: attr(data-lessonCount) " Lessons";
+    position: absolute;
+    top: 80%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: clamp(0.5em, 0.55em + 0.8vw, 0.7em);
+    text-wrap: nowrap;
+  }
+}
+@media (width < 400px) {
+  .lesson + .moreLessons::after {
+    content: "+ " attr(data-lessonCount) !important;
   }
 }
 @media (height < 650px) and (width < 375px) {
@@ -404,7 +741,7 @@ body {
     right: 5px !important;
   }
 }
-@media (width < 500px) {
+@media (width < 625px) {
   .header .shortName {
     display: inline !important;
   }
@@ -432,6 +769,240 @@ body {
   }
   body {
     padding: 0px !important;
+  }
+}
+@media (width < 350px) and (width >= 400px) {
+  #notificationsBell {
+    top: unset !important;
+    bottom: 20px;
+  }
+  #notificationsBell .notificationList {
+    top: -20px;
+    transform: translate(0%, -100%) !important;
+    border-radius: 10px !important;
+  }
+}
+@media (width < 400px) {
+  #notificationsBell:not(:hover) .notificationList {
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+  #notificationsBell {
+    cursor: pointer;
+  }
+  #notificationsBell .notificationList {
+    position: fixed !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 80vh !important;
+    transform: translate(0%, 0%) !important;
+    min-width: 100vw !important;
+    max-width: 100vw !important;
+    backdrop-filter: blur(20px) !important;
+    border-radius: 10px !important;
+    top: 110vh;
+    transition: top 0.3s ease-in-out !important;
+    box-shadow: 0 4px 10px #FF7512 !important;
+  }
+  #notificationsBell .notificationList .markAllRead {
+    position: sticky !important;
+    top: 0 !important;
+    width: 100% !important;
+    background: #171717 !important;
+    backdrop-filter: blur(10px) !important;
+    text-align: center !important;
+    margin-top: 0 !important;
+    padding-inline: 0 !important;
+    padding-block: 10px !important;
+    box-shadow: 0 -6px 10px white !important;
+  }
+  #notificationsBell .notificationList.open {
+    top: 20vh !important;
+  }
+}
+@media (width < 290px) {
+  #notificationsBell:not(:hover) .notificationList {
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+  #notificationsBell {
+    cursor: pointer;
+  }
+  #notificationsBell .notificationList {
+    position: fixed !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 80vh !important;
+    transform: translate(0%, 0%) !important;
+    min-width: 100vw !important;
+    max-width: 100vw !important;
+    backdrop-filter: blur(20px) !important;
+    border-radius: 10px !important;
+    top: 110vh;
+    transition: top 0.3s ease-in-out !important;
+  }
+  #notificationsBell .notificationList.open {
+    top: 20vh !important;
+  }
+  header.hamburger {
+    left: 2px !important;
+  }
+}
+@media (width < 800px) {
+  #untisAccesses,
+  #contents[selectedtab=untisAccesses] {
+    display: none;
+  }
+}
+@media (width < 600px) {
+  #contents .settings-tools-excuse-system-element .fromCell,
+  #contents .settings-tools-excuse-system-element .toCell,
+  #contents .settings-tools-excuse-system-element .from,
+  #contents .settings-tools-excuse-system-element .to {
+    visibility: collapse !important;
+    width: 0;
+    max-width: 0;
+    min-width: 0;
+  }
+}
+@media (width < 520px) {
+  #contents .settings-tools-excuse-system-element .lessonsmissed,
+  #contents .settings-tools-excuse-system-element .daysIllCell {
+    visibility: collapse !important;
+    width: 0;
+    max-width: 0;
+    min-width: 0;
+  }
+}
+@media (width < 420px) {
+  #tools,
+  #contents[selectedtab=tools] {
+    display: none;
+  }
+}
+@media (width < 650px) {
+  #schedule,
+  #contents[selectedtab=schedule] {
+    display: none;
+  }
+}
+@media (width < 650px) {
+  .settings-break-list table tr td:nth-of-type(4) {
+    visibility: collapse;
+    max-width: 0;
+    min-width: 0;
+    width: 0;
+  }
+}
+@media (width < 560px) {
+  #breaks,
+  #contents[selectedtab=breaks] {
+    display: none;
+  }
+}
+@media (width < 750px) {
+  .settings-exam-list table tr td:nth-of-type(4) {
+    visibility: collapse;
+    max-width: 0;
+    min-width: 0;
+    width: 0;
+  }
+}
+@media (width < 500px) {
+  .settings-exam-list table tr td:nth-of-type(2) {
+    visibility: collapse;
+    max-width: 0;
+    min-width: 0;
+    width: 0;
+  }
+}
+@media (width < 400px) {
+  #exams,
+  #contents[selectedtab=exams] {
+    display: none;
+  }
+}
+@media (width < 500px) {
+  #teachers,
+  #contents[selectedtab=teachers] {
+    display: none;
+  }
+}
+@media (width < 800px) {
+  #appearance,
+  #contents[selectedtab=appearance] {
+    display: none;
+  }
+}
+@media (width < 800px) {
+  #contents[selectedtab=notifications] #notificationTextLayout {
+    display: none;
+  }
+}
+@media (width < 700px) {
+  #settingsList button {
+    padding-inline: 10px !important;
+  }
+}
+@media (width < 550px) {
+  #subscribedDevicesTitle {
+    display: none;
+  }
+  .settings-title-element-wrapper:not(:first-of-type) {
+    margin-top: 10%;
+  }
+  .settings-title-element-wrapper:not(:first-of-type) .settings-title-element {
+    font-size: 150%;
+  }
+  #examReminderTimes {
+    border-top: none !important;
+  }
+  #settingsDialog {
+    grid-template-columns: 30% 70% !important;
+  }
+  #settingsList button {
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+  .settings-element {
+    display: grid;
+    grid-template-columns: 1fr !important;
+    grid-template-rows: repeat(4, auto) !important;
+    grid-column-gap: 0px !important;
+    grid-row-gap: 0px !important;
+  }
+  .settings-element .settings-title {
+    grid-area: 1/1/2/2;
+    text-align: center;
+  }
+  .settings-element .settings-label {
+    grid-area: 2/1/3/2;
+    text-align: center;
+  }
+  .settings-element .settings-input,
+  .settings-element .settings-textField-input {
+    grid-area: 3/1/4/2;
+    width: 100%;
+  }
+  .settings-element .settings-description {
+    grid-area: 4/1/5/2;
+    text-align: center;
+  }
+}
+@media (width < 1200px) {
+  #insidePopInfo {
+    min-width: 60vw !important;
+  }
+}
+@media (height < 700px) {
+  #insidePopInfo {
+    min-height: 60vh !important;
+  }
+}
+@media (height < 700px) {
+  #menuOverlay {
+    height: 8%;
+    min-height: 50px;
   }
 }
 #loadingAnimation {
@@ -467,8 +1038,8 @@ body {
 }
 
 #settingsDialog {
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
   border: none;
   padding: 0px;
   margin: 0px;
@@ -481,6 +1052,7 @@ body {
   position: fixed;
   top: 0px;
   left: 0px;
+  flex-direction: row;
 }
 
 #settingsDialog:not([show]) {
@@ -518,6 +1090,9 @@ body {
   padding-top: 20px;
   padding-bottom: 20px;
   height: 100%;
+}
+#settingsList button {
+  padding-inline: 30px !important;
 }
 
 #settingsList button[selected] {
@@ -1741,7 +2316,7 @@ table tr td:first-of-type {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 10000000000000;
+  z-index: 1000000;
 }
 .addIllDayDialogWrapper.addIllLessonDialogWrapper .inputWithLabel-wrapper {
   margin-bottom: 10% !important;
@@ -1920,6 +2495,9 @@ table tr td:first-of-type {
   font-size: 120%;
   cursor: pointer;
   border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 #menuOverlay > button:hover {
   background-color: rgb(72.5, 72.5, 72.5);
@@ -1948,7 +2526,7 @@ table tr td:first-of-type {
   top: 0;
   right: 0;
   height: 100%;
-  left: max(min(50vw, 200px), 400px);
+  left: min(max(50vw, 200px), 400px);
   z-index: 10000000;
   opacity: 1;
   backdrop-filter: blur(4px) brightness(0.3);
@@ -1966,27 +2544,29 @@ html:not(.menuOpen) #menuOverlay::after {
 
 header.hamburger {
   position: fixed;
-  top: 2px;
-  left: 2px;
+  top: 10px;
+  left: 10px;
   z-index: 100000;
   transition: left 0.3s ease-in-out;
-  transform: scale(0.75);
   background: rgb(171, 71.4303797468, 0);
-  border-radius: 100%;
+  border-radius: 50%;
   padding: 10px;
-  height: calc(var(--titleBarHeight) + 20px);
-  width: calc(var(--titleBarHeight) + 20px);
-  aspect-ratio: 1;
+  aspect-ratio: 1/1;
+  width: calc(min(min(4dvh, 4dvw), 30px) + 20px) !important;
   cursor: pointer;
   display: flex;
   justify-content: center;
   align-items: center;
+  min-width: 30px;
+  min-height: 30px;
+  max-width: 70px;
+  max-height: 70px;
 }
 
 .menuOpen header.hamburger {
   position: fixed;
-  top: 2px;
-  left: calc(max(min(50vw, 200px), 400px) + 10px);
+  top: 10px;
+  left: calc(min(max(50vw, 200px), 400px) + 10px);
   z-index: 100000000;
 }
 
@@ -2125,7 +2705,7 @@ html:not(.menuOpen) #notificationsBell {
   aspect-ratio: 1/1;
 }
 
-#notificationsBell:not(:hover) .notificationList {
+.notificationList:not(.open) {
   opacity: 0;
   visibility: collapse;
 }
@@ -2178,13 +2758,13 @@ html:not(.menuOpen) #notificationsBell {
   color: #999999;
 }
 
-#notificationsBell:hover .notificationList {
+.notificationList.open {
   opacity: 1;
   visibility: visible;
   overflow-x: hidden;
   overflow-y: auto;
 }
-#notificationsBell:hover .notificationList::after {
+.notificationList.open::after {
   content: "";
   position: absolute;
   top: 0px;
@@ -2368,6 +2948,23 @@ html.offlineMode .settings-schedule .addlessonButton {
 .settings-schedule-table .settings-schedule-wrapper .settings-schedule .lesson-time-slot::after {
   content: ".";
 }
+.settings-schedule-table .settings-schedule-wrapper .settings-schedule .notUsableOverwrittenByOtherSchedule {
+  position: relative;
+}
+.settings-schedule-table .settings-schedule-wrapper .settings-schedule .newMultiLessonAddTarget {
+  border: 3px solid #FF7512 !important;
+  border-radius: 20px;
+}
+.settings-schedule-table .settings-schedule-wrapper .settings-schedule .notUsableOverwrittenByOtherSchedule::after {
+  content: "Overwritten By Other Schedule";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 80%;
+  opacity: 0.2;
+  text-align: center;
+}
 .settings-schedule-table .settings-schedule-wrapper .settings-schedule .lessonLoaded {
   position: relative;
   border: 2px solid #424242;
@@ -2474,10 +3071,282 @@ html.offlineMode .settings-schedule .addlessonButton {
   grid-area: 3/1/4/3;
 }
 #addScheduleDialogWrapper #addScheduleDialog .addBtn {
-  grid-area: 4/1/5/2;
+  grid-area: 4/2/5/3;
 }
 #addScheduleDialogWrapper #addScheduleDialog .cancelBtn {
-  grid-area: 4/2/5/3;
+  grid-area: 4/1/5/2;
+}
+
+.yesNoDialog {
+  position: fixed;
+  top: 5%;
+  left: 50%;
+  width: 30vw;
+  height: auto;
+  padding: 20px;
+  z-index: 10000000;
+  transform: translateX(-50%);
+  background-color: #2f2f2f;
+  border-radius: 20px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, auto);
+  grid-column-gap: 10px;
+  grid-row-gap: 20px;
+  animation: dropDown 0.3s ease-in 0ms 1 forwards;
+}
+.yesNoDialog.hide {
+  animation: dropUp 0.3s ease-out 0ms 1 forwards;
+}
+.yesNoDialog .text {
+  width: 100%;
+  grid-area: 1/1/2/3;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.yesNoDialog .no {
+  grid-area: 2/1/3/2;
+}
+.yesNoDialog .yes {
+  grid-area: 2/2/3/3;
+}
+.yesNoDialog .no,
+.yesNoDialog .yes {
+  cursor: pointer;
+  background-color: #212121;
+  color: white;
+  padding: 10px;
+  outline: none;
+  border: none;
+  border-radius: 10px;
+}
+.yesNoDialog .no:hover,
+.yesNoDialog .yes:hover {
+  background-color: rgb(7.5, 7.5, 7.5);
+}
+.yesNoDialog .no:active,
+.yesNoDialog .yes:active {
+  background-color: rgb(58.5, 58.5, 58.5);
+}
+
+@keyframes dropDown {
+  0% {
+    top: 0%;
+    transform: translate(-50%, -100%);
+    opacity: 0;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    top: 5%;
+    transform: translate(-50%, 0%);
+    opacity: 1;
+  }
+}
+@keyframes dropUp {
+  0% {
+    top: 5%;
+    transform: translate(-50%, 0%);
+    opacity: 1;
+  }
+  20% {
+    opacity: 0;
+  }
+  100% {
+    top: 0%;
+    transform: translate(-50%, -100%);
+    opacity: 0;
+  }
+}
+.walk-bgDiv {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(4px);
+  z-index: 1000000000;
+  pointer-events: all;
+}
+
+.walk-step {
+  background-color: #171717;
+  color: white;
+  padding: 10px;
+  position: fixed;
+  z-index: 100000000000000000000;
+  border-radius: 20px;
+  border: 3px solid #FF7512;
+  transition: opacity 0.2s ease-in-out, top 0.2s ease-in-out, left 0.2s ease-in-out, width 0.2s ease-in-out, height 0.2s ease-in-out;
+  opacity: 1;
+  width: 20vw;
+  min-width: 200px;
+  max-width: 600px;
+}
+.walk-step.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+.walk-step.centered {
+  width: 40vw;
+  height: auto;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.walk-step:not(.centered).centeredHorizontally {
+  left: max(var(--left) + var(--width) / 2 - max(var(--width), 200px) / 2, 0px) !important;
+  width: var(--width);
+  min-width: 200px;
+  max-width: 100vw;
+}
+.walk-step:not(.centered).centeredHorizontally.useLeft.useBottom {
+  transform: none;
+}
+.walk-step:not(.centered).centeredHorizontally.useLeft.useTop {
+  transform: translate(0%, -100%);
+}
+.walk-step:not(.centered).useTop.centeredHorizontally {
+  border-bottom-right-radius: 0px;
+  border-bottom-left-radius: 0px;
+}
+.walk-step:not(.centered).useBottom.centeredHorizontally {
+  border-top-right-radius: 0px;
+  border-top-left-radius: 0px;
+}
+.walk-step:not(.centered).useTop.useLeft {
+  top: var(--top);
+  left: var(--left);
+  transform: translate(-100%, -100%);
+  border-bottom-right-radius: 0px;
+}
+.walk-step:not(.centered).useTop.useRight {
+  top: var(--top);
+  left: calc(var(--left) + var(--width));
+  transform: translateY(-100%);
+  border-bottom-left-radius: 0px;
+}
+.walk-step:not(.centered).useBottom.useLeft {
+  top: calc(var(--top) + var(--height));
+  left: var(--left);
+  transform: translateX(-100%);
+  border-top-right-radius: 0px;
+}
+.walk-step:not(.centered).useBottom.useRight {
+  top: calc(var(--top) + var(--height));
+  left: calc(var(--left) + var(--width));
+  border-top-left-radius: 0px;
+}
+.walk-step .nextBtn.textContent {
+  justify-self: left;
+  padding-inline: 10px;
+  background-color: rgb(222, 92.7341772152, 0);
+  border: #FF7512 !important;
+  border-radius: 10px;
+  margin-left: auto;
+  box-shadow: 0 0 5px #FF7512 !important;
+}
+.walk-step .nextBtn.textContent:hover {
+  color: #666666;
+  box-shadow: 0 0 9px #FF7512 !important;
+}
+.walk-step .nextBtn.textContent:active {
+  color: #cccccc;
+  box-shadow: 0 0 10px #FF7512 !important;
+}
+.walk-step .nextBtn,
+.walk-step .prevBtn {
+  height: 3vh;
+  aspect-ratio: 1;
+  font-size: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-self: center;
+  background-color: #171717;
+}
+.walk-step .nextBtn:hover,
+.walk-step .prevBtn:hover {
+  color: #999999;
+}
+.walk-step .nextBtn:active,
+.walk-step .prevBtn:active {
+  color: #cccccc;
+}
+.walk-step .nextBtn:not(.textContent) {
+  transform: rotate(90deg);
+  justify-self: right;
+}
+.walk-step .prevBtn {
+  transform: rotate(-90deg);
+  justify-self: left;
+}
+.walk-step button {
+  border: none;
+  padding: 5px;
+  margin: 5px;
+  outline: none;
+  color: white;
+  background-color: #2f2f2f;
+  cursor: pointer;
+}
+.walk-step b {
+  color: #FF7512;
+  font-weight: bolder;
+}
+.walk-step .currentProgress {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 110%;
+}
+
+.walk-image-wrapper {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: 3fr auto 0.5fr;
+  grid-column-gap: 0px;
+  grid-row-gap: 0px;
+}
+.walk-image-wrapper .image {
+  grid-area: 1/1/2/4;
+}
+.walk-image-wrapper .text {
+  grid-area: 2/1/3/4;
+  text-align: center;
+}
+.walk-image-wrapper .prevBtn {
+  grid-area: 3/1/4/2;
+}
+.walk-image-wrapper .currentProgress {
+  grid-area: 3/2/4/3;
+}
+.walk-image-wrapper .nextBtn {
+  grid-area: 3/3/4/4;
+}
+
+.walk-text-wrapper {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: auto 1fr;
+  grid-column-gap: 0px;
+  grid-row-gap: 0px;
+}
+.walk-text-wrapper .text {
+  grid-area: 1/1/2/4;
+  text-align: center;
+}
+.walk-text-wrapper .prevBtn {
+  grid-area: 2/1/3/2;
+}
+.walk-text-wrapper .currentProgress {
+  grid-area: 2/2/3/3;
+}
+.walk-text-wrapper .nextBtn {
+  grid-area: 2/3/3/4;
 }
 
 /*!
@@ -2753,6 +3622,7 @@ html.offlineMode .settings-schedule .addlessonButton {
   opacity: 0;
   transition: opacity 0.3s;
   pointer-events: none;
+  backdrop-filter: blur(4px);
 }
 
 #insidePopInfo.exam {
@@ -3069,7 +3939,8 @@ html.offlineMode .settings-schedule .addlessonButton {
   grid-row-gap: 0px;
   min-height: 40vh;
   min-width: 20vw;
-  max-height: calc(100% - 40px);
+  max-width: calc(100vw - 40px);
+  max-height: calc(100vh - 40px);
 }
 #insidePopInfo .moreLessonsDiv {
   display: none;
@@ -3202,16 +4073,18 @@ html.offlineMode .settings-schedule .addlessonButton {
 }
 
 .lesson.popupAnimation {
-  position: fixed;
+  position: fixed !important;
   width: var(--width) !important;
   height: var(--height) !important;
+  grid-area: none !important;
   animation: popupAnimation 0.4s ease-in-out forwards;
 }
 
 .lesson.popupAnimationReverse {
-  position: fixed;
+  position: fixed !important;
   width: var(--width) !important;
   height: var(--height) !important;
+  grid-area: none !important;
   animation: popupAnimation 0.4s ease-in-out reverse forwards;
 }
 
@@ -3219,7 +4092,7 @@ html.offlineMode .settings-schedule .addlessonButton {
   0% {
     top: var(--top);
     left: var(--left);
-    transform: translate(0, 0) scale(1);
+    transform: translate(5px, 5px) scale(1);
   }
   80% {
     opacity: 100%;
@@ -3322,6 +4195,9 @@ html.offlineMode .settings-schedule .addlessonButton {
 }
 .schedule .header .longName {
   display: inline;
+}
+.schedule .header .dateDay {
+  margin-right: 10px;
 }
 .schedule .holiday {
   margin: 5px;
@@ -3864,6 +4740,17 @@ html.offlineMode .settings-schedule .addlessonButton {
   background: #676767;
 }
 
+.addExamDialogWrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10000000;
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(4px);
+}
+
 #addBreakDialogWrapper {
   position: fixed;
   top: 0;
@@ -4077,7 +4964,7 @@ html.offlineMode .settings-schedule .addlessonButton {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 100000000;
+  z-index: 1000000;
   background-color: rgba(23, 23, 23, 0.2);
   backdrop-filter: blur(4px);
 }
@@ -4258,7 +5145,7 @@ html.offlineMode .settings-schedule .addlessonButton {
   width: 100%;
   height: 100%;
   pointer-events: all;
-  z-index: 10000000;
+  z-index: 1000000;
   backdrop-filter: blur(4px);
   background-color: rgba(23, 23, 23, 0.2);
 }
@@ -4537,4 +5424,68 @@ html.offlineMode .settings-schedule .addlessonButton {
     max-height: 30vh;
     opacity: 1;
   }
+}
+.selectedScheduleDay .lesson, .schedule.onlyShow.friday .lesson, .schedule.onlyShow.thursday .lesson, .schedule.onlyShow.wednesday .lesson, .schedule.onlyShow.tuesday .lesson, .schedule.onlyShow.monday .lesson,
+.selectedScheduleDay .break:not(.lessonTime),
+.schedule.onlyShow.friday .break:not(.lessonTime),
+.schedule.onlyShow.thursday .break:not(.lessonTime),
+.schedule.onlyShow.wednesday .break:not(.lessonTime),
+.schedule.onlyShow.tuesday .break:not(.lessonTime),
+.schedule.onlyShow.monday .break:not(.lessonTime),
+.selectedScheduleDay .header.weekDayHeader,
+.schedule.onlyShow.friday .header.weekDayHeader,
+.schedule.onlyShow.thursday .header.weekDayHeader,
+.schedule.onlyShow.wednesday .header.weekDayHeader,
+.schedule.onlyShow.tuesday .header.weekDayHeader,
+.schedule.onlyShow.monday .header.weekDayHeader {
+  grid-column-start: calc(var(--schoolsShownCount, 1) + 1) !important;
+  grid-column-end: calc(var(--totalSchoolCount, 1) + 5 + 1) !important;
+}
+
+.schedule.onlyShow .schoolTimesBackground {
+  grid-column-end: calc(var(--schoolsShownCount, 1) + 1) !important;
+}
+.schedule.onlyShow.monday .tuesday,
+.schedule.onlyShow.monday .wednesday,
+.schedule.onlyShow.monday .thursday,
+.schedule.onlyShow.monday .friday {
+  display: none !important;
+}
+.schedule.onlyShow.tuesday .monday,
+.schedule.onlyShow.tuesday .wednesday,
+.schedule.onlyShow.tuesday .thursday,
+.schedule.onlyShow.tuesday .friday {
+  display: none !important;
+}
+.schedule.onlyShow.wednesday .monday,
+.schedule.onlyShow.wednesday .tuesday,
+.schedule.onlyShow.wednesday .thursday,
+.schedule.onlyShow.wednesday .friday {
+  display: none !important;
+}
+.schedule.onlyShow.thursday .monday,
+.schedule.onlyShow.thursday .tuesday,
+.schedule.onlyShow.thursday .wednesday,
+.schedule.onlyShow.thursday .friday {
+  display: none !important;
+}
+.schedule.onlyShow.friday .monday,
+.schedule.onlyShow.friday .tuesday,
+.schedule.onlyShow.friday .wednesday,
+.schedule.onlyShow.friday .thursday {
+  display: none !important;
+}
+
+html.menuOpen #timeSchedule,
+html.menuOpen .schedule,
+html.menuOpen body,
+html.menuOpen html,
+html:has(#settingsDialog[show]) #timeSchedule,
+html:has(#settingsDialog[show]) .schedule,
+html:has(#settingsDialog[show]) body,
+html:has(#settingsDialog[show]) html {
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: none;
+  -webkit-overflow-scrolling: auto;
 }/*# sourceMappingURL=allStyles.css.map */

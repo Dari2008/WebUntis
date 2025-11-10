@@ -94,7 +94,7 @@ export class HolidayLoader {
 
         try {
             const untis = manager.getUntis();
-            const response = await fetch("http://" + HOST + "/untis/getHolidays.php?noCache", {
+            const response = await fetch(HOST + "/getHolidays.php?noCache", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"

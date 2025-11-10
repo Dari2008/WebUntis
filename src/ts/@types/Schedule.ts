@@ -1,4 +1,4 @@
-import type { ShortData, WebAPITimetable, WebElement, WebElementData } from "../untis/types";
+import type { ShortData, WebElement, WebElementData } from "../untis/types";
 import type { School } from "./School";
 import type { Teacher } from "./Teachers";
 

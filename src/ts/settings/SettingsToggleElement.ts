@@ -29,14 +29,14 @@ export class SettingsToggleElement {
     private name: string = "";
     private data: SettingsToggleData;
 
-    onchange: (checked: boolean, func: (name: string) => SettingsContentElement | undefined) => void = (checked: boolean, func: (name: string) => SettingsContentElement | undefined) => { };
+    onchange: (checked: boolean, func: (name: string) => SettingsContentElement | undefined) => void = () => { };
     onload: () => void = () => { }
 
     constructor(data: SettingsToggleData) {
-        this.onchange = data.onchange || ((checked: boolean, func: (name: string) => void) => { });
+        this.onchange = data.onchange || (() => { });
         this.onload = () => {
             if ((this.data.disabled || false)) return;
-            (data.onload || ((checked: boolean, func: () => void) => { }))(!!this.inputElement?.checked, this.getOtherElement.bind(this));
+            (data.onload || (() => { }))(!!this.inputElement?.checked, this.getOtherElement.bind(this));
         };
 
         this.data = data;

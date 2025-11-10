@@ -113,6 +113,36 @@ export default class Utils {
     }
 
 
+    static addOnclickOutside(element: HTMLElement, closeCallback: () => void): (() => void) {
+        const onclick = (e: Event) => {
+            if (!e.target) return;
+            if (element.contains(e.target as Node)) return;
+            removeListeners();
+            closeCallback();
+        };
+
+        const onkeyboard = (e: KeyboardEvent) => {
+            if (e.code == "Escape") {
+
+                removeListeners();
+                closeCallback();
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        };
+        const removeListeners = () => {
+            document.removeEventListener("keydown", onkeyboard);
+            document.removeEventListener("keyup", onkeyboard);
+            document.removeEventListener("click", onclick);
+        };
+
+        document.addEventListener("click", onclick);
+        document.addEventListener("keydown", onkeyboard);
+        document.addEventListener("keyup", onkeyboard);
+
+        return removeListeners;
+    }
+
 
     public static async openDB(DB_NAME: string, STORE_NAME: string): Promise<IDBDatabase> {
         return new Promise((resolve, reject) => {

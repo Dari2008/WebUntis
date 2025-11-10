@@ -135,7 +135,6 @@ export class SettingsToolsExcuseSystemGrootmoor extends SettingsElement {
             th.innerText = headerText != "print" ? headerText : "";
 
             if (headerText == "") {
-
                 th.innerHTML = "+";
                 th.classList.add("illDayAddBtn");
                 th.onclick = (e) => {
@@ -178,6 +177,10 @@ export class SettingsToolsExcuseSystemGrootmoor extends SettingsElement {
                     });
                 };
             }
+
+            if (headerText !== "") {
+                th.classList.add(headerText.toLowerCase().replaceAll(" ", ""));
+            }
             if (headerText == "last" || headerText == "first") th.innerHTML = "";
 
         }
@@ -190,7 +193,7 @@ export class SettingsToolsExcuseSystemGrootmoor extends SettingsElement {
     }
 
     private async loadLessonsToExcuse(definitions: IllDayDefinition[]): Promise<{ lessonsToExcuse: ToExcuseLessons; additionalLessonKeys: string[]; } | null> {
-        const response = await (await fetch("http://" + HOST + "/untis/users/excuseSystem/grootmoor.php?noCache", {
+        const response = await (await fetch(HOST + "/users/excuseSystem/grootmoor.php?noCache", {
             method: "POST",
             body: JSON.stringify({
                 jwt: UserManagement.jwt,
@@ -334,7 +337,7 @@ export class SettingsToolsExcuseSystemGrootmoor extends SettingsElement {
         addIllDayDialogWrapper.appendChild(addIllDayDialog);
         document.body.appendChild(addIllDayDialogWrapper);
 
-        const clickedOutside = (e: PointerEvent) => {
+        const clickedOutside = (e: Event) => {
             if (ignorClicksOutside) return;
             if (!e.target) return;
             if (addIllDayDialog.contains(e.target as Node)) return;
@@ -461,12 +464,12 @@ export class SettingsToolsExcuseSystemGrootmoor extends SettingsElement {
             currentEndDate = endTime;
         };
         // picker.show();
-        picker.on('change', (e: CustomEvent) => {
+        picker.on('change', () => {
             if (picker.getStartDate() == null || picker.getEndDate() == null) return;
             onUpdate(picker.getStartDate(), picker.getEndDate());
             // console.log(e);
         });
-        picker.on('select', (e: CustomEvent) => {
+        picker.on('select', () => {
             if (picker.getStartDate() == null || picker.getEndDate() == null) return;
             onUpdate(picker.getStartDate(), picker.getEndDate());
             // dateRangePickerWrapper.querySelector("")
@@ -510,7 +513,7 @@ export class SettingsToolsExcuseSystemGrootmoor extends SettingsElement {
 
         document.body.appendChild(addIllDayDialogWrapper);
 
-        const clickedOutside = (e: PointerEvent) => {
+        const clickedOutside = (e: Event) => {
             if (!e.target) return;
             if (addIllDayDialog.contains(e.target as Node)) return;
             document.body.removeChild(addIllDayDialogWrapper);
@@ -538,6 +541,13 @@ export class SettingsToolsExcuseSystemGrootmoor extends SettingsElement {
             const printCell = row.insertCell();
             const trash = row.insertCell();
             const dropDownDivRight = row.insertCell();
+
+            reasonCell.classList.add("reasonCell");
+            fromCell.classList.add("fromCell");
+            toCell.classList.add("toCell");
+            daysIllCell.classList.add("daysIllCell");
+            printCell.classList.add("printCell");
+            trash.classList.add("trash");
 
             dropDownDivLeft.classList.add("dropDownDivLeft");
             dropDownDivRight.classList.add("dropDownDivRight");
@@ -624,7 +634,7 @@ export class SettingsToolsExcuseSystemGrootmoor extends SettingsElement {
 
         document.body.appendChild(addIllDayDialogWrapper);
 
-        const clickedOutside = (e: PointerEvent) => {
+        const clickedOutside = (e: Event) => {
             if (!e.target) return;
             if (addIllDayDialog.contains(e.target as Node)) return;
             document.body.removeChild(addIllDayDialogWrapper);

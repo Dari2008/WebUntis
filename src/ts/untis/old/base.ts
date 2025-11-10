@@ -20,9 +20,9 @@ import type {
     Teacher,
     Timegrid,
     WebAPITimetable,
-} from './types';
+} from '../types';
 import type { InternalSchoolYear, SessionInformation } from './internal';
-import { WebUntisElementType } from './types';
+import { WebUntisElementType } from '../types';
 
 /**
  * Ensures that the dateStr is a string when calling {@link fnsParse}.

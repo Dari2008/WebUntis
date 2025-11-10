@@ -20,6 +20,9 @@ $animationTime: 0.3s;
         font-size: 120%;
         cursor: pointer;
         border-radius: 10px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 
     &>button:hover {
@@ -53,7 +56,7 @@ $animationTime: 0.3s;
     top: 0;
     right: 0;
     height: 100%;
-    left: calc(max(min(50vw, $menuMinWidth), $menuMaxWidth));
+    left: calc(min(max(50vw, $menuMinWidth), $menuMaxWidth));
     z-index: 10000000;
     opacity: 1;
     backdrop-filter: blur(4px) brightness(0.3);
@@ -76,27 +79,30 @@ html:not(.menuOpen) {
 
 header.hamburger {
     position: fixed;
-    top: 2px;
-    left: 2px;
+    top: 10px;
+    left: 10px;
     z-index: 100000;
     transition: left $animationTime ease-in-out;
-    transform: scale(0.75);
     background: vars.$themeColor-20-Dark;
-    border-radius: 100%;
+    border-radius: 50%;
     padding: 10px;
-    height: calc(var(--titleBarHeight) + 20px);
-    width: calc(var(--titleBarHeight) + 20px);
-    aspect-ratio: 1;
+    aspect-ratio: 1 / 1;
+    // height: calc(min(4dvh, 4dvw) + 20px) !important;
+    width: calc(min(min(4dvh, 4dvw), 30px) + 20px) !important;
     cursor: pointer;
     display: flex;
     justify-content: center;
     align-items: center;
+    min-width: 30px;
+    min-height: 30px;
+    max-width: 70px;
+    max-height: 70px;
 }
 
 .menuOpen header.hamburger {
     position: fixed;
-    top: 2px;
-    left: calc(max(min(50vw, $menuMinWidth), $menuMaxWidth) + 10px);
+    top: 10px;
+    left: calc(min(max(50vw, $menuMinWidth), $menuMaxWidth) + 10px);
     z-index: 100000000;
 }
 
@@ -260,11 +266,9 @@ html:not(.menuOpen) #notificationsBell {
 
 }
 
-#notificationsBell:not(:hover) {
-    .notificationList {
-        opacity: 0;
-        visibility: collapse;
-    }
+.notificationList:not(.open) {
+    opacity: 0;
+    visibility: collapse;
 }
 
 #notificationsBell .notificationList {
@@ -326,21 +330,19 @@ html:not(.menuOpen) #notificationsBell {
 
 }
 
-#notificationsBell:hover {
-    .notificationList {
-        opacity: 1;
-        visibility: visible;
-        overflow-x: hidden;
-        overflow-y: auto;
+.notificationList.open {
+    opacity: 1;
+    visibility: visible;
+    overflow-x: hidden;
+    overflow-y: auto;
 
-        &::after {
-            content: "";
-            position: absolute;
-            top: 0px;
-            right: 0px;
-        }
-
+    &::after {
+        content: "";
+        position: absolute;
+        top: 0px;
+        right: 0px;
     }
+
 }
 
 .notificationWrapper {

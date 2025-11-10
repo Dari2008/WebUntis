@@ -752,54 +752,54 @@ export class SyntaxInputField {
         sel?.addRange(range);
     }
 
-    private insertTextAtPosition(el: HTMLElement, text: string, charIndex: number) {
-        const selection = window.getSelection();
-        if (!selection) return;
+    // private insertTextAtPosition(el: HTMLElement, text: string, charIndex: number) {
+    //     const selection = window.getSelection();
+    //     if (!selection) return;
 
-        // First, make sure the element is focused / selected
-        const active = document.activeElement;
-        if (active !== el && !el.contains(active)) return; // caret not inside element
+    //     // First, make sure the element is focused / selected
+    //     const active = document.activeElement;
+    //     if (active !== el && !el.contains(active)) return; // caret not inside element
 
-        // Create a range at the desired character index
-        const range = document.createRange();
+    //     // Create a range at the desired character index
+    //     const range = document.createRange();
 
-        let nodeStack: Node[] = [el];
-        let charCount = 0;
-        let node: Node | undefined;
-        let found = false;
+    //     let nodeStack: Node[] = [el];
+    //     let charCount = 0;
+    //     let node: Node | undefined;
+    //     let found = false;
 
-        while (!found && (node = nodeStack.pop())) {
-            if (node.nodeType === 3) { // text node
-                const nextCount = charCount + node.textContent!.length;
-                if (charIndex >= charCount && charIndex <= nextCount) {
-                    range.setStart(node, charIndex - charCount);
-                    range.collapse(true);
-                    found = true;
-                    break;
-                }
-                charCount = nextCount;
-            } else {
-                let i = node.childNodes.length;
-                while (i--) nodeStack.push(node.childNodes[i]);
-            }
-        }
+    //     while (!found && (node = nodeStack.pop())) {
+    //         if (node.nodeType === 3) { // text node
+    //             const nextCount = charCount + node.textContent!.length;
+    //             if (charIndex >= charCount && charIndex <= nextCount) {
+    //                 range.setStart(node, charIndex - charCount);
+    //                 range.collapse(true);
+    //                 found = true;
+    //                 break;
+    //             }
+    //             charCount = nextCount;
+    //         } else {
+    //             let i = node.childNodes.length;
+    //             while (i--) nodeStack.push(node.childNodes[i]);
+    //         }
+    //     }
 
-        if (!found) {
-            // fallback: append at end
-            range.selectNodeContents(el);
-            range.collapse(false);
-        }
+    //     if (!found) {
+    //         // fallback: append at end
+    //         range.selectNodeContents(el);
+    //         range.collapse(false);
+    //     }
 
-        // Insert the text
-        const textNode = document.createTextNode(text);
-        range.insertNode(textNode);
+    //     // Insert the text
+    //     const textNode = document.createTextNode(text);
+    //     range.insertNode(textNode);
 
-        // Move caret after inserted text
-        range.setStartAfter(textNode);
-        range.collapse(true);
-        selection.removeAllRanges();
-        selection.addRange(range);
-    }
+    //     // Move caret after inserted text
+    //     range.setStartAfter(textNode);
+    //     range.collapse(true);
+    //     selection.removeAllRanges();
+    //     selection.addRange(range);
+    // }
 
 
 

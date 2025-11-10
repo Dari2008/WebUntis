@@ -1,6 +1,5 @@
 // import type { LessonTimes, LessonTimesString } from "../ScheduleDarius_old";
 import type { CompiledHoliday } from "../untis/HolidayLoader";
-import type { Holiday } from "../untis/types";
 import type { ExamList } from "./Exam";
 import type { BreaksRawByDay, DayName, LessonTimes, LessonTimesString, ScheduleBreak, ScheduleRawData, ScheduleRawDay, Time } from "./Schedule";
 import type { School } from "./School";
@@ -65,6 +64,12 @@ export type Preferences = {
     notificationsEnabled: boolean;
     notificationMessageLayouts: NotificationMessageLayouts;
     notificationMessageEnabledLayouts: NotificationMessageEnabledLayouts;
+
+    walkThroughScheduleWatched: boolean;
+    walkThroughIntitalWatched: boolean;
+    walkThroughToolsWatched: boolean;
+    walkThroughToolsListWatched: boolean;
+
 }
 
 export type ToExcuseLessons = {

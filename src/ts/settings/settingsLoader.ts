@@ -5,7 +5,7 @@ import { SettingsNotificationMessageLayoutElement, type SettingsNotificationMess
 import { SettingsPushServiceSubscribedDevicesList } from "../customSettings/SettingsPushServiceSubscribedDevicesList";
 import { SettingsScheduleList, type SettingsScheduleData } from "../customSettings/SettingsScheduleList";
 import { SettingsTeacherList, type SettingsTeacherListData } from "../customSettings/SettingsTeacherList";
-import { SettingsToolsExcuseSystemGrootmoor, type SettingsToolsExcuseSystemGrootmoorData } from "../customSettings/SettingsToolsExcuseSystemGrootmoor";
+import { SettingsToolsExcuseSystemGrootmoor } from "../customSettings/SettingsToolsExcuseSystemGrootmoor";
 import { SettingsUntisAccessesList } from "../customSettings/SettingsUntisAccessesList";
 import { PushService } from "../notifications/PushService";
 import { SyntaxInputField } from "../syntaxInputField/SyntaxInputField";
@@ -14,8 +14,8 @@ import Utils from "../Utils";
 import { Settings } from "./Settings";
 import type { SettingsColorSelectorElement } from "./SettingsColorSelectorElement";
 import type { SettingsFoldableSectionData } from "./SettingsFoldableSectionElement";
-import { initForSettings, loadSettings, SETTINGS_ELEMENTS, type SettingsData } from "./SettingsGenerator";
-import { SettingsTitleElement, type SettingsContentData, type SettingsContentElement, type SettingsTitleData } from "./SettingsTitleElement";
+import { initForSettings, loadSettings, type SettingsData } from "./SettingsGenerator";
+import { SettingsTitleElement, type SettingsContentData, type SettingsTitleData } from "./SettingsTitleElement";
 import type { SettingsToggleElement } from "./SettingsToggleElement";
 
 
@@ -113,7 +113,7 @@ export async function initSettings() {
                             title: " ",
                             name: "enableNotificationsOnThisDevice",
                             description: "To get notifications when a lesson is canceled or changed",
-                            async onchange(checked, getOtherElement) {
+                            async onchange(checked) {
                                 if (checked) {
                                     const success = await PushService.updateEndpoint(true);
                                     if (!success) {
@@ -133,8 +133,14 @@ export async function initSettings() {
                                     settingsPushServiceList?.removedSelf(endpoint);
                                 }
                             },
+                            // @ts-ignore
                             async onload(checked, getOtherElement) {
                                 (getOtherElement("enableNotificationsOnThisDevice") as SettingsToggleElement).setChecked(await PushService.isPushEnabled());
+
+                                if (!("serviceWorker" in window.navigator) || !("Notification" in window)) {
+                                    (getOtherElement("enableNotificationsOnThisDevice") as SettingsToggleElement).setVisible(false);
+                                }
+
                             }
                         },
                         {
@@ -156,6 +162,7 @@ export async function initSettings() {
                 {
                     type: "title",
                     title: "Notification Text Layout",
+                    id: "notificationTextLayout",
                     hnumber: 1,
                     content: [
                         ...NOTIFICATION_MESSAGE_LAYOUT
@@ -185,7 +192,7 @@ export async function initSettings() {
                             name: "examReminderTimes",
                             id: "examReminderTimes",
                             value: UserManagement.ALL_DATA?.preferences.examReminderTimes || "1w,1d",
-                            onchange(value, getOtherElement) {
+                            onchange(value) {
                                 if (UserManagement.ALL_DATA) {
                                     UserManagement.ALL_DATA.preferences.examReminderTimes = value;
                                 }
@@ -215,12 +222,12 @@ export async function initSettings() {
                             id: "lessonCancelColor",
                             title: "Lesson Canceled",
                             color: Settings.colors.canceledBorderColor,
-                            onchange(value, getOtherElement) {
+                            onchange(value) {
                                 if (!value.hex) return;
                                 document.documentElement.style.setProperty("--canceledBorderColor", value.hex + "");
                                 changed("lessonCancelColor", Settings.colors.canceledBorderColor, value.hex);
                             },
-                            onload(value, getOtherElement) {
+                            onload(value) {
                                 console.log(value);
                                 if (!value.hex) return;
                                 document.documentElement.style.setProperty("--canceledBorderColor", value.hex + "");
@@ -238,12 +245,12 @@ export async function initSettings() {
                             id: "additionalLessonColor",
                             title: "Additional Lesson",
                             color: Settings.colors.additionalLessonBorderColor,
-                            onchange(value, getOtherElement) {
+                            onchange(value) {
                                 if (!value.hex) return;
                                 document.documentElement.style.setProperty("--additionalLessonBorderColor", value.hex + "");
                                 changed("additionalLessonColor", Settings.colors.additionalLessonBorderColor, value.hex);
                             },
-                            onload(value, getOtherElement) {
+                            onload(value) {
                                 if (!value.hex) return;
                                 document.documentElement.style.setProperty("--additionalLessonBorderColor", value.hex + "");
                                 if (UserManagement.ALL_DATA) {
@@ -260,12 +267,12 @@ export async function initSettings() {
                             id: "examLessonColor",
                             title: "Exam Lesson",
                             color: Settings.colors.examColor,
-                            onchange(value, getOtherElement) {
+                            onchange(value) {
                                 if (!value.hex) return;
                                 document.documentElement.style.setProperty("--examColor", value.hex + "");
                                 changed("examLessonColor", Settings.colors.examColor, value.hex);
                             },
-                            onload(value, getOtherElement) {
+                            onload(value) {
                                 if (!value.hex) return;
                                 document.documentElement.style.setProperty("--examColor", value.hex + "");
                                 if (UserManagement.ALL_DATA) {
@@ -282,12 +289,12 @@ export async function initSettings() {
                             id: "holidayColor",
                             title: "Holiday Color",
                             color: Settings.colors.holidayColor,
-                            onchange(value, getOtherElement) {
+                            onchange(value) {
                                 if (!value.hex) return;
                                 document.documentElement.style.setProperty("--holidayColor", value.hex + "");
                                 changed("holidayColor", Settings.colors.examColor, value.hex);
                             },
-                            onload(value, getOtherElement) {
+                            onload(value) {
                                 if (!value.hex) return;
                                 document.documentElement.style.setProperty("--holidayColor", value.hex + "");
                                 if (UserManagement.ALL_DATA) {
@@ -306,7 +313,7 @@ export async function initSettings() {
                                     title: "Lesson Event Change Colors",
                                     description: "One Color for every change",
                                     name: "separateChangeColors",
-                                    label: "",
+                                    label: "One Color for every change",
                                     checked: false,
                                     onchange(checked, getOtherElement) {
                                         const roomChange = getOtherElement("roomChangeColor") as SettingsColorSelectorElement;
@@ -349,12 +356,12 @@ export async function initSettings() {
                                     description: "Color of the lesson border when the room is changed",
                                     name: "roomChangeColor",
                                     color: Settings.colors.roomSubstitutionBorderColor,
-                                    onchange(value, getOtherElement) {
+                                    onchange(value) {
                                         if (!value.hex) return;
                                         document.documentElement.style.setProperty("--roomSubstitutionBorderColor", value.hex + "");
                                         changed("roomChangeColor", Settings.colors.roomSubstitutionBorderColor, value.hex);
                                     },
-                                    onload(value, getOtherElement) {
+                                    onload(value) {
                                         if (!value.hex) return;
                                         document.documentElement.style.setProperty("--roomSubstitutionBorderColor", value.hex + "");
                                         if (UserManagement.ALL_DATA) {
@@ -370,12 +377,12 @@ export async function initSettings() {
                                     description: "Color of the lesson border when the teacher is changed",
                                     name: "teacherChangeColor",
                                     color: Settings.colors.substitutionBorderColor,
-                                    onchange(value, getOtherElement) {
+                                    onchange(value) {
                                         if (!value.hex) return;
                                         document.documentElement.style.setProperty("--absenceBorderColor", value.hex + "");
                                         changed("teacherChangeColor", Settings.colors.substitutionBorderColor, value.hex);
                                     },
-                                    onload(value, getOtherElement) {
+                                    onload(value) {
                                         if (!value.hex) return;
                                         document.documentElement.style.setProperty("--absenceBorderColor", value.hex + "");
                                         if (UserManagement.ALL_DATA) {
@@ -391,13 +398,13 @@ export async function initSettings() {
                                     description: "Color of the lesson border when something in the lesson is changed",
                                     name: "changeColor",
                                     color: Settings.colors.absenceBorderColor,
-                                    onchange(value, getOtherElement) {
+                                    onchange(value) {
                                         if (!value.hex) return;
                                         document.documentElement.style.setProperty("--absenceBorderColor", value.hex + "");
                                         document.documentElement.style.setProperty("--roomSubstitutionBorderColor", value.hex + "");
                                         changed("changeColor", Settings.colors.absenceBorderColor, value.hex);
                                     },
-                                    onload(value, getOtherElement) {
+                                    onload(value) {
                                         if (!value.hex) return;
                                         document.documentElement.style.setProperty("--roomSubstitutionBorderColor", value.hex + "");
                                         if (UserManagement.ALL_DATA) {
@@ -481,7 +488,7 @@ export async function initSettings() {
                             id: "manageBreaksText"
                         },
                         {
-                            type: <SettingsBreakListData>(data: SettingsBreakListData) => new SettingsBreakList((data as any)),
+                            type: () => new SettingsBreakList(),
                             name: "breakList",
                             id: "breakList",
                         }

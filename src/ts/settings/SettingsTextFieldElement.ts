@@ -26,7 +26,7 @@ export class SettingsTextFieldElement {
     type: string = "textField";
 
 
-    onload: (checked?: boolean, func?: (name: string) => SettingsContentElement | undefined) => void = (checked?: boolean, func?: (name: string) => SettingsContentElement | undefined) => { }
+    onload: (checked?: boolean, func?: (name: string) => SettingsContentElement | undefined) => void = () => { }
 
 
     constructor(data: SettingsTextFieldData) {

@@ -30,7 +30,7 @@ export class PushService {
         }
         await this.loadEndpoint();
 
-        const response = await (await fetch("http://" + HOST + "/untis/users/notifications/updateEndpoint.php?noCache", {
+        const response = await (await fetch(HOST + "/users/notifications/updateEndpoint.php?noCache", {
             method: "POST",
             body: JSON.stringify({
                 jwt: UserManagement.jwt,
@@ -97,7 +97,7 @@ export class PushService {
 
     public static async disablePushNotifications(): Promise<boolean> {
         if (!this.pushSubscription) return false;
-        const result = await (await fetch("http://" + HOST + "/untis/users/notifications/updateEndpoint.php?noCache", {
+        const result = await (await fetch(HOST + "/users/notifications/updateEndpoint.php?noCache", {
             method: "POST",
             body: JSON.stringify({
                 jwt: UserManagement.jwt,
@@ -118,7 +118,7 @@ export class PushService {
     }
 
     public static async getAllSubscriptions(): Promise<PushSubscriptionData[]> {
-        const response = await (await fetch("http://" + HOST + "/untis/users/notifications/getAllSubscriptions.php?noCache", {
+        const response = await (await fetch(HOST + "/users/notifications/getAllSubscriptions.php?noCache", {
             method: "POST",
             body: JSON.stringify({
                 jwt: UserManagement.jwt
@@ -135,7 +135,7 @@ export class PushService {
     }
 
     public static async removePushSubscription(endpointData: PushSubscriptionData): Promise<boolean> {
-        const response = await (await fetch("http://" + HOST + "/untis/users/notifications/updateEndpoint.php?noCache", {
+        const response = await (await fetch(HOST + "/users/notifications/updateEndpoint.php?noCache", {
             method: "POST",
             body: JSON.stringify({
                 jwt: UserManagement.jwt,

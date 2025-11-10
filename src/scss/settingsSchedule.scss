@@ -68,6 +68,26 @@ html.offlineMode .settings-schedule .addlessonButton {
 
             }
 
+            .notUsableOverwrittenByOtherSchedule {
+                position: relative;
+            }
+
+            .newMultiLessonAddTarget {
+                border: 3px solid vars.$themeColor !important;
+                border-radius: 20px;
+            }
+
+            .notUsableOverwrittenByOtherSchedule::after {
+                content: "Overwritten By Other Schedule";
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                font-size: 80%;
+                opacity: 0.2;
+                text-align: center;
+            }
+
             .lessonLoaded {
                 position: relative;
                 border: 2px solid vars.$gray-600;
@@ -196,13 +216,110 @@ html.offlineMode .settings-schedule .addlessonButton {
         }
 
         .addBtn {
-            grid-area: 4 / 1 / 5 / 2;
+            grid-area: 4 / 2 / 5 / 3;
         }
 
         .cancelBtn {
-            grid-area: 4 / 2 / 5 / 3;
+            grid-area: 4 / 1 / 5 / 2;
         }
 
     }
 
+}
+
+.yesNoDialog {
+    position: fixed;
+    top: 5%;
+    left: 50%;
+    width: 30vw;
+    height: auto;
+    padding: 20px;
+    z-index: 10000000;
+    transform: translateX(-50%);
+    background-color: vars.$gray-700;
+    border-radius: 20px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, auto);
+    grid-column-gap: 10px;
+    grid-row-gap: 20px;
+    animation: dropDown 0.3s ease-in 0ms 1 forwards;
+
+    &.hide {
+        animation: dropUp 0.3s ease-out 0ms 1 forwards;
+    }
+
+    .text {
+        width: 100%;
+        grid-area: 1 / 1 / 2 / 3;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .no {
+        grid-area: 2 / 1 / 3 / 2;
+    }
+
+    .yes {
+        grid-area: 2 / 2 / 3 / 3;
+    }
+
+    .no,
+    .yes {
+        cursor: pointer;
+        background-color: vars.$gray-800;
+        color: white;
+        padding: 10px;
+        outline: none;
+        border: none;
+        border-radius: 10px;
+    }
+
+    .no:hover,
+    .yes:hover {
+        background-color: darken(vars.$gray-800, 10%);
+    }
+
+    .no:active,
+    .yes:active {
+        background-color: lighten(vars.$gray-800, 10%);
+    }
+
+}
+
+@keyframes dropDown {
+    0% {
+        top: 0%;
+        transform: translate(-50%, -100%);
+        opacity: 0;
+    }
+
+    80% {
+        opacity: 1;
+    }
+
+    100% {
+        top: 5%;
+        transform: translate(-50%, 0%);
+        opacity: 1;
+    }
+}
+
+@keyframes dropUp {
+    0% {
+        top: 5%;
+        transform: translate(-50%, 0%);
+        opacity: 1;
+    }
+
+    20% {
+        opacity: 0;
+    }
+
+    100% {
+        top: 0%;
+        transform: translate(-50%, -100%);
+        opacity: 0;
+    }
 }

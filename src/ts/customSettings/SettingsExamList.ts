@@ -55,12 +55,13 @@ export class SettingsExamsList extends SettingsElement {
             } else if (title == "") {
                 titleCell.innerHTML = "+";
                 titleCell.classList.add("examButton");
-                titleCell.onclick = () => {
+                titleCell.onclick = (e) => {
                     if (!navigator.onLine) {
                         Utils.error("You Are offline and can't change settings");
                         return;
                     }
-
+                    e.preventDefault();
+                    e.stopPropagation();
                     this.addExam((lesson, date, subject) => {
                         const ex = UserManagement.ALL_DATA!.exams;
                         const newExam = {
@@ -235,7 +236,10 @@ export class SettingsExamsList extends SettingsElement {
         let selectedDate: Date | null = null;
         let selectedSubject: string | null = null;
 
-        const addExamDialog = document.createElement("dialog");
+        const addExamDialogWrapper = document.createElement("div");
+        addExamDialogWrapper.classList.add("addExamDialogWrapper");
+
+        const addExamDialog = document.createElement("div");
         addExamDialog.id = "addExamDialog";
 
         const title = document.createElement("h2");
@@ -267,17 +271,17 @@ export class SettingsExamsList extends SettingsElement {
                 Utils.error("You have to select a subject");
                 return;
             }
-            addExamDialog.close();
-            document.body.removeChild(addExamDialog);
+            document.body.removeChild(addExamDialogWrapper);
             callback(selectedLesson, selectedDate, selectedSubject);
+            unregisterListeners();
         };
 
         const cancelbtn = document.createElement("button");
         cancelbtn.classList.add("cancelbtn");
         cancelbtn.innerText = "Cancel";
         cancelbtn.onclick = () => {
-            addExamDialog.close();
-            document.body.removeChild(addExamDialog);
+            document.body.removeChild(addExamDialogWrapper);
+            unregisterListeners();
         };
 
 
@@ -416,10 +420,13 @@ export class SettingsExamsList extends SettingsElement {
         addExamDialog.appendChild(addBtn);
         addExamDialog.appendChild(cancelbtn);
 
+        addExamDialogWrapper.appendChild(addExamDialog);
 
-        document.body.appendChild(addExamDialog);
-        addExamDialog.showModal();
+        document.body.appendChild(addExamDialogWrapper);
         initPicker();
+        const unregisterListeners = Utils.addOnclickOutside(addExamDialog, () => {
+            cancelbtn.click();
+        });
     }
 
     getElement(): HTMLDivElement {

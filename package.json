@@ -10,15 +10,18 @@
   },
   "devDependencies": {
     "@types/ua-parser-js": "^0.7.39",
+    "path": "^0.12.7",
     "typescript": "~5.8.3",
     "url": "^0.11.4",
     "vanilla-colorful": "^0.7.2",
-    "vite": "^7.1.2"
+    "vite": "^7.1.2",
+    "vite-plugin-mkcert": "^1.17.9"
   },
   "dependencies": {
     "@easepick/bundle": "^1.2.1",
     "@easepick/core": "^1.2.1",
     "@easepick/range-plugin": "^1.2.1",
+    "@simplewebauthn/browser": "^13.2.2",
     "@types/axios": "^0.14.4",
     "@types/flatpickr": "^3.0.2",
     "@types/toastify-js": "^1.12.4",

@@ -19,7 +19,7 @@ export class SettingsTextElement {
     type: string = "text";
 
 
-    onload: (checked?: boolean, func?: (name: string) => SettingsContentElement | undefined) => void = (checked?: boolean, func?: (name: string) => SettingsContentElement | undefined) => { }
+    onload: (checked?: boolean, func?: (name: string) => SettingsContentElement | undefined) => void = () => { }
 
     constructor(data: SettingsTextData) {
         this.element = document.createElement(data.elementType) as HTMLElement;

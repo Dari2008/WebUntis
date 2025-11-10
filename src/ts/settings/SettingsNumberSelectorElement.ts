@@ -1,5 +1,5 @@
 import { SETTINGS_ELEMENTS } from "./SettingsGenerator";
-import type { SettingsContentData, SettingsContentElement } from "./SettingsTitleElement";
+import type { SettingsContentElement } from "./SettingsTitleElement";
 
 
 export type SettingsNumberSelectorData = {
@@ -49,7 +49,7 @@ export class SettingsNumberSelectorElelement {
 
     private validateInput: (input: string) => string = (input: string) => { return input; };
 
-    onload: (value?: string, func?: (name: string) => void) => void = (value?: string, func?: (name: string) => void) => { }
+    onload: (value?: string, func?: (name: string) => void) => void = () => { }
 
     type: string = "number";
 
@@ -134,7 +134,7 @@ export class SettingsNumberSelectorElelement {
 
         this.onload = () => {
             if ((this.data.disabled || false)) return;
-            (data.onload || ((checked: string, func: (name: string) => SettingsContentElement | undefined) => { }))(this.validateInput(localStorage.getItem(this.name) || ""), this.getOtherElement);
+            (data.onload || (() => { }))(this.validateInput(localStorage.getItem(this.name) || ""), this.getOtherElement);
         };
 
         this.setDisabled(!!data.disabled);
@@ -245,7 +245,7 @@ export class SettingsNumberSelectorElelement {
 
         this.increase.onclick = () => {
             if ((this.data.disabled || false)) return;
-            const result = (this.data.onincrease || ((value: string, getOtherElement: (name: string) => SettingsContentElement | undefined) => { return value; }))(this.validateInput(this.inputFieldForSpinner!.value), this.getOtherElement);
+            const result = (this.data.onincrease || ((value: string) => { return value; }))(this.validateInput(this.inputFieldForSpinner!.value), this.getOtherElement);
             this.inputFieldForSpinner!.value = this.validateInput(result);
             this.saveState();
             this.onchange();
@@ -254,7 +254,7 @@ export class SettingsNumberSelectorElelement {
 
         this.decrease.onclick = () => {
             if ((this.data.disabled || false)) return;
-            const result = (this.data.ondecrease || ((value: string, getOtherElement: (name: string) => SettingsContentElement | undefined) => { return value; }))(this.validateInput(this.inputFieldForSpinner!.value), this.getOtherElement);
+            const result = (this.data.ondecrease || ((value: string) => { return value; }))(this.validateInput(this.inputFieldForSpinner!.value), this.getOtherElement);
             this.inputFieldForSpinner!.value = this.validateInput(result);
             this.saveState();
             this.onchange();

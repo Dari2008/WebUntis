@@ -1,14 +1,12 @@
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat.js";
 import { SettingsElement, type SettingsFunctionData } from "../settings/SettingsTitleElement";
-import { Images } from "./Images";
 import UntisManager from "../untis/UntisManager";
-import { ScheduleRawDayTimes, type BreaksRawByDay, type DayName, type LessonRaw, type ScheduleBreak, type ScheduleRawDay, type Time, type TypeScheduleRawDayTimes } from "../@types/Schedule";
+import { type DayName, type LessonRaw, type ScheduleBreak, type Time, type TypeScheduleRawDayTimes } from "../@types/Schedule";
 import type { School } from "../@types/School";
 import { UserManagement } from "../userManagement/UserManagement";
 import Utils from "../Utils";
-import type { UpdateDataBreaks, UpdateDataSchedule } from "../@types/UserManagement";
-import { BREAKS_PRESETS } from "../presets/BreakPreset";
+import type { UpdateDataSchedule } from "../@types/UserManagement";
 import { HTMLTableManager } from "../htmlTable/HtmlTableManager";
 import { AllLessonsManager } from "../untis/AllLessonsManager";
 dayjs.extend(customParseFormat);
@@ -98,17 +96,7 @@ export class SettingsScheduleList extends SettingsElement {
 
     }
 
-
-    private addOnclickOutside(element: HTMLElement, closeCallback: () => void) {
-        const onclick = (e: PointerEvent) => {
-            if (!e.target) return;
-            if (element.contains(e.target as Node)) return;
-            closeCallback();
-            document.removeEventListener("click", onclick);
-            console.log("Closed", e);
-        };
-        document.addEventListener("click", onclick);
-    }
+    private updateAllButtonsCallbacks: (() => void)[] = [];
 
     public updateTable() {
         this.examRows.forEach(e => e.remove());
@@ -136,8 +124,7 @@ export class SettingsScheduleList extends SettingsElement {
         this.scheduleTable!.style.gridTemplateRows = `max(2.5%, 4vh)`;
         this.scheduleTable!.style.gridTemplateRows += " repeat(" + this.rowCount + ", " + (100 / this.rowCount) + "%)";
 
-        let removedSince: string[] = [];
-        let timeoutId = -1;
+        this.updateAllButtonsCallbacks = [];
 
         this.scheduleTable!.childNodes.forEach(e => {
             if (e instanceof HTMLElement) {
@@ -173,6 +160,12 @@ export class SettingsScheduleList extends SettingsElement {
             }
         }
 
+        const elements: {
+            [key in DayName]?: {
+                [key in TypeScheduleRawDayTimes]?: HTMLElement;
+            }
+        } = {};
+
         for (const day of ["monday", "tuesday", "wednesday", "thursday", "friday"]) {
             let lessonIndex = 0;
             const startTimes = (UserManagement.ALL_DATA!.schoolTimes[this.untisAccessUUID] ?? {})[day as DayName];
@@ -207,13 +200,22 @@ export class SettingsScheduleList extends SettingsElement {
                 const lessonDiv = this.insertCellInto(span.rowStart, span.column + 1, span.rowSpan);
 
                 let hasLesson = false;
+                let canBeSet = true;
 
                 const update = () => {
                     lessonDiv.classList.remove("lessonLoaded");
                     lessonDiv.innerHTML = "";
                     const lessonFromSchedule: LessonRaw | undefined = UserManagement.ALL_DATA && UserManagement.ALL_DATA.schedule && UserManagement.ALL_DATA.schedule[day as DayName] ? UserManagement.ALL_DATA!.schedule[day as DayName][lessonStartString as TypeScheduleRawDayTimes] : undefined;
                     hasLesson = !!lessonFromSchedule;
-                    if (lessonFromSchedule) {
+                    if (!!lessonFromSchedule) {
+                        if (lessonFromSchedule?.school != this.school) {
+                            hasLesson = false;
+                            canBeSet = false;
+                        } else {
+                            canBeSet = true;
+                        }
+                    }
+                    if (lessonFromSchedule && lessonFromSchedule.school == this.school) {
                         const spanLessonName = document.createElement("span");
                         spanLessonName.innerText = lessonFromSchedule.sign;
                         lessonDiv.classList.add("lessonLoaded");
@@ -221,19 +223,26 @@ export class SettingsScheduleList extends SettingsElement {
                         lessonDiv.setAttribute("data-endTime", endTime.hour.toString().padStart(2, "0") + ":" + endTime.minute.toString().padStart(2, "0"));
                         lessonDiv.appendChild(spanLessonName);
                     } else {
-                        const addButton = document.createElement("button");
-                        addButton.classList.add("addlessonButton");
-                        addButton.innerHTML = "+";
-                        lessonDiv.appendChild(addButton);
+                        if (canBeSet) {
+                            const addButton = document.createElement("button");
+                            addButton.classList.add("addlessonButton");
+                            addButton.innerHTML = "+";
+                            lessonDiv.appendChild(addButton);
+                        } else {
+                            lessonDiv.classList.add("notUsableOverwrittenByOtherSchedule");
+                        }
                     }
                 };
                 update();
 
+                this.updateAllButtonsCallbacks.push(update);
+
                 lessonDiv.addEventListener("click", (e) => {
+                    if (!canBeSet) return;
                     if (hasLesson) {
                         const toRemove = UserManagement.ALL_DATA!.schedule[day as DayName][lessonStartString as TypeScheduleRawDayTimes];
                         if (!toRemove) return;
-                        delete UserManagement.ALL_DATA!.schedule[day as DayName][lessonStartString as TypeScheduleRawDayTimes]
+                        delete UserManagement.ALL_DATA!.schedule[day as DayName][lessonStartString as TypeScheduleRawDayTimes];
                         UserManagement.updateSchedule("remove", [toRemove.uuid]);
                         update();
                     } else {
@@ -241,13 +250,66 @@ export class SettingsScheduleList extends SettingsElement {
                         if (!button) return;
                         if (e.target) {
                             if (button.contains(e.target as Node)) {
-                                this.addScheduleLesson((sign: string) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                this.addScheduleLesson(async (sign: string) => {
                                     const toAdd: LessonRaw = {
                                         sign: sign,
                                         school: this.school as School,
                                         uuid: Utils.uuidv4Exclude(Object.values(UserManagement.ALL_DATA!.schedule).filter(e => !!e).map(e => Object.values(e)).flat().filter(e => e !== undefined).map(e => e.uuid))
                                     };
-                                    UserManagement.ALL_DATA!.schedule[day as DayName][lessonStartString as TypeScheduleRawDayTimes] = toAdd;
+                                    const allLessons = AllLessonsManager.getAllLessonDayTimesFromSign(sign);
+                                    if (allLessons.length > 1) {
+                                        for (const lesson of allLessons) {
+                                            if (!lesson) continue;
+                                            if (!lesson.day) continue;
+                                            if (!lesson.time) continue;
+                                            if (elements[lesson.day] && elements[lesson.day]![lesson.time as any]) {
+                                                elements[lesson.day]![lesson.time as any]?.classList.add("newMultiLessonAddTarget");
+                                            }
+                                        }
+
+                                        const removeAllClasses = () => document.querySelectorAll(".newMultiLessonAddTarget").forEach(e => e.classList && e.classList.remove("newMultiLessonAddTarget"));
+
+                                        const does = await this.showConfirmDialog("Do you want to add all Lessons with this Tag?");
+                                        if (does) {
+
+                                            const allUpdates: UpdateDataSchedule = {};
+                                            let overwrite = false;
+                                            let askedOverwrite = false;
+
+                                            for (const lesson of allLessons) {
+                                                if (!lesson) continue;
+                                                if (!lesson.day) continue;
+                                                if (!lesson.time) continue;
+                                                const d = {
+                                                    school: this.school as School,
+                                                    sign: sign,
+                                                    uuid: Utils.uuidv4Exclude(Object.values(UserManagement.ALL_DATA!.schedule).filter(e => !!e).map(e => Object.values(e)).flat().filter(e => e !== undefined).map(e => e.uuid))
+                                                };
+                                                if (!!UserManagement.ALL_DATA!.schedule[lesson.day][lesson.time as TypeScheduleRawDayTimes]) {
+                                                    if (!askedOverwrite) {
+                                                        const o = await this.showConfirmDialog("Do you want to overrwrite the marked Lessons?");
+                                                        askedOverwrite = true;
+                                                        overwrite = o;
+                                                    }
+                                                    if (!overwrite) continue;
+                                                }
+
+                                                UserManagement.ALL_DATA!.schedule[lesson.day][lesson.time as TypeScheduleRawDayTimes] = d;
+                                                if (!allUpdates[lesson.day]) allUpdates[lesson.day] = {};
+                                                allUpdates[lesson.day]![lesson.time as TypeScheduleRawDayTimes] = d;
+                                            }
+                                            this.updateAllButtonsCallbacks.forEach(e => e());
+                                            UserManagement.updateSchedule("add", allUpdates);
+                                            removeAllClasses();
+                                            return;
+                                        }
+                                        removeAllClasses();
+                                    } else {
+                                        UserManagement.ALL_DATA!.schedule[day as DayName][lessonStartString as TypeScheduleRawDayTimes] = toAdd;
+                                    }
+
                                     update();
                                     UserManagement.updateSchedule("add", {
                                         [day as DayName]: {
@@ -260,6 +322,8 @@ export class SettingsScheduleList extends SettingsElement {
                     }
                 });
 
+                if (!elements[day as DayName]) elements[day as DayName] = {};
+                elements[day as DayName]![lessonStartString as TypeScheduleRawDayTimes] = lessonDiv;
 
                 this.scheduleTable?.appendChild(lessonDiv);
 
@@ -267,6 +331,47 @@ export class SettingsScheduleList extends SettingsElement {
             }
         }
 
+    }
+
+    private async showConfirmDialog(textC: string): Promise<boolean> {
+        return new Promise<boolean>((resolve) => {
+            const dialog = document.createElement("div");
+            dialog.classList.add("yesNoDialog");
+
+            const hide = () => {
+                dialog.classList.add("hide");
+                dialog.addEventListener("animationend", () => {
+                    document.body.removeChild(dialog);
+                }, { once: true });
+            };
+
+            const text = document.createElement("span");
+            text.innerHTML = textC;
+            text.classList.add("text");
+
+            const yes = document.createElement("button");
+            yes.classList.add("yes");
+            yes.addEventListener("click", () => {
+                hide();
+                setTimeout(() => resolve(true), 50);
+            });
+            yes.innerHTML = "Yes";
+
+            const no = document.createElement("button");
+            no.classList.add("no");
+            no.addEventListener("click", () => {
+                hide();
+                setTimeout(() => resolve(false), 50);
+            });
+            no.innerHTML = "No";
+
+            dialog.appendChild(text);
+            dialog.appendChild(no);
+            dialog.appendChild(yes);
+
+            document.body.appendChild(dialog);
+
+        });
     }
 
 
@@ -300,15 +405,13 @@ export class SettingsScheduleList extends SettingsElement {
         const signSuggestion = document.createElement("ul");
         signSuggestion.classList.add("signSuggestion");
 
-        console.log("AllLessonsManager.getAllStudentGroups()", AllLessonsManager.getAllStudentGroups());
-
         AllLessonsManager.getAllStudentGroups().forEach(e => {
             const option = document.createElement("li");
             option.innerText = e;
             option.classList.add("option");
             option.addEventListener("click", () => {
                 document.body.removeChild(addScheduleDialogWrapper);
-                callback(e);
+                setTimeout(() => callback(e), 50);
             });
             signSuggestion.appendChild(option);
         });
@@ -330,10 +433,9 @@ export class SettingsScheduleList extends SettingsElement {
         addBtn.classList.add("addBtn");
         addBtn.innerText = "Add";
         addBtn.onclick = () => {
-            console.log(signInput.value);
-            callback(signInput.value);
             document.body.removeChild(addScheduleDialogWrapper);
-            // callback((dayOfWeekSelect.value).toLowerCase() as DayName, startTimeData.getTime(), endTimeData.getTime(), schoolInput.value as School);
+            setTimeout(() => callback(signInput.value), 50);
+            unregisterListeners();
         };
 
         const cancelbtn = document.createElement("button");
@@ -341,6 +443,7 @@ export class SettingsScheduleList extends SettingsElement {
         cancelbtn.innerText = "Cancel";
         cancelbtn.onclick = () => {
             document.body.removeChild(addScheduleDialogWrapper);
+            unregisterListeners();
         };
 
 
@@ -348,16 +451,19 @@ export class SettingsScheduleList extends SettingsElement {
         addScheduleDialog.appendChild(title);
         addScheduleDialog.appendChild(signInput);
         addScheduleDialog.appendChild(signSuggestion);
-        addScheduleDialog.appendChild(addBtn);
         addScheduleDialog.appendChild(cancelbtn);
+        addScheduleDialog.appendChild(addBtn);
 
         addScheduleDialogWrapper.appendChild(addScheduleDialog);
 
         document.body.appendChild(addScheduleDialogWrapper);
+
+        const unregisterListeners = Utils.addOnclickOutside(addScheduleDialog, () => {
+            cancelbtn.click();
+        });
     }
 
     getElement(): HTMLDivElement {
-        console.log(this.element);
         return this.element;
     }
 
@@ -365,7 +471,7 @@ export class SettingsScheduleList extends SettingsElement {
         this.element = element;
     }
 
-    setTitle(title: string): void {
+    setTitle(): void {
     }
 
     getTitle(): string {

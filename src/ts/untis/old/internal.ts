@@ -1,4 +1,4 @@
-import type { SchoolYear } from './types';
+import type { SchoolYear } from '../types';
 export type InternalSchoolYear = Omit<SchoolYear, 'startDate' | 'endDate'> & { startDate: string; endDate: string };
 
 export type SessionInformation = {

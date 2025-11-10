@@ -21,7 +21,7 @@ export class ToggleElement extends HTMLElement {
 
   }
 
-  attributeChangedCallback(name: string, oldValue: string, newValue: string) {
+  attributeChangedCallback(name: string) {
     if (name == "toggled") {
       this.updateImage();
     }

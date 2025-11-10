@@ -22,15 +22,13 @@ export class SettingsBreakList extends SettingsElement {
     private element: HTMLDivElement;
     private name: string = "";
     private disabled: boolean = false;
-    private data: SettingsBreakListData;
     private examTableBody: HTMLTableSectionElement;
     private examTableHead: HTMLTableSectionElement;
     private examRows: MemoryRow[] = [];
     private mainMenuWrapper: HTMLDivElement | undefined;
 
-    constructor(data: SettingsBreakListData) {
+    constructor() {
         super();
-        this.data = data;
         this.element = document.createElement("div");
         this.element.classList.add("settings-break-list");
         this.examTableBody = document.createElement("tbody");
@@ -113,8 +111,10 @@ export class SettingsBreakList extends SettingsElement {
         const buttonAddCustomBreak = document.createElement("button");
         buttonAddCustomBreak.classList.add("buttonAddCustomBreak");
         buttonAddCustomBreak.innerHTML = "Add Custom Break";
-        buttonAddCustomBreak.onclick = () => {
+        buttonAddCustomBreak.onclick = (e) => {
             this.closeMenu();
+            e.preventDefault();
+            e.stopPropagation();
             this.addBreak((dayOfWeek, startTime, endTime, school) => {
                 const newBreak = {
                     start: startTime.hour.toString().padStart(2, "0") + ":" + startTime.minute.toString().padStart(2, "0"),
@@ -173,7 +173,7 @@ export class SettingsBreakList extends SettingsElement {
     }
 
     private addOnclickOutside(element: HTMLElement, closeCallback: () => void) {
-        const onclick = (e: PointerEvent) => {
+        const onclick = (e: Event) => {
             if (!e.target) return;
             if (element.contains(e.target as Node)) return;
             closeCallback();
@@ -617,6 +617,9 @@ export class SettingsBreakList extends SettingsElement {
         addBreakDialogWrapper.appendChild(addBreakDialog);
 
         document.body.appendChild(addBreakDialogWrapper);
+        Utils.addOnclickOutside(addBreakDialog, () => {
+            cancelbtn.click();
+        });
     }
 
     getElement(): HTMLDivElement {
@@ -628,7 +631,7 @@ export class SettingsBreakList extends SettingsElement {
         this.element = element;
     }
 
-    setTitle(title: string): void {
+    setTitle(): void {
     }
 
     getTitle(): string {

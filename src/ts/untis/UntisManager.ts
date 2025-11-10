@@ -54,7 +54,7 @@ export default class UntisManager {
 
 
         try {
-            const response = await fetch("http://" + HOST + "/untis/getTimetableForRange.php?noCache", {
+            const response = await fetch(HOST + "/getTimetableForRange.php?noCache", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -67,6 +67,7 @@ export default class UntisManager {
                     password: this.untis.password,
                     school: this.untis.schoolId,
                     baseurl: this.untis.host,
+                    jwt: UserManagement.jwt
                 })
             });
 
@@ -102,7 +103,7 @@ export default class UntisManager {
         }
 
         try {
-            const response = await fetch("http://" + HOST + "/untis/getTimetableForWeek.php?noCache", {
+            const response = await fetch(HOST + "/getTimetableForWeek.php?noCache", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -114,6 +115,7 @@ export default class UntisManager {
                     password: this.untis.password,
                     school: this.untis.schoolId,
                     baseurl: this.untis.host,
+                    jwt: UserManagement.jwt
                 })
             });
 
@@ -128,6 +130,7 @@ export default class UntisManager {
             if (!responseData || responseData.error) {
                 // throw new Error("Failed to fetch timetable: " + responseData.error);
                 console.error("Failed to fetch timetable: " + responseData.error);
+                this.responseWeek = null;
                 return;
             }
 

@@ -1,6 +1,6 @@
 import type { School } from "../@types/School";
 import type { Subject, Teacher } from "../@types/Teachers";
-import { SettingsElement, type SettingsContentElement, type SettingsFunctionData } from "../settings/SettingsTitleElement";
+import { SettingsElement, type SettingsFunctionData } from "../settings/SettingsTitleElement";
 // import { TEACHER_DATABASE, TEACHER_DATABASE_ARRAY } from "../untis/TeacherDatabase";
 import { Images } from "./Images";
 import { createInputWithLabel } from "./Utils";
@@ -267,7 +267,7 @@ export class SettingsTeacherList extends SettingsElement {
     }
 
     private addOnclickOutside(element: HTMLElement, closeCallback: () => void) {
-        const onclick = (e: PointerEvent) => {
+        const onclick = (e: Event) => {
             if (!e.target) return;
             if (element.contains(e.target as Node)) return;
             closeCallback();
@@ -339,7 +339,7 @@ export class SettingsTeacherList extends SettingsElement {
         document.body.appendChild(bgWrapper);
 
 
-        const onclick = (e: PointerEvent) => {
+        const onclick = (e: Event) => {
             if (!e.target) return;
             if (addTeacherDiv.contains(e.target as Node)) return;
             document.removeEventListener("click", onclick);
@@ -410,7 +410,7 @@ export class SettingsTeacherList extends SettingsElement {
         this.element = element;
     }
 
-    setTitle(title: string): void {
+    setTitle(): void {
     }
 
     getTitle(): string {

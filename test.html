@@ -5,110 +5,22 @@
     <meta charset='utf-8'>
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
     <title>Page Title</title>
-    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <meta name='viewport' content='width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover'>
     <link rel='stylesheet' type='text/css' media='screen' href='main.css'>
 </head>
 
 <body>
-    <table id="mainTable" border="1" style="border-collapse: collapse; width: 100%;">
-        <thead>
-            <tr>
-                <th>Item</th>
-                <th>Quantity</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr class="parent-row">
-                <td>Fruits</td>
-                <td>3</td>
-                <td><button class="toggle-btn">+</button></td>
-            </tr>
-            <tr class="child-row" style="display: none;">
-                <td colspan="3">
-                    <table border="1" style="width: 100%; border-collapse: collapse;">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Price</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Apple</td>
-                                <td>$1</td>
-                            </tr>
-                            <tr>
-                                <td>Banana</td>
-                                <td>$2</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </td>
-            </tr>
 
-            <tr class="parent-row">
-                <td>Vegetables</td>
-                <td>2</td>
-                <td><button class="toggle-btn">+</button></td>
-            </tr>
-            <tr class="child-row" style="display: none;">
-                <td colspan="3">
-                    <table border="1" style="width: 100%; border-collapse: collapse;">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Price</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Carrot</td>
-                                <td>$1</td>
-                            </tr>
-                            <tr>
-                                <td>Broccoli</td>
-                                <td>$3</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+    <div id="test"></div>
 
-    <script>
-        document.querySelectorAll(".toggle-btn").forEach((btn) => {
-            btn.addEventListener("click", () => {
-                const parentRow = btn.closest(".parent-row");
-                if (!parentRow) return;
-
-                const childRow = parentRow.nextElementSibling;
-                if (!childRow || !childRow.classList.contains("child-row")) return;
-
-                if (childRow.style.display === "none") {
-                    childRow.style.display = "table-row";
-                    btn.textContent = "−"; // collapse icon
-                } else {
-                    childRow.style.display = "none";
-                    btn.textContent = "+"; // expand icon
-                }
-            });
-        });
-
-    </script>
     <style>
-        .parent-row {
-            background-color: #f0f0f0;
-            cursor: pointer;
-        }
-
-        .child-row td {
-            padding: 0;
-        }
-
-        .child-row table {
-            margin: 0;
+        #test {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: red;
         }
     </style>
 

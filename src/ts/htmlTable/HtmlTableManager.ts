@@ -1,10 +1,9 @@
-import type { AllLessons, CompiledLesson, DayName, LessonSlot, ScheduleBreak, ScheduleDay, Time } from "../@types/Schedule";
+import dayjs from "dayjs";
+import type { AllLessons, CompiledLesson, DayName, LessonSlot, ScheduleBreak, Time } from "../@types/Schedule";
 import type { School } from "../@types/School";
-import type Lesson from "../untis/old/Lesson";
-// import { Utils.checkForExam } from "../ScheduleDarius_old";
 import { getColumnForSchool } from "../untis/TeacherDatabase";
 import UntisManager from "../untis/UntisManager";
-import UntisSchedule, { type HolidayScheduleDay, type TimedScheduleDay } from "../untis/UntisSchedule";
+import UntisSchedule, { type HolidayScheduleDay } from "../untis/UntisSchedule";
 import { UserManagement } from "../userManagement/UserManagement";
 import Utils from "../Utils";
 
@@ -16,13 +15,11 @@ export class HTMLTableManager {
     public tableElement: HTMLDivElement | undefined;
     private headerRow: HeaderRow[] = [];
     private startTimesNeededParsedToIndex: { [key: string]: number } = {};
-    private id: string;
     private currentDayDiv: HTMLDivElement = document.createElement("div");
     private heightHeaderPercentage = 2.5;
     private schoolTimesBackgroundDiv: HTMLDivElement | undefined;
 
-    constructor(classs: string, id: string, public week: number) {
-        this.id = id;
+    constructor(classs: string, public id: string, public mondayOfWeek: Date, public week: number) {
         // this.tableElement = document.querySelector("." + classs) as HTMLDivElement;
         this.tableElement = document.createElement("div");
         this.tableElement.classList.add(classs);
@@ -38,6 +35,7 @@ export class HTMLTableManager {
         const widthOfAll = 100 - (UserManagement.ALL_DATA!.schools.length * 10);
         this.tableElement.style.gridTemplateColumns = `repeat(${UserManagement.ALL_DATA!.schools.length}, 10%) calc(${widthOfAll}% / 5) calc(${widthOfAll}% / 5) calc(${widthOfAll}% / 5) calc(${widthOfAll}% / 5) calc(${widthOfAll}% / 5)`;
         this.tableElement.style.gridTemplateRows = `max(${this.heightHeaderPercentage}%, 4vh)`;
+        this.tableElement.style.setProperty("--totalSchoolCount", UserManagement.ALL_DATA!.schools.length + "");
 
         const longToShortName: {
             [key: string]: string
@@ -48,30 +46,94 @@ export class HTMLTableManager {
             "thursday": "Do.",
             "friday": "Fr."
         };
+        const mondayOfWeekJs = dayjs(mondayOfWeek);
 
-        for (const dayOfWeek of ["", "", "monday", "tuesday", "wednesday", "thursday", "friday"]) {
+        let dayIndex = 0;
+
+        const whitespacesForSchools = [];
+        for (const school of UserManagement.ALL_DATA!.schools) {
+            whitespacesForSchools.push(school);
+        }
+
+        for (const dayOfWeek of [...whitespacesForSchools, "monday", "tuesday", "wednesday", "thursday", "friday"]) {
             const name = dayOfWeek ? dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1) : dayOfWeek;
             const div = document.createElement("div");
             div.classList.add("header");
-            if (dayOfWeek) div.classList.add(dayOfWeek);
-            if (name) {
+            if (dayOfWeek) {
+                if (!UserManagement.ALL_DATA!.schools.includes(dayOfWeek as School)) {
+                    div.classList.add("weekDayHeader");
+                }
+                div.classList.add(dayOfWeek.toLowerCase());
+            }
+            if (name && !UserManagement.ALL_DATA!.schools.includes(dayOfWeek as School)) {
                 const longName = document.createElement("span");
                 longName.classList.add("doNotRemove");
                 longName.classList.add("longName");
                 longName.innerText = name;
+                const dateDayObj = mondayOfWeekJs.add(dayIndex, "days");
+                const dateDay = dateDayObj.format("DD");
+                const dateMonth = dateDayObj.format("MMM");
+
+                const dateDayE = document.createElement("span");
+                console.log(dateDay);
+                dateDayE.innerText = dateDay != "01" ? (dateDay + ".") : (dateDay + ". " + dateMonth);
+                dateDayE.classList.add("doNotRemove");
+                dateDayE.classList.add("dateDay");
 
                 const shortName = document.createElement("span");
                 shortName.classList.add("doNotRemove");
                 shortName.classList.add("shortName");
                 shortName.innerText = longToShortName[dayOfWeek];
 
+                div.appendChild(dateDayE);
                 div.append(longName);
                 div.append(shortName);
+                if (dayOfWeek !== "") {
+                    div.addEventListener("click", () => {
+                        if (!this.tableElement?.classList.contains("onlyShow")) {
+                            this.tableElement?.classList.add("onlyShow");
+                            this.tableElement?.classList.add(dayOfWeek);
+
+                            const schoolShownCount = UserManagement.ALL_DATA!.schools.map(e => this.tableElement?.querySelector("." + e.toLowerCase().replaceAll(" ", "_") + "." + dayOfWeek)).filter(e => !!e).length;
+                            this.tableElement?.style.setProperty("--schoolsShownCount", schoolShownCount + "");
+                        } else {
+                            this.tableElement?.classList.remove("onlyShow");
+                            this.tableElement?.classList.remove(dayOfWeek);
+                        }
+                    });
+                }
+                dayIndex++;
             }
 
             div.style.gridArea = "1 / " + (this.headerRow.length + 1) + " / 2 / " + (this.headerRow.length + 2);
             this.tableElement.appendChild(div);
             this.headerRow.push(div);
+        }
+
+        let lessonStyleScript = ``;
+        for (const s of UserManagement.ALL_DATA!.schools) {
+            const school = s.replaceAll(" ", "_").toLowerCase();
+            for (const day of ["monday", "tuesday", "wednesday", "thursday", "friday"]) {
+                lessonStyleScript += `
+            .schedule.${day}:not(:has(.${school}.${day})) .lessonTime.${school}:not(.break){
+                // display: none;
+                visibility: collapse;
+            }
+
+            .schedule.${day}:not(:has(.${school}.${day})) .header.${school} {
+                // display: none;
+                visibility: collapse;
+            }
+
+            `;
+            }
+        }
+
+        if (!document.querySelector("#timeSchedule .styleSheet")) {
+            const styleSheet = document.createElement("style");
+            styleSheet.innerHTML = lessonStyleScript;
+            styleSheet.classList.add("styleSheet");
+            document.querySelector("#timeSchedule")?.appendChild(styleSheet);
         }
 
 
@@ -236,7 +298,7 @@ export class HTMLTableManager {
             for (let i = 0; i < columnCount; i++) {
                 if (i == 0) {
                     const cell = document.createElement("div");
-                    cell.classList.add(school);
+                    cell.classList.add(school.toLowerCase().replaceAll(" ", "_"));
                     cell.classList.add("doNotRemove");
                     cell.style.gridArea = (gridRowIndexStart + 2) + " / " + (getColumnForSchool(school) + 1) + " / " + (gridRowIndexEnd + 2) + " / " + (getColumnForSchool(school) + 2);
                     if (this.isBreakString(lessonTime, nextLesson)) {
@@ -547,6 +609,8 @@ export class HTMLTableManager {
                     if (cell) {
                         const lesson = (lessonSlotData.lessonSlotExample as LessonSlot)?.lessons[0];
                         if (!lesson) continue;
+                        cell.classList.add(lesson.school.replaceAll(" ", "_").toLowerCase());
+                        cell.classList.add(day);
 
                         const isExam = Utils.checkForExam(lesson);
 
@@ -581,6 +645,11 @@ export class HTMLTableManager {
                         const lessons = lessonSlotData.lessonSlotExample?.lessons;
                         if (!lessons) continue;
                         cell.classList.add("moreLessons");
+                        cell.setAttribute("data-lessonCount", lessons.length + "");
+                        for (const lesson of lessons) {
+                            cell.classList.add(lesson.school.replaceAll(" ", "_").toLowerCase());
+                        }
+                        cell.classList.add(day);
 
                         let isExam = false;
                         for (const lesson of lessons) {
@@ -631,6 +700,8 @@ export class HTMLTableManager {
                     const cell = this.insertCellInto(position.rowStart, position.column + UserManagement.ALL_DATA!.schools.length, position.rowSpan);
                     if (cell) {
                         cell.classList.add("break");
+                        cell.classList.add(br.school.replaceAll(" ", "_").toLowerCase());
+                        cell.classList.add(day);
 
                         const getTimeDistance = (start: Time, end: Time): number => {
                             const startMinutes = start.hour * 60 + start.minute;
@@ -742,8 +813,8 @@ export class HTMLTableManager {
         div.addEventListener("click", () => {
 
             const position = div.getBoundingClientRect();
-            div.style.setProperty("--left", position.left - 10 + "px");
-            div.style.setProperty("--top", position.top - 10 + "px");
+            div.style.setProperty("--left", position.left + "px");
+            div.style.setProperty("--top", position.top + "px");
 
             div.style.setProperty("--width", position.width + "px");
             div.style.setProperty("--height", position.height + "px");
@@ -1102,7 +1173,7 @@ export class HTMLTableManager {
         insidePopInfo?.style.setProperty("--width", width + "px");
         insidePopInfo?.style.setProperty("--height", height + "px");
 
-        const clicked = (e: PointerEvent) => {
+        const clicked = (e: Event) => {
 
             const triggered = () => {
                 HTMLTableManager.CURRENT_LESSON_OPEN = undefined;
@@ -1131,8 +1202,8 @@ export class HTMLTableManager {
     private openInfoBox(status: string, lesson: CompiledLesson, isExam: boolean, callback: (() => void), width: number, height: number) {
         const popupInformation = document.getElementById("popupInformation") as HTMLDivElement;
         const insidePopInfo = document.getElementById("insidePopInfo");
-        popupInformation.classList.add("visible");
         popupInformation.setAttribute("data-status", status);
+        popupInformation.classList.add("visible");
         HTMLTableManager.CURRENT_LESSON_OPEN = lesson;
 
         if (lesson.multipleTeachers) {
@@ -1209,7 +1280,7 @@ export class HTMLTableManager {
         insidePopInfo?.style.setProperty("--width", width + "px");
         insidePopInfo?.style.setProperty("--height", height + "px");
 
-        const clicked = (ev: PointerEvent) => {
+        const clicked = (ev: Event) => {
 
             const trigger = () => {
                 HTMLTableManager.CURRENT_LESSON_OPEN = undefined;
@@ -1408,7 +1479,7 @@ export class HTMLTableManager {
             }
         }
 
-        const tr = (e: PointerEvent) => {
+        const tr = (e: Event) => {
 
             const close = () => {
                 teacherViewer.close();

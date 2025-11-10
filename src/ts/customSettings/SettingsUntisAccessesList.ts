@@ -64,11 +64,13 @@ export class SettingsUntisAccessesList extends SettingsElement {
             if (title == "") {
                 titleCell.innerHTML = "+";
                 titleCell.classList.add("untisAccessButton");
-                titleCell.onclick = () => {
+                titleCell.onclick = (e) => {
                     if (!navigator.onLine) {
                         Utils.error("You Are offline and can't change settings");
                         return;
                     }
+                    e.preventDefault();
+                    e.stopPropagation();
                     this.addUntisAccess((schoolData, classesLast, username, password) => {
                         const accesses = UserManagement.ALL_DATA!.untisAccesses;
                         const newAccess = {
@@ -156,7 +158,7 @@ export class SettingsUntisAccessesList extends SettingsElement {
             const value = classesInput.value;
             const classArray = value.split(",").map(e => e.trim()).filter(e => e !== "");
             const newStringvalue = classArray.join(",");
-            classesInput.value = newStringvalue;
+            classesInput.value = newStringvalue + (value.endsWith(",") ? "," : "");
         });
 
         const schoolInput = document.createElement("input");
@@ -173,7 +175,7 @@ export class SettingsUntisAccessesList extends SettingsElement {
                     updateList(allreadyRequested[value]);
                     return;
                 }
-                const response = await (await fetch("http://" + HOST + "/untis/querySchools.php?noCache&q=" + encodeURIComponent(value), {
+                const response = await (await fetch(HOST + "/querySchools.php?noCache&q=" + encodeURIComponent(value), {
                     method: "GET"
                 })).json();
                 allreadyRequested[value] = response;
@@ -225,6 +227,7 @@ export class SettingsUntisAccessesList extends SettingsElement {
 
                 document.body.removeChild(addUntisAccessDialogWrapper);
                 callback(SELECTED, classesLast, usernameInput.value, passwordInput.value);
+                unregisterListeners();
             } else {
                 Utils.error("Please select a school!");
             }
@@ -236,6 +239,7 @@ export class SettingsUntisAccessesList extends SettingsElement {
         cancelbtn.innerText = "Cancel";
         cancelbtn.onclick = () => {
             document.body.removeChild(addUntisAccessDialogWrapper);
+            unregisterListeners();
         };
         addUntisAccessDialog.appendChild(cancelbtn);
 
@@ -270,10 +274,13 @@ export class SettingsUntisAccessesList extends SettingsElement {
         addUntisAccessDialogWrapper.appendChild(addUntisAccessDialog);
 
         document.body.appendChild(addUntisAccessDialogWrapper);
+        const unregisterListeners = Utils.addOnclickOutside(addUntisAccessDialog, () => {
+            cancelbtn.click();
+        });
     }
 
     private async loadPossibleClassNames(SELECTED: SchoolData, username: string, password: string): Promise<string[]> {
-        return await (await fetch("http://" + HOST + "/untis/getClassNames.php?noCache", {
+        return await (await fetch(HOST + "/getClassNames.php?noCache", {
             method: "POST",
             body: JSON.stringify({
                 username: username,

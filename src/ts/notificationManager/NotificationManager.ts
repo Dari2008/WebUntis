@@ -14,15 +14,42 @@ export default class NotificationManager {
 
         const notificationBell = document.querySelector("#notificationsBell") as HTMLElement;
         if (notificationBell) {
-            notificationBell.addEventListener("mouseover", async () => {
-                if (!this.hasUnread) return;
-                console.log("Mouse Over");
-                this.clearNotifications();
-                await this.convertUnreadToPastNotifications();
-                this.checkForNotificationsOnHtmlElements();
-                // this.updateList(true);
-                this.hasUnread = false;
-            });
+
+            let unregister: (() => void) | null = null;
+
+            const onClick = async (e: Event) => {
+                const list = notificationBell.querySelector(".notificationList") as HTMLElement;
+                if (!list) return;
+                e.stopPropagation();
+                e.preventDefault();
+                if (list.classList.contains("open")) {
+                    list.classList.remove("open");
+                    if (unregister) unregister();
+                } else {
+                    list.classList.add("open");
+                    unregister = Utils.addOnclickOutside(list, () => {
+                        list.classList.remove("open");
+                    });
+                    if (!this.hasUnread) return;
+                    this.clearNotifications();
+                    await this.convertUnreadToPastNotifications();
+                    this.checkForNotificationsOnHtmlElements();
+                    this.hasUnread = false;
+                }
+            };
+            notificationBell.addEventListener("click", onClick);
+
+
+            // notificationBell.addEventListener("mouseover", async () => {
+            //     if (window.innerWidth < 400) return;
+            //     if (!this.hasUnread) return;
+            //     console.log("Mouse Over");
+            //     this.clearNotifications();
+            //     await this.convertUnreadToPastNotifications();
+            //     this.checkForNotificationsOnHtmlElements();
+            //     // this.updateList(true);
+            //     this.hasUnread = false;
+            // });
         }
 
         const markAllRead = document.querySelector("#notificationsBell .markAllRead") as HTMLElement;

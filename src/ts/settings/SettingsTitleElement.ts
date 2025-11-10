@@ -35,8 +35,8 @@ export abstract class SettingsElement {
 
     type: string = "function";
 
-    onload: (checked?: any, func?: (name: string) => SettingsContentElement | undefined) => void = (checked?: any, func?: (name: string) => SettingsContentElement | undefined) => { };
-    onchange: (checked: any, func: (name: string) => SettingsContentElement | undefined) => void = (checked: any, func: (name: string) => SettingsContentElement | undefined) => { };
+    onload: (checked?: any, func?: (name: string) => SettingsContentElement | undefined) => void = () => { };
+    onchange: (checked: any, func: (name: string) => SettingsContentElement | undefined) => void = () => { };
 
     // constructor(data: T, elements: SettingsContentElement[]) { }
 
@@ -69,7 +69,7 @@ export class SettingsTitleElement {
 
     type: string = "title";
 
-    onload: (func?: (name: string) => SettingsContentElement | undefined) => void = (func?: (name: string) => SettingsContentElement | undefined) => { }
+    onload: (func?: (name: string) => SettingsContentElement | undefined) => void = () => { }
 
     constructor(data: SettingsTitleData) {
         this.mainElement = document.createElement("div");

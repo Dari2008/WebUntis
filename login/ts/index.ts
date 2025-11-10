@@ -1,5 +1,6 @@
 import dayjs from "dayjs";
 import Utils from "../../src/ts/Utils";
+import { HOST } from "../../src/ts/ScheduleDarius_old";
 
 
 type LoginResponse = {
@@ -38,7 +39,7 @@ async function init() {
 
         try {
 
-            const response = await (await fetch("http://localhost:2222/untis/users/login.php?noCache", {
+            const response = await (await fetch(HOST + "/users/login.php?noCache", {
                 method: "post",
                 body: JSON.stringify({
                     username: valueUsername,
@@ -63,6 +64,7 @@ async function init() {
                 Utils.error("Server error! Please try again later");
             }
         } catch (e) {
+            console.log(e);
             Utils.error("Client error! Please try again later");
         }
 

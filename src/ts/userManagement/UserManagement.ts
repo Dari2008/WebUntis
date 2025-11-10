@@ -2,7 +2,7 @@ import dayjs from "dayjs";
 import type { Exam, ExamList } from "../@types/Exam";
 import type { BreaksRawByDay, DayName, LessonRaw, LessonTime, LessonTimes, LessonTimesString, ScheduleRawData } from "../@types/Schedule";
 import type { School } from "../@types/School";
-import type { Teacher, TeacherDatabase } from "../@types/Teachers";
+import type { TeacherDatabase } from "../@types/Teachers";
 import type { UntisAccess } from "../@types/UntisAccess";
 import type { AllData, SchoolTimes, UpdateDataBreaks, UpdateDataExams, UpdateDataIllDays, UpdateDataPreferences, UpdateDataSchedule, UpdateDataTeachers, UpdateDataUntisAccess, UpdateMethod } from "../@types/UserManagement";
 import { HOST } from "../ScheduleDarius_old";
@@ -28,7 +28,7 @@ export class UserManagement {
     public static validJwt = false;
     public static ALL_DATA: AllData | undefined;
 
-    public static async init() {
+    public static init() {
         const goToLogin = () => {
             localStorage.setItem("allowedUntil", "");
             localStorage.setItem("jwt", "");
@@ -77,7 +77,7 @@ export class UserManagement {
             }
         }
         if (this.ALL_DATA) return this.ALL_DATA;
-        const result = await this.request("http://" + HOST + "/untis/users/data/getData.php", { "jwt": this.jwt, dataType: "allData" });
+        const result = await this.request(HOST + "/users/data/getData.php", { "jwt": this.jwt, dataType: "allData" });
         if (!result) return false;
         const all = result as AllData;
         this.compileAll(all);
@@ -202,38 +202,38 @@ export class UserManagement {
 
 
     public static async getUntisAccesses(): Promise<UntisAccess[] | boolean> {
-        const result = await this.request("http://" + HOST + "/untis/users/data/getData.php", { "jwt": this.jwt, dataType: "untisAccesses" });
+        const result = await this.request(HOST + "/users/data/getData.php", { "jwt": this.jwt, dataType: "untisAccesses" });
         if (!result) return false;
         return result as UntisAccess[];
     }
 
     public static async getBreaks(): Promise<BreaksRawByDay | boolean> {
-        const result = await this.request("http://" + HOST + "/untis/users/data/getData.php", { "jwt": this.jwt, dataType: "breaks" });
+        const result = await this.request(HOST + "/users/data/getData.php", { "jwt": this.jwt, dataType: "breaks" });
         if (!result) return false;
         return result as BreaksRawByDay;
     }
 
     public static async getTeachers(): Promise<TeacherDatabase | boolean> {
-        const result = await this.request("http://" + HOST + "/untis/users/data/getData.php", { "jwt": this.jwt, dataType: "teachers" });
+        const result = await this.request(HOST + "/users/data/getData.php", { "jwt": this.jwt, dataType: "teachers" });
         if (!result) return false;
         return result as TeacherDatabase;
     }
 
     public static async getSchedule(): Promise<ScheduleRawData | boolean> {
-        const result = await this.request("http://" + HOST + "/untis/users/data/getData.php", { "jwt": this.jwt, dataType: "schedule" });
+        const result = await this.request(HOST + "/users/data/getData.php", { "jwt": this.jwt, dataType: "schedule" });
         if (!result) return false;
         return result as ScheduleRawData;
     }
 
 
     public static async getIllDates(): Promise<UntisAccess[] | boolean> {
-        const result = await this.request("http://" + HOST + "/untis/users/data/getData.php", { "jwt": this.jwt, dataType: "illDates" });
+        const result = await this.request(HOST + "/users/data/getData.php", { "jwt": this.jwt, dataType: "illDates" });
         if (!result) return false;
         return result as UntisAccess[];
     }
 
     public static async getExams(): Promise<ExamList | boolean> {
-        const result = await this.request("http://" + HOST + "/untis/users/data/getData.php", { "jwt": this.jwt, dataType: "exams" });
+        const result = await this.request(HOST + "/users/data/getData.php", { "jwt": this.jwt, dataType: "exams" });
         if (!result) return false;
         return result as ExamList;
     }
@@ -255,7 +255,7 @@ export class UserManagement {
     }
 
     public static async updateUntisAccesses(updateMethod: UpdateMethod, data: UpdateDataUntisAccess): Promise<boolean> {
-        const result = await this.request("http://" + HOST + "/untis/users/data/updateData.php", {
+        const result = await this.request(HOST + "/users/data/updateData.php", {
             "jwt": this.jwt,
             dataType: "untisAccesses",
             data: data,
@@ -272,7 +272,7 @@ export class UserManagement {
     }
 
     public static async updateBreaks(updateMethod: UpdateMethod, data: UpdateDataBreaks): Promise<boolean> {
-        const result = await this.request("http://" + HOST + "/untis/users/data/updateData.php", {
+        const result = await this.request(HOST + "/users/data/updateData.php", {
             "jwt": this.jwt,
             dataType: "breaks",
             data: data,
@@ -283,7 +283,7 @@ export class UserManagement {
     }
 
     public static async updateTeachers(updateMethod: UpdateMethod, data: UpdateDataTeachers): Promise<boolean> {
-        const result = await this.request("http://" + HOST + "/untis/users/data/updateData.php", {
+        const result = await this.request(HOST + "/users/data/updateData.php", {
             "jwt": this.jwt,
             dataType: "teachers",
             data: data,
@@ -294,7 +294,7 @@ export class UserManagement {
     }
 
     public static async updateSchedule(updateMethod: UpdateMethod, data: UpdateDataSchedule): Promise<boolean> {
-        const result = await this.request("http://" + HOST + "/untis/users/data/updateData.php", {
+        const result = await this.request(HOST + "/users/data/updateData.php", {
             "jwt": this.jwt,
             dataType: "schedule",
             data: data,
@@ -305,7 +305,7 @@ export class UserManagement {
     }
 
     public static async updateExams(updateMethod: UpdateMethod, data: UpdateDataExams): Promise<boolean> {
-        const result = await this.request("http://" + HOST + "/untis/users/data/updateData.php", {
+        const result = await this.request(HOST + "/users/data/updateData.php", {
             "jwt": this.jwt,
             dataType: "exams",
             data: data,
@@ -316,7 +316,7 @@ export class UserManagement {
     }
 
     public static async updateIllDays(updateMethod: UpdateMethod | "update", data: UpdateDataIllDays): Promise<boolean> {
-        const result = await this.request("http://" + HOST + "/untis/users/data/updateData.php", {
+        const result = await this.request(HOST + "/users/data/updateData.php", {
             "jwt": this.jwt,
             dataType: "illDates",
             data: data,
@@ -327,7 +327,7 @@ export class UserManagement {
     }
 
     public static async updatePreferences(data: UpdateDataPreferences): Promise<boolean> {
-        const result = await this.request("http://" + HOST + "/untis/users/data/updateData.php", {
+        const result = await this.request(HOST + "/users/data/updateData.php", {
             "jwt": this.jwt,
             dataType: "preferences",
             data: data

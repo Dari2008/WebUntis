@@ -101,3 +101,15 @@
     }
 
 }
+
+@media (width < 1200px) {
+    .login-container {
+        width: 80%;
+    }
+}
+
+@media (height < 800px) {
+    .login-container {
+        height: auto;
+    }
+}

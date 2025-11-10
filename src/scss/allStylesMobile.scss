@@ -1,8 +1,9 @@
 @use "./clamp.scss" as *;
+@use "./variables.scss" as vars;
 
 $defaultBorder: lighten(#000000, 30%);
 
-@media (width < 1px) {
+@media (width < 100px) {
 
     .schedule .lessonTime.break .start {
         left: 1px !important;
@@ -28,8 +29,8 @@ $defaultBorder: lighten(#000000, 30%);
 
 @media (width < 650px) {
     .lesson {
-        margin-inline: 1px !important;
-        margin-block: 1px !important;
+        margin: 1px !important;
+        width: calc(100% - 2px) !important;
     }
 }
 
@@ -37,16 +38,25 @@ $defaultBorder: lighten(#000000, 30%);
     .lesson {
         padding: 1px !important;
     }
+
+    .lesson:has(+ .moreLessons) {
+        width: calc(80% - 1px) !important;
+
+        &+.moreLessons {
+            padding: 0;
+            margin: 1px;
+        }
+    }
 }
 
 @media (width < 450px) {
     .lesson {
         padding: 2px !important;
-        border: 2px solid $defaultBorder !important;
+        border-width: 2px !important;
     }
 }
 
-@media (width < 800px) {
+@media (width < 1100px) {
     .lesson {
         grid-column-gap: 0px !important;
 
@@ -57,7 +67,34 @@ $defaultBorder: lighten(#000000, 30%);
         .teacher {
             text-align: left !important;
         }
+    }
 
+}
+
+@media (width < 760px) {
+    .lesson:has(+ .moreLessons) {
+        display: none !important;
+
+        &+.moreLessons {
+            width: calc(100% - 10px);
+            position: relative;
+
+            &::after {
+                content: attr(data-lessonCount) " Lessons";
+                position: absolute;
+                top: 80%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                font-size: clampW(0.5em, 0.7em, 100px, 500px);
+                text-wrap: nowrap;
+            }
+        }
+    }
+}
+
+@media (width < 400px) {
+    .lesson+.moreLessons::after {
+        content: "+ " attr(data-lessonCount) !important;
     }
 }
 
@@ -131,7 +168,7 @@ $defaultBorder: lighten(#000000, 30%);
 }
 
 
-@media (width < 500px) {
+@media (width < 625px) {
     .header {
         .shortName {
             display: inline !important;
@@ -167,5 +204,321 @@ $defaultBorder: lighten(#000000, 30%);
 
     body {
         padding: 0px !important;
+    }
+}
+
+@media (width < 350px) and (width >=400px) {
+    #notificationsBell {
+        top: unset !important;
+        bottom: 20px;
+
+        .notificationList {
+            top: -20px;
+            transform: translate(0%, -100%) !important;
+            border-radius: 10px !important;
+        }
+
+    }
+}
+
+@media (width < 400px) {
+
+    #notificationsBell:not(:hover) {
+        .notificationList {
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+    }
+
+    #notificationsBell {
+        cursor: pointer;
+
+        .notificationList {
+            position: fixed !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 80vh !important;
+            transform: translate(0%, 0%) !important;
+            min-width: 100vw !important;
+            max-width: 100vw !important;
+            backdrop-filter: blur(20px) !important;
+            border-radius: 10px !important;
+            top: 110vh;
+            transition: top 0.3s ease-in-out !important;
+            box-shadow: 0 4px 10px vars.$themeColor !important;
+
+            .markAllRead {
+                position: sticky !important;
+                top: 0 !important;
+                width: 100% !important;
+                background: vars.$gray-900 !important;
+                backdrop-filter: blur(10px) !important;
+                text-align: center !important;
+                margin-top: 0 !important;
+                padding-inline: 0 !important;
+                padding-block: 10px !important;
+                box-shadow: 0 -6px 10px white !important;
+            }
+
+        }
+
+        .notificationList.open {
+
+            top: 20vh !important;
+        }
+    }
+}
+
+@media (width < 290px) {
+
+    #notificationsBell:not(:hover) {
+        .notificationList {
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+    }
+
+    #notificationsBell {
+        cursor: pointer;
+
+        .notificationList {
+            position: fixed !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 80vh !important;
+            transform: translate(0%, 0%) !important;
+            min-width: 100vw !important;
+            max-width: 100vw !important;
+            backdrop-filter: blur(20px) !important;
+            border-radius: 10px !important;
+            top: 110vh;
+            transition: top 0.3s ease-in-out !important;
+        }
+
+        .notificationList.open {
+
+            top: 20vh !important;
+        }
+    }
+
+    header.hamburger {
+        left: 2px !important;
+    }
+}
+
+
+// Settings mobile style
+
+
+@media (width < 800px) {
+
+    #untisAccesses,
+    #contents[selectedtab="untisAccesses"] {
+        display: none;
+    }
+}
+
+@media (width < 600px) {
+    #contents .settings-tools-excuse-system-element {
+
+        .fromCell,
+        .toCell,
+        .from,
+        .to {
+            visibility: collapse !important;
+            width: 0;
+            max-width: 0;
+            min-width: 0;
+        }
+    }
+}
+
+@media (width < 520px) {
+    #contents .settings-tools-excuse-system-element {
+
+        .lessonsmissed,
+        .daysIllCell {
+            visibility: collapse !important;
+            width: 0;
+            max-width: 0;
+            min-width: 0;
+        }
+    }
+}
+
+@media (width < 420px) {
+
+    #tools,
+    #contents[selectedtab="tools"] {
+        display: none;
+    }
+}
+
+@media (width < 650px) {
+
+    #schedule,
+    #contents[selectedtab="schedule"] {
+        display: none;
+    }
+}
+
+@media (width < 650px) {
+    .settings-break-list {
+        table tr td:nth-of-type(4) {
+            visibility: collapse;
+            max-width: 0;
+            min-width: 0;
+            width: 0;
+        }
+    }
+}
+
+@media (width < 560px) {
+
+    #breaks,
+    #contents[selectedtab="breaks"] {
+        display: none;
+    }
+}
+
+@media (width < 750px) {
+    .settings-exam-list table tr td:nth-of-type(4) {
+        visibility: collapse;
+        max-width: 0;
+        min-width: 0;
+        width: 0;
+    }
+}
+
+@media (width < 500px) {
+    .settings-exam-list table tr td:nth-of-type(2) {
+        visibility: collapse;
+        max-width: 0;
+        min-width: 0;
+        width: 0;
+    }
+}
+
+@media (width < 400px) {
+
+    #exams,
+    #contents[selectedtab="exams"] {
+        display: none;
+    }
+}
+
+@media (width < 500px) {
+
+    #teachers,
+    #contents[selectedtab="teachers"] {
+        display: none;
+    }
+}
+
+
+@media (width < 800px) {
+
+    #appearance,
+    #contents[selectedtab="appearance"] {
+        display: none;
+    }
+}
+
+@media (width < 800px) {
+    #contents[selectedtab="notifications"] {
+
+        // display: none;
+        #notificationTextLayout {
+            display: none;
+        }
+    }
+}
+
+@media(width < 700px) {
+    #settingsList {
+        button {
+            padding-inline: 10px !important;
+        }
+    }
+}
+
+@media(width < 550px) {
+    #subscribedDevicesTitle {
+        display: none;
+    }
+
+    .settings-title-element-wrapper:not(:first-of-type) {
+        margin-top: 10%;
+
+        .settings-title-element {
+            font-size: 150%;
+        }
+    }
+
+    #examReminderTimes {
+        border-top: none !important;
+    }
+
+    #settingsDialog {
+        grid-template-columns: 30% 70% !important;
+    }
+
+    #settingsList {
+        button {
+            text-overflow: ellipsis;
+            overflow: hidden;
+        }
+    }
+
+    .settings-element {
+        display: grid;
+        grid-template-columns: 1fr !important;
+        grid-template-rows: repeat(4, auto) !important;
+        grid-column-gap: 0px !important;
+        grid-row-gap: 0px !important;
+
+        .settings-title {
+            grid-area: 1 / 1 / 2 / 2;
+            text-align: center;
+        }
+
+        .settings-label {
+            grid-area: 2 / 1 / 3 / 2;
+            text-align: center;
+        }
+
+        .settings-input,
+        .settings-textField-input {
+            grid-area: 3 / 1 / 4 / 2;
+            width: 100%;
+        }
+
+        .settings-description {
+            grid-area: 4 / 1 / 5 / 2;
+            text-align: center;
+        }
+    }
+}
+
+
+// Untis
+
+
+@media (width < 1200px) {
+    #insidePopInfo {
+        min-width: 60vw !important;
+    }
+}
+
+@media (height < 700px) {
+    #insidePopInfo {
+        min-height: 60vh !important;
+    }
+}
+
+@media (height < 700px) {
+    #menuOverlay {
+        height: 8%;
+        min-height: 50px;
     }
 }

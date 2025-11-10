@@ -1,5 +1,6 @@
 import dayjs from "dayjs";
 import Utils from "../../src/ts/Utils";
+import { HOST } from "../../src/ts/ScheduleDarius_old";
 
 
 
@@ -46,7 +47,7 @@ async function init() {
 
         try {
 
-            const response = await (await fetch("http://localhost:2222/untis/users/register.php?noCache", {
+            const response = await (await fetch(HOST + "/users/register.php?noCache", {
                 method: "post",
                 body: JSON.stringify({
                     username: valueUsername,

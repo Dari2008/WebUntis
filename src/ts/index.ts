@@ -5,7 +5,6 @@ import UntisManager, { type TempLesson } from "./untis/UntisManager"
 import UntisSchedule from "./untis/UntisSchedule";
 import { initSettings } from "./settings/settingsLoader";
 import { v4 } from "uuid";
-import type { School } from "./@types/School";
 import type { CompiledLesson } from "./@types/Schedule";
 import { UserManagement } from "./userManagement/UserManagement";
 import Utils from "./Utils";
@@ -14,9 +13,9 @@ import { SWManager } from "./SWManager";
 import { GestureHandler } from "./gestures/gestures";
 import NotificationManager from "./notificationManager/NotificationManager";
 import { AllLessonsManager } from "./untis/AllLessonsManager";
-import { getDateWithOptions } from "date-fns/fp";
 import { HolidayLoader } from "./untis/HolidayLoader";
 import type { UntisAccess } from "./@types/UntisAccess";
+import { WalkThroughs } from "./walkThrough/WalkThroughs";
 // import { HolidayLoader } from "./untis/HolidayLoader";
 
 window.addEventListener("online", () => {
@@ -66,8 +65,8 @@ async function initEnv() {
         return;
     }
     SWManager.install(allData.preferences.notificationsEnabled);
-
     NotificationManager.initNotificationManager();
+
 
 
 
@@ -95,7 +94,7 @@ async function initEnv() {
     // const htmlTableManagerPrevious: HTMLTableManager = new HTMLTableManager("previousSchedule", "previousSchedule", getWeeksFriday(new Date(), -1));
     //htmlTableManagerCurrently, htmlTableManagerNext, htmlTableManagerPrevious
     const htmlTableManagers: HTMLTableManager[] = [];
-
+    console.log(getWeeksFriday(new Date(), -1));
     for (const date of [{ week: -1, date: getWeeksFriday(new Date(), -1) }, { week: 0, date: new Date() }, { week: 1, date: getWeeksMonday(new Date(), 1) }]) {
         if (date.week != 0) {
             const promise = createHtmlTableManagerForDate(date);
@@ -176,7 +175,9 @@ async function initEnv() {
 
     async function initAll() {
 
-        initSettings();
+        await initSettings();
+        // WalkThrough.startWalkthrough(WalkThroughs.SETTINGS_STEPS);
+        WalkThroughs.initTriggers();
 
         window.addEventListener("resize", () => {
             document.body.style.setProperty("--windowHeight", window.innerHeight + "px");
@@ -287,21 +288,22 @@ async function initEnv() {
 
         loadHtmlTableManagerForCurrentIndexOfWeek();
     }
-
-    function getWeeksMonday(date: Date, offsetWeeks: number): Date {
-        const day = date.getDay();
-        const diffToMonday = (day === 0 ? -6 : 1 - day); // move to current Monday
-        date.setDate(date.getDate() + diffToMonday + offsetWeeks * 7);
-        date.setHours(12, 0, 0, 0);
-        return date;
+    function getWeeksMonday(date: Date, offsetWeeks: number = 0): Date {
+        const d = new Date(date);
+        const day = d.getDay();
+        const diffToMonday = (day === 0 ? -6 : 1 - day);
+        d.setDate(d.getDate() + diffToMonday + offsetWeeks * 7);
+        d.setHours(12, 0, 0, 0);
+        return d;
     }
 
-    function getWeeksFriday(date: Date, offsetWeeks: number): Date {
-        const day = date.getDay();              // 0 = Sun … 6 = Sat
-        const diffToFriday = 5 - day;           // distance from today to this week's Friday
-        date.setDate(date.getDate() + diffToFriday + (offsetWeeks) * 7);
-        date.setHours(12, 0, 0, 0);
-        return date;
+    function getWeeksFriday(date: Date, offsetWeeks: number = 0): Date {
+        const d = new Date(date);
+        const day = d.getDay();
+        const diffToFriday = (day === 0 ? -2 : 5 - day);
+        d.setDate(d.getDate() + diffToFriday + offsetWeeks * 7);
+        d.setHours(12, 0, 0, 0);
+        return d;
     }
 
     // let currentIdDisplayed: string | null = null;
@@ -317,7 +319,7 @@ async function initEnv() {
             return currentlyLoadingHtmlTableManagers[date.week];
         }
 
-        const htmlTableManager = new HTMLTableManager("schedule" + date.week, "schedule" + date.week, date.week);
+        const htmlTableManager = new HTMLTableManager("schedule" + date.week, "schedule" + date.week, getWeeksMonday(date.date, 0), date.week);
         const allSchedules = await loadSchedule(date.date);
         if (allSchedules.length == 0) return null;
         if (allSchedules.map(e => e.lessons).flat().length == 0) return null;

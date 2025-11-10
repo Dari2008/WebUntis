@@ -1,8 +1,8 @@
-import type { ScheduleLesson } from "./";
+import type { ScheduleLesson } from "../../@types/Schedule";
 
-export default class Lesson{
+export default class Lesson {
 
-    constructor(private lesson: ScheduleLesson, private questsions: ()=>any, private dateRange: DateRange, private hoursMissed: number) {
+    constructor(private lesson: ScheduleLesson, private questsions: () => any, private dateRange: DateRange, private hoursMissed: number) {
     }
 
     public getLesson(): ScheduleLesson {
@@ -30,7 +30,7 @@ export default class Lesson{
     }
 
     public getCurrentName(): string {
-        return (this.lesson.id||this.lesson.id===0)&&this.questsions()[this.lesson.id]?this.questsions()[this.lesson.id]:((typeof this.lesson.subject === "object")?this.lesson.subject[0] : this.lesson.subject);
+        return (this.lesson.id || this.lesson.id === 0) && this.questsions()[this.lesson.id] ? this.questsions()[this.lesson.id] : ((typeof this.lesson.subject === "object") ? this.lesson.subject[0] : this.lesson.subject);
     }
 
     public getSubjectAsString(): string {

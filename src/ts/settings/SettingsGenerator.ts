@@ -1,7 +1,5 @@
 import { SettingsTitleElement, type SettingsContentElement, type SettingsTitleData } from "./SettingsTitleElement";
 
-var isDataLoaded = false;
-
 export type SettingsData = {
     id: string;
     label: string;
@@ -49,10 +47,6 @@ function toggleSettings() {
     }
 }
 
-function switchToSettingsTab(id: string) {
-    // $("#settingsList #" + id).click();
-}
-
 export const SETTINGS_ELEMENTS: SettingsContentElement[] = [];
 
 export function loadSettings(settingOptions: SettingsData[]) {
@@ -90,6 +84,7 @@ export function loadSettings(settingOptions: SettingsData[]) {
 
             settingElement.setAttribute("selected", "");
 
+            contents.setAttribute("selectedTab", setting.id);
             contents.innerHTML = "";
 
             for (let e of setting.elements) {
@@ -107,7 +102,7 @@ export function loadSettings(settingOptions: SettingsData[]) {
 
         if (setting.selected) {
             settingElement.setAttribute("selected", "");
-            settingElement.click();
+            settingElement.onclick(new PointerEvent("click"));
         }
 
     }
