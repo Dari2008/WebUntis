@@ -1,11 +1,12 @@
 import dayjs from "dayjs";
-import type { AllLessons, CompiledLesson, DayName, LessonSlot, ScheduleBreak, Time } from "../@types/Schedule";
+import type { CompiledLesson, DayName, LessonSlot, ScheduleBreak, Time } from "../@types/Schedule";
 import type { School } from "../@types/School";
 import { getColumnForSchool } from "../untis/TeacherDatabase";
 import UntisManager from "../untis/UntisManager";
 import UntisSchedule, { type HolidayScheduleDay } from "../untis/UntisSchedule";
 import { UserManagement } from "../userManagement/UserManagement";
 import Utils from "../Utils";
+import { GestureHandler } from "../gestures/gestures";
 
 export class HTMLTableManager {
 
@@ -31,6 +32,11 @@ export class HTMLTableManager {
 
         this.tableElement.innerHTML = "";
         this.tableElement.style.display = "grid";
+
+        const topDayCover = document.createElement("div");
+        topDayCover.classList.add("topDayCover");
+        topDayCover.classList.add("doNotRemove");
+        this.tableElement.appendChild(topDayCover);
 
         const widthOfAll = 100 - (UserManagement.ALL_DATA!.schools.length * 10);
         this.tableElement.style.gridTemplateColumns = `repeat(${UserManagement.ALL_DATA!.schools.length}, 10%) calc(${widthOfAll}% / 5) calc(${widthOfAll}% / 5) calc(${widthOfAll}% / 5) calc(${widthOfAll}% / 5) calc(${widthOfAll}% / 5)`;
@@ -93,12 +99,16 @@ export class HTMLTableManager {
                         if (!this.tableElement?.classList.contains("onlyShow")) {
                             this.tableElement?.classList.add("onlyShow");
                             this.tableElement?.classList.add(dayOfWeek);
-
+                            this.tableElement?.setAttribute("data-dateShown", dayOfWeek);
+                            UserManagement.ALL_DATA!.schools.filter(e => !!this.tableElement?.querySelector("." + e.toLowerCase().replaceAll(" ", "_") + "." + dayOfWeek)).sort().forEach((school, i) => {
+                                this.tableElement?.style.setProperty("--schoolIndex" + school.toLowerCase().replaceAll(" ", "_"), i + "");
+                            });
                             const schoolShownCount = UserManagement.ALL_DATA!.schools.map(e => this.tableElement?.querySelector("." + e.toLowerCase().replaceAll(" ", "_") + "." + dayOfWeek)).filter(e => !!e).length;
                             this.tableElement?.style.setProperty("--schoolsShownCount", schoolShownCount + "");
                         } else {
                             this.tableElement?.classList.remove("onlyShow");
                             this.tableElement?.classList.remove(dayOfWeek);
+                            this.tableElement?.removeAttribute("data-dateShown");
                         }
                     });
                 }
@@ -115,14 +125,25 @@ export class HTMLTableManager {
             const school = s.replaceAll(" ", "_").toLowerCase();
             for (const day of ["monday", "tuesday", "wednesday", "thursday", "friday"]) {
                 lessonStyleScript += `
-            .schedule.${day}:not(:has(.${school}.${day})) .lessonTime.${school}:not(.break){
-                // display: none;
-                visibility: collapse;
+            .schedule.${day}:not(:has(.${school}.${day})) .lessonTime.${school}{
+                opacity: 0;
+            }
+            .schedule.next-${day}:not(:has(.${school}.${day})) .lessonTime.${school}{
+                opacity: 0;
             }
 
             .schedule.${day}:not(:has(.${school}.${day})) .header.${school} {
-                // display: none;
-                visibility: collapse;
+                opacity: 0;
+            }
+
+            .schedule.next-${day}:not(:has(.${school}.${day})) .header.${school} {
+                opacity: 0;
+            }
+
+            .schedule.${day}:has(.${school}.${day}) .lessonTime.${school},
+            .schedule.${day}:has(.${school}.${day}) .header.${school}{
+                grid-column-start: calc(var(--schoolIndex${school}, 0) + 1) !important;
+                grid-column-end: calc(var(--schoolIndex${school}, 0) + 2) !important;
             }
 
             `;
@@ -163,14 +184,21 @@ export class HTMLTableManager {
 
     private setCurrentDate(maxHeightIndex: number) {
 
-        const indexToday = this.getDayAsIndex(new Date().toLocaleDateString("en-US", { weekday: "long" }).toLowerCase());
+        this.schoolTimesBackgroundDiv!.style.gridArea = "2 / 1 / " + (maxHeightIndex + 2) + " / " + (UserManagement.ALL_DATA!.schools.length + 1);
+
+        if (this.week != 0) {
+            this.currentDayDiv.style.display = "none";
+            return;
+        }
+
+        const weekday = new Date().toLocaleDateString("en-US", { weekday: "long" }).toLowerCase();
+        const indexToday = this.getDayAsIndex(weekday);
 
         if (indexToday == -1) this.currentDayDiv.style.display = "none";
 
-        this.currentDayDiv.style.gridArea = "1 / " + (indexToday) + " / " + (maxHeightIndex + 2) + " / " + (indexToday + 1);
-        this.schoolTimesBackgroundDiv!.style.gridArea = "2 / 1 / " + (maxHeightIndex + 2) + " / " + (UserManagement.ALL_DATA!.schools.length + 1);
-
-        const pixelsPerMinute = (this.tableElement?.getBoundingClientRect().height || 0) / this.totalLessonMinutes;
+        this.currentDayDiv.style.gridArea = "2 / " + (indexToday) + " / " + (maxHeightIndex + 2) + " / " + (indexToday + 1);
+        this.currentDayDiv.classList.add(weekday);
+        const pixelsPerMinute = (this.tableElement?.clientHeight || this.tableElement?.getBoundingClientRect().height || 0) / this.totalLessonMinutes;
 
         const updateCurrentTime = () => {
             if (this.currentDayDiv.style.getPropertyValue("--currentTimeDisplay") == "none") {
@@ -299,6 +327,7 @@ export class HTMLTableManager {
                 if (i == 0) {
                     const cell = document.createElement("div");
                     cell.classList.add(school.toLowerCase().replaceAll(" ", "_"));
+                    cell.setAttribute("data-school", school.toLowerCase().replaceAll(" ", "_"));
                     cell.classList.add("doNotRemove");
                     cell.style.gridArea = (gridRowIndexStart + 2) + " / " + (getColumnForSchool(school) + 1) + " / " + (gridRowIndexEnd + 2) + " / " + (getColumnForSchool(school) + 2);
                     if (this.isBreakString(lessonTime, nextLesson)) {
@@ -598,6 +627,8 @@ export class HTMLTableManager {
             }
         });
 
+        console.log("---------------------------------------------------");
+
         for (const lessonSlotData of pairedIfPossibleLessonsCompiled) {
             if (lessonSlotData && lessonSlotData.lessonSlotExample) {
                 const start = lessonSlotData.startTime;
@@ -617,13 +648,12 @@ export class HTMLTableManager {
                         this.insertLessonIntoDiv(cell, lesson, isExam);
                         this.addOpenAndInfoDialog(cell, lesson, isExam);
                         this.addHoverEffect(cell, lesson, lessonSlotData);
-
-                        if (this.isLessonInPast(lesson)) {
+                        if (this.isLessonInPast(lessonSlotData.endTime, UntisManager.formatUntisDateAsDate(lesson.date + ""))) {
                             cell.classList.add("past");
                         }
 
                         this.updateCallbacks[lesson.id + "lesson"] = () => {
-                            if (this.isLessonInPast(lesson)) {
+                            if (this.isLessonInPast(lessonSlotData.endTime, UntisManager.formatUntisDateAsDate(lesson.date + ""))) {
                                 cell.classList.add("past");
                             }
                         };
@@ -664,17 +694,13 @@ export class HTMLTableManager {
                         this.addMoreLessonsOpenAndInfoDialog(cell, lessons);
                         this.addMultiHoverEffect(cell, lessons, lessonSlotData);
 
-                        const isOneInFuture = lessons.map(e => !this.isLessonInPast(e)).some(e => e);
-
-                        if (!isOneInFuture) {
+                        if (this.isLessonInPast(lessonSlotData.endTime, UntisManager.formatUntisDateAsDate(lessons[0].date + ""))) {
                             cell.classList.add("past");
                         }
 
 
                         this.updateCallbacks[lessons.map(e => e.id).join(",") + "lesson"] = () => {
-                            const isOneInFuture = lessons.map(e => !this.isLessonInPast(e)).some(e => e);
-
-                            if (!isOneInFuture) {
+                            if (this.isLessonInPast(lessonSlotData.endTime, UntisManager.formatUntisDateAsDate(lessons[0].date + ""))) {
                                 cell.classList.add("past");
                             }
                         };
@@ -751,13 +777,10 @@ export class HTMLTableManager {
 
     }
 
-    private isLessonInPast(lesson: AllLessons): boolean {
-
-        const lessonDateTime = UntisManager.formatUntisDateAsDate(lesson.date + "");
-        const lessonEndTime = lesson.endTimeParsed;
-        lessonDateTime.setHours(lessonEndTime.hour, lessonEndTime.minute, 0);
+    private isLessonInPast(endTime: Time, date: Date): boolean {
+        date.setHours(endTime.hour, endTime.minute, 0);
         const currentDate = new Date();
-        if (lessonDateTime < currentDate) {
+        if (date <= currentDate) {
             return true;
         }
         return false;
@@ -811,6 +834,7 @@ export class HTMLTableManager {
 
     private addMoreLessonsOpenAndInfoDialog(div: HTMLDivElement, lessons: CompiledLesson[]) {
         div.addEventListener("click", () => {
+            if (GestureHandler.IS_DARGGING_CURRENTLY) return;
 
             const position = div.getBoundingClientRect();
             div.style.setProperty("--left", position.left + "px");
@@ -842,6 +866,7 @@ export class HTMLTableManager {
     private addOpenAndInfoDialog(div: HTMLDivElement, lesson: CompiledLesson, isExam: boolean) {
 
         div.addEventListener("click", () => {
+            if (GestureHandler.IS_DARGGING_CURRENTLY) return;
 
             const position = div.getBoundingClientRect();
             div.style.setProperty("--left", position.left - 10 + "px");

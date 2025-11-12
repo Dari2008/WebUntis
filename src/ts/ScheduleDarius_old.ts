@@ -8,8 +8,9 @@
 
 // dayjs.extend(customParseFormat);
 // export const HOST = "localhost:2222/untis";
+export const HOST = "http://127.0.0.1:2222/untis";
 // export const HOST = "http://192.168.178.110:2222/untis";
-export const HOST = "https://untis.frobeen.com/php/";
+// export const HOST = "https://untis.frobeen.com/php/";
 
 // export const SCHEDULE: ScheduleDarius = {
 

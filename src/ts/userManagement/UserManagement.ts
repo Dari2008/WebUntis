@@ -63,8 +63,12 @@ export class UserManagement {
         location.replace("/login/");
     }
 
-    public static async loadAll(): Promise<boolean | AllData> {
-        if (!navigator.onLine) {
+    private static wasLastOfflineLoad = false;
+
+    public static async loadData(forceOfflineLoad: boolean = false): Promise<boolean | AllData> {
+        if (!navigator.onLine || forceOfflineLoad) {
+            this.wasLastOfflineLoad = true;
+            console.log("Loading from Local");
             const localStorageOfflineData = await Utils.loadFromDB("OfflineData", "OfflineAllData", "OFFLINE_ALL_DATA");
             if (localStorageOfflineData) {
                 const all = localStorageOfflineData as AllData;
@@ -72,11 +76,14 @@ export class UserManagement {
                 this.ALL_DATA = all;
                 return all;
             } else {
-                Utils.error("You Are offline! <br> No offline Data available!");
+                if (!forceOfflineLoad) {
+                    Utils.error("You Are offline! <br> No offline Data available!");
+                }
                 return {} as any;
             }
         }
-        if (this.ALL_DATA) return this.ALL_DATA;
+        if (this.ALL_DATA && !this.wasLastOfflineLoad) return this.ALL_DATA;
+        this.wasLastOfflineLoad = false;
         const result = await this.request(HOST + "/users/data/getData.php", { "jwt": this.jwt, dataType: "allData" });
         if (!result) return false;
         const all = result as AllData;

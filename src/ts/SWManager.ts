@@ -4,6 +4,8 @@ import { PushService } from "./notifications/PushService";
 export class SWManager {
 
     public static async install(pushNotifications: boolean) {
+        console.log(navigator.serviceWorker);
+        console.log("Installing....");
         if (!navigator.serviceWorker) return;
         const registration = await navigator.serviceWorker.register("/serviceWorker.js", {
             updateViaCache: "all"
@@ -20,12 +22,15 @@ export class SWManager {
                 PushService.updateEndpoint().then(console.log);
             }
         }
+        window.addEventListener("message", console.log);
+        document.addEventListener("message", (e) => console.log("s", e));
         navigator.serviceWorker.addEventListener("message", (event) => {
             console.log(event);
             if (event.data.type == "newNotifications") {
                 NotificationManager.updateList();
             }
         });
+        console.log("Installed");
     }
 
 }

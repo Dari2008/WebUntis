@@ -184,7 +184,7 @@ header.hamburger {
 }
 
 header.hamburger::after {
-    padding: 13px;
+    // padding: 13px;
 }
 
 header.hamburger,
@@ -207,10 +207,10 @@ header.hamburger,
         display: flex;
         justify-content: center;
         align-items: center;
-        font-size: 1.2rem;
+        font-size: 85%;
         text-align: center;
-        width: 1vw;
-        height: 1vw;
+        width: min(1.8vw, 1.8vh, 30px);
+        height: min(1.8vw, 1.8vh, 30px);
         max-width: 30px;
         min-width: 10px;
         max-height: 30px;
@@ -252,9 +252,9 @@ html:not(.menuOpen) #notificationsBell {
     transition: opacity 0.3s ease-out;
 
     &::after {
-        font-size: 80%;
-        width: 1.1vw;
-        height: 1.1vw;
+        // font-size: 80%;
+        // width: 1.1vw;
+        // height: 1.1vw;
         top: -10px;
         right: -10px;
     }

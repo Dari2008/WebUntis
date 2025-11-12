@@ -983,6 +983,7 @@ $borderBottomColor: rgba(255, 255, 255, 0.2);
     .lessonTime {
         position: relative;
         font-size: clampW(0.39em, 1em, 100px, 2000px);
+        z-index: 1000;
 
         // background: rgba($gray-700, 0.5);
         .start {
@@ -1067,15 +1068,16 @@ $borderBottomColor: rgba(255, 255, 255, 0.2);
 }
 
 .currentDay {
-    background-color: #ff751209;
+    // background-color: #ff751246;
     pointer-events: none;
     position: relative;
+    // border-left: 2px solid $themeColor;
+    // border-right: 2px solid $themeColor;
 
     &::after {
         content: "";
         display: var(--currentTimeDisplay, block);
         position: absolute;
-        ;
         top: var(--currentPosFromTop);
         left: 0;
         width: 100%;
@@ -1084,12 +1086,25 @@ $borderBottomColor: rgba(255, 255, 255, 0.2);
         border-radius: 5px;
         box-shadow: 0 0 10px $themeColor-20-Light;
     }
+}
+
+.schedule {
+
+    &:has(.currentDay.monday) .header.weekDayHeader.monday,
+    &:has(.currentDay.tuesday) .header.weekDayHeader.tuesday,
+    &:has(.currentDay.wednesday) .header.weekDayHeader.wednesday,
+    &:has(.currentDay.thursday) .header.weekDayHeader.thursday,
+    &:has(.currentDay.friday) .header.weekDayHeader.friday {
+        color: $themeColor;
+        text-shadow: 0 0 3px lighten($themeColor, 5%);
+    }
 
 }
 
 .schoolTimesBackground {
     pointer-events: none;
-    background: rgba($gray-700, 0.5);
+    background: #282828;
+    z-index: 10;
 }
 
 .schedule:not(.nextSchedule):not(.previousSchedule):not(.currentSchedule) {
@@ -2472,11 +2487,146 @@ $distance: calc(100vw);
     }
 }
 
-.schedule.onlyShow {
+.schoolTimesBackground {
+    width: 100%; // for transition
+}
 
+.topDayCover {
+    display: none;
+}
+
+$lessonSlideAnimationTime: 0.3s;
+
+.weekDayHeader {
+    transition: color calc($lessonSlideAnimationTime / 3) ease-in-out;
+}
+
+.schedule.onlyShow.animate {
+
+    .weekDayHeader {
+        color: rgb(0, 0, 0, 0) !important;
+    }
+
+    .topDayCover {
+        display: block !important;
+        grid-area: 1 / 1 / 2 / 5;
+        background-color: $gray-600;
+    }
+
+    &.removedTimeColumn {
+
+        .lessonTime {
+            transition: opacity calc($lessonSlideAnimationTime / 3 * 2) ease-in-out;
+        }
+
+        .schoolTimesBackground {
+            transition: width calc($lessonSlideAnimationTime / 3) ease-in-out;
+            transition-delay: calc($lessonSlideAnimationTime / 3 * 2);
+            --multiplyerWidth: var(--animateToSchoolsShownCount) / var(--schoolsShownCount);
+            width: calc(100% * var(--multiplyerWidth)) !important;
+        }
+    }
+
+    &.addedTimeColumn {
+
+        .lessonTime {
+            transition: opacity calc(($lessonSlideAnimationTime / 3) * 2) ease-in-out;
+            transition-delay: calc($lessonSlideAnimationTime / 3);
+        }
+
+        .schoolTimesBackground {
+            transition: width calc($lessonSlideAnimationTime / 3) ease-in-out;
+            --multiplyerWidth: var(--animateToSchoolsShownCount) / var(--schoolsShownCount);
+            width: calc(100% * var(--multiplyerWidth)) !important;
+        }
+    }
+
+    .lesson.fadeInNext,
+    .lesson.fadeInPrev,
+    .break:not(.lessonTime).fadeInNext,
+    .break:not(.lessonTime).fadeInPrev {
+        grid-column-start: calc(var(--animateToSchoolsShownCount, 1) + 1) !important; //end of time grid
+        grid-column-end: calc(var(--totalSchoolCount, 1) + 5 + 1) !important; // it is its end
+    }
+
+    .fadeInNext,
+    .fadeInPrev {
+        display: grid !important;
+    }
+
+    .fadeInNext {
+        animation: slideToLeft-MoveIn $lessonSlideAnimationTime ease-in-out 0ms 1 forwards;
+    }
+
+    .fadeOutNext {
+        animation: slideToLeft-MoveOut $lessonSlideAnimationTime ease-in-out 0ms 1 forwards;
+    }
+
+    .fadeInPrev {
+        animation: slideToRight-MoveIn $lessonSlideAnimationTime ease-in-out 0ms 1 forwards;
+    }
+
+    .fadeOutPrev {
+        animation: slideToRight-MoveOut $lessonSlideAnimationTime ease-in-out 0ms 1 forwards;
+    }
+
+}
+
+@keyframes slideToLeft-MoveOut {
+    0% {
+        transform: translate(0%);
+    }
+
+    100% {
+        transform: translate(-120%);
+    }
+}
+
+@keyframes slideToLeft-MoveIn {
+    0% {
+        transform: translate(120%);
+    }
+
+    100% {
+        transform: translate(0%);
+    }
+}
+
+
+@keyframes slideToRight-MoveOut {
+    0% {
+        transform: translate(0%);
+    }
+
+    100% {
+        transform: translate(120%);
+    }
+}
+
+@keyframes slideToRight-MoveIn {
+    0% {
+        transform: translate(-120%);
+    }
+
+    100% {
+        transform: translate(0%);
+    }
+}
+
+
+.schedule.onlyShow {
 
     .schoolTimesBackground {
         grid-column-end: calc(var(--schoolsShownCount, 1) + 1) !important;
+    }
+
+    &.monday .currentDay.monday,
+    &.tuesday .currentDay.tuesday,
+    &.wednesday .currentDay.wednesday,
+    &.thursday .currentDay.thursday,
+    &.friday .currentDay.friday {
+        grid-column-start: calc(var(--schoolsShownCount, 1) + 1) !important; //end of time grid
+        grid-column-end: calc(var(--totalSchoolCount, 1) + 5 + 1) !important; // it is its end
     }
 
 
@@ -2484,10 +2634,10 @@ $distance: calc(100vw);
     &.monday {
         @extend .selectedScheduleDay;
 
-        .tuesday,
-        .wednesday,
-        .thursday,
-        .friday {
+        .tuesday:not(.fadeInNext):not(.fadeInPrev),
+        .wednesday:not(.fadeInNext):not(.fadeInPrev),
+        .thursday:not(.fadeInNext):not(.fadeInPrev),
+        .friday:not(.fadeInNext):not(.fadeInPrev) {
             display: none !important;
         }
 
@@ -2496,10 +2646,10 @@ $distance: calc(100vw);
     &.tuesday {
         @extend .selectedScheduleDay;
 
-        .monday,
-        .wednesday,
-        .thursday,
-        .friday {
+        .monday:not(.fadeInNext):not(.fadeInPrev),
+        .wednesday:not(.fadeInNext):not(.fadeInPrev),
+        .thursday:not(.fadeInNext):not(.fadeInPrev),
+        .friday:not(.fadeInNext):not(.fadeInPrev) {
             display: none !important;
         }
     }
@@ -2507,10 +2657,10 @@ $distance: calc(100vw);
     &.wednesday {
         @extend .selectedScheduleDay;
 
-        .monday,
-        .tuesday,
-        .thursday,
-        .friday {
+        .monday:not(.fadeInNext):not(.fadeInPrev),
+        .tuesday:not(.fadeInNext):not(.fadeInPrev),
+        .thursday:not(.fadeInNext):not(.fadeInPrev),
+        .friday:not(.fadeInNext):not(.fadeInPrev) {
             display: none !important;
         }
     }
@@ -2518,10 +2668,10 @@ $distance: calc(100vw);
     &.thursday {
         @extend .selectedScheduleDay;
 
-        .monday,
-        .tuesday,
-        .wednesday,
-        .friday {
+        .monday:not(.fadeInNext):not(.fadeInPrev),
+        .tuesday:not(.fadeInNext):not(.fadeInPrev),
+        .wednesday:not(.fadeInNext):not(.fadeInPrev),
+        .friday:not(.fadeInNext):not(.fadeInPrev) {
             display: none !important;
         }
     }
@@ -2529,10 +2679,10 @@ $distance: calc(100vw);
     &.friday {
         @extend .selectedScheduleDay;
 
-        .monday,
-        .tuesday,
-        .wednesday,
-        .thursday {
+        .monday:not(.fadeInNext):not(.fadeInPrev),
+        .tuesday:not(.fadeInNext):not(.fadeInPrev),
+        .wednesday:not(.fadeInNext):not(.fadeInPrev),
+        .thursday:not(.fadeInNext):not(.fadeInPrev) {
             display: none !important;
         }
     }

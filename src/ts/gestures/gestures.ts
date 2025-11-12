@@ -5,6 +5,8 @@ export class GestureHandler {
     private threshold = 50;
     private moved = false;
 
+    public static IS_DARGGING_CURRENTLY = false;
+
     onClick: (x: number, y: number) => void = () => { };
     onSwipeLeft: () => void = () => { };
     onSwipeRight: () => void = () => { };
@@ -28,55 +30,64 @@ export class GestureHandler {
         this.moved = false;
     };
 
-    private handleSwipe = (clientX: number, clientY: number) => {
+    private handleSwipe = (e: Event, clientX: number, clientY: number) => {
         const deltaX = clientX - this.startX;
         const deltaY = clientY - this.startY;
 
         if (Math.abs(deltaX) > Math.abs(deltaY)) {
             if (Math.abs(deltaX) > this.threshold) {
                 this.moved = true;
+                GestureHandler.IS_DARGGING_CURRENTLY = true;
                 if (deltaX > 0) {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
                     this.onSwipeRight();
-                    console.log('Swipe Right');
                 } else {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
                     this.onSwipeLeft();
-                    console.log('Swipe Left');
                 }
+            } else {
+                GestureHandler.IS_DARGGING_CURRENTLY = false;
             }
         } else {
             if (Math.abs(deltaY) > this.threshold) {
                 this.moved = true;
+                GestureHandler.IS_DARGGING_CURRENTLY = true;
                 if (deltaY > 0) {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
                     this.onSwipeDown();
-                    console.log('Swipe Down');
                 } else {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
                     this.onSwipeUp();
-                    console.log('Swipe Up');
                 }
+            } else {
+                GestureHandler.IS_DARGGING_CURRENTLY = false;
             }
         }
     };
 
     private attachListeners() {
         this.element.addEventListener("click", (e) => {
-            e.preventDefault();
             this.handleClick(e.clientX, e.clientY);
-        });
+        }, { capture: true, });
 
         this.element.addEventListener("mousedown", (e) => {
             this.handleStart(e.clientX, e.clientY);
-        });
+        }, { capture: true, });
 
         this.element.addEventListener("mouseup", (e) => {
-            this.handleSwipe(e.clientX, e.clientY);
-        });
+            this.handleSwipe(e, e.clientX, e.clientY);
+        }, { capture: true, });
 
         this.element.addEventListener("touchstart", (e) => {
             this.handleStart(e.touches[0].clientX, e.touches[0].clientY);
-        });
+        }, { capture: true, });
 
         this.element.addEventListener("touchend", (e) => {
-            this.handleSwipe(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
-        });
+            this.handleSwipe(e, e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+        }, { capture: true, });
     }
 }

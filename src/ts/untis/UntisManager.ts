@@ -9,7 +9,7 @@ import { type Lesson, type Klasse, type WebAPITimetable } from "./types";
 
 
 export type TempLesson = (Lesson | WebAPITimetable) & {
-    scheduleId: string;
+    scheduleUUID: string;
     school: School;
 }
 
@@ -96,10 +96,10 @@ export default class UntisManager {
     private responseWeek: WebAPITimetable[] | null = null;
 
     // public async getLessonForWeekCompiledViaProxy(className: string, startDate?: Date): Promise<CompiledLesson[]> {
-    public async getLessonForWeekCompiledViaProxy(className: string, startDate?: Date): Promise<void> {
+    public async getLessonForWeekCompiledViaProxy(className: string, startDate?: Date): Promise<WebAPITimetable[] | null> {
 
         if (!navigator.onLine) {
-            return;
+            return null;
         }
 
         try {
@@ -115,14 +115,15 @@ export default class UntisManager {
                     password: this.untis.password,
                     school: this.untis.schoolId,
                     baseurl: this.untis.host,
-                    jwt: UserManagement.jwt
+                    jwt: UserManagement.jwt,
+                    scheduleUUID: this.untis.uuid
                 })
             });
 
             if (!response.ok) {
                 // throw new Error("Failed to fetch timetable: " + response.statusText);
                 console.error("Failed to fetch timetable: " + response.statusText);
-                return;
+                return null;
             }
 
             const responseData = await response.json();
@@ -131,16 +132,16 @@ export default class UntisManager {
                 // throw new Error("Failed to fetch timetable: " + responseData.error);
                 console.error("Failed to fetch timetable: " + responseData.error);
                 this.responseWeek = null;
-                return;
+                return null;
             }
 
-            this.responseWeek = responseData;
+            return responseData;
             // return this.compileLesson(responseData as WebAPITimetable[]);
         } catch (e) {
             console.error("Error fetching timetable via proxy:", e);
             // return [];
         }
-
+        return null;
     }
 
     public getRawLessons(): WebAPITimetable[] | Lesson[] | null {
@@ -255,10 +256,10 @@ export default class UntisManager {
                         const startM = startTime.hour * 60 + startTime.minute;
                         const endM = endTime.hour * 60 + endTime.minute;
                         if (time == startM && time + 45 == endM) {
-                            if (possibleSchools.map(e => e.scheduleId).includes(lesson.scheduleId)) continue;
+                            if (possibleSchools.map(e => e.scheduleId).includes(lesson.scheduleUUID)) continue;
                             possibleSchools.push({
                                 school: lesson.school,
-                                scheduleId: lesson.scheduleId
+                                scheduleId: lesson.scheduleUUID
                             });
                         }
                     }
@@ -266,7 +267,7 @@ export default class UntisManager {
                     for (const school of possibleSchools) {
                         const newLesson = JSON.parse(JSON.stringify(lesson)) as TempLesson;
                         newLesson.school = school.school;
-                        newLesson.scheduleId = school.scheduleId;
+                        newLesson.scheduleUUID = school.scheduleId;
                         newLesson.startTime = converToTime(time);
                         newLesson.endTime = converToTime(endTime > endTimeMinutes ? endTimeMinutes : endTime);
                         lessons.push(newLesson);

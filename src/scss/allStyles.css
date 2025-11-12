@@ -2632,10 +2632,6 @@ header.hamburger {
   opacity: 0;
 }
 
-header.hamburger::after {
-  padding: 13px;
-}
-
 header.hamburger:not([data-notificationCount])::after,
 #notificationsBell:not([data-notificationCount])::after {
   content: "";
@@ -2652,10 +2648,10 @@ header.hamburger::after,
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 1.2rem;
+  font-size: 85%;
   text-align: center;
-  width: 1vw;
-  height: 1vw;
+  width: min(1.8vw, 1.8vh, 30px);
+  height: min(1.8vw, 1.8vh, 30px);
   max-width: 30px;
   min-width: 10px;
   max-height: 30px;
@@ -2694,9 +2690,6 @@ html:not(.menuOpen) #notificationsBell {
   transition: opacity 0.3s ease-out;
 }
 #notificationsBell::after {
-  font-size: 80%;
-  width: 1.1vw;
-  height: 1.1vw;
   top: -10px;
   right: -10px;
 }
@@ -4230,6 +4223,7 @@ html.offlineMode .settings-schedule .addlessonButton {
 .schedule .lessonTime {
   position: relative;
   font-size: clamp(0.39em, 0.4221052632em + 0.5136842105vw, 1em);
+  z-index: 1000;
 }
 .schedule .lessonTime .start {
   position: absolute;
@@ -4291,7 +4285,6 @@ html.offlineMode .settings-schedule .addlessonButton {
 }
 
 .currentDay {
-  background-color: rgba(255, 117, 18, 0.0352941176);
   pointer-events: none;
   position: relative;
 }
@@ -4308,9 +4301,15 @@ html.offlineMode .settings-schedule .addlessonButton {
   box-shadow: 0 0 10px rgb(255, 176.3924050633, 120);
 }
 
+.schedule:has(.currentDay.monday) .header.weekDayHeader.monday, .schedule:has(.currentDay.tuesday) .header.weekDayHeader.tuesday, .schedule:has(.currentDay.wednesday) .header.weekDayHeader.wednesday, .schedule:has(.currentDay.thursday) .header.weekDayHeader.thursday, .schedule:has(.currentDay.friday) .header.weekDayHeader.friday {
+  color: #FF7512;
+  text-shadow: 0 0 3px rgb(255, 131.8481012658, 43.5);
+}
+
 .schoolTimesBackground {
   pointer-events: none;
-  background: rgba(47, 47, 47, 0.5);
+  background: #282828;
+  z-index: 10;
 }
 
 .schedule:not(.nextSchedule):not(.previousSchedule):not(.currentSchedule) {
@@ -5442,37 +5441,135 @@ html.offlineMode .settings-schedule .addlessonButton {
   grid-column-end: calc(var(--totalSchoolCount, 1) + 5 + 1) !important;
 }
 
+.schoolTimesBackground {
+  width: 100%;
+}
+
+.topDayCover {
+  display: none;
+}
+
+.weekDayHeader {
+  transition: color 0.1s ease-in-out;
+}
+
+.schedule.onlyShow.animate .weekDayHeader {
+  color: rgba(0, 0, 0, 0) !important;
+}
+.schedule.onlyShow.animate .topDayCover {
+  display: block !important;
+  grid-area: 1/1/2/5;
+  background-color: #424242;
+}
+.schedule.onlyShow.animate.removedTimeColumn .lessonTime {
+  transition: opacity 0.2s ease-in-out;
+}
+.schedule.onlyShow.animate.removedTimeColumn .schoolTimesBackground {
+  transition: width 0.1s ease-in-out;
+  transition-delay: 0.2s;
+  --multiplyerWidth: var(--animateToSchoolsShownCount) / var(--schoolsShownCount);
+  width: calc(100% * var(--multiplyerWidth)) !important;
+}
+.schedule.onlyShow.animate.addedTimeColumn .lessonTime {
+  transition: opacity 0.2s ease-in-out;
+  transition-delay: 0.1s;
+}
+.schedule.onlyShow.animate.addedTimeColumn .schoolTimesBackground {
+  transition: width 0.1s ease-in-out;
+  --multiplyerWidth: var(--animateToSchoolsShownCount) / var(--schoolsShownCount);
+  width: calc(100% * var(--multiplyerWidth)) !important;
+}
+.schedule.onlyShow.animate .lesson.fadeInNext,
+.schedule.onlyShow.animate .lesson.fadeInPrev,
+.schedule.onlyShow.animate .break:not(.lessonTime).fadeInNext,
+.schedule.onlyShow.animate .break:not(.lessonTime).fadeInPrev {
+  grid-column-start: calc(var(--animateToSchoolsShownCount, 1) + 1) !important;
+  grid-column-end: calc(var(--totalSchoolCount, 1) + 5 + 1) !important;
+}
+.schedule.onlyShow.animate .fadeInNext,
+.schedule.onlyShow.animate .fadeInPrev {
+  display: grid !important;
+}
+.schedule.onlyShow.animate .fadeInNext {
+  animation: slideToLeft-MoveIn 0.3s ease-in-out 0ms 1 forwards;
+}
+.schedule.onlyShow.animate .fadeOutNext {
+  animation: slideToLeft-MoveOut 0.3s ease-in-out 0ms 1 forwards;
+}
+.schedule.onlyShow.animate .fadeInPrev {
+  animation: slideToRight-MoveIn 0.3s ease-in-out 0ms 1 forwards;
+}
+.schedule.onlyShow.animate .fadeOutPrev {
+  animation: slideToRight-MoveOut 0.3s ease-in-out 0ms 1 forwards;
+}
+
+@keyframes slideToLeft-MoveOut {
+  0% {
+    transform: translate(0%);
+  }
+  100% {
+    transform: translate(-120%);
+  }
+}
+@keyframes slideToLeft-MoveIn {
+  0% {
+    transform: translate(120%);
+  }
+  100% {
+    transform: translate(0%);
+  }
+}
+@keyframes slideToRight-MoveOut {
+  0% {
+    transform: translate(0%);
+  }
+  100% {
+    transform: translate(120%);
+  }
+}
+@keyframes slideToRight-MoveIn {
+  0% {
+    transform: translate(-120%);
+  }
+  100% {
+    transform: translate(0%);
+  }
+}
 .schedule.onlyShow .schoolTimesBackground {
   grid-column-end: calc(var(--schoolsShownCount, 1) + 1) !important;
 }
-.schedule.onlyShow.monday .tuesday,
-.schedule.onlyShow.monday .wednesday,
-.schedule.onlyShow.monday .thursday,
-.schedule.onlyShow.monday .friday {
+.schedule.onlyShow.monday .currentDay.monday, .schedule.onlyShow.tuesday .currentDay.tuesday, .schedule.onlyShow.wednesday .currentDay.wednesday, .schedule.onlyShow.thursday .currentDay.thursday, .schedule.onlyShow.friday .currentDay.friday {
+  grid-column-start: calc(var(--schoolsShownCount, 1) + 1) !important;
+  grid-column-end: calc(var(--totalSchoolCount, 1) + 5 + 1) !important;
+}
+.schedule.onlyShow.monday .tuesday:not(.fadeInNext):not(.fadeInPrev),
+.schedule.onlyShow.monday .wednesday:not(.fadeInNext):not(.fadeInPrev),
+.schedule.onlyShow.monday .thursday:not(.fadeInNext):not(.fadeInPrev),
+.schedule.onlyShow.monday .friday:not(.fadeInNext):not(.fadeInPrev) {
   display: none !important;
 }
-.schedule.onlyShow.tuesday .monday,
-.schedule.onlyShow.tuesday .wednesday,
-.schedule.onlyShow.tuesday .thursday,
-.schedule.onlyShow.tuesday .friday {
+.schedule.onlyShow.tuesday .monday:not(.fadeInNext):not(.fadeInPrev),
+.schedule.onlyShow.tuesday .wednesday:not(.fadeInNext):not(.fadeInPrev),
+.schedule.onlyShow.tuesday .thursday:not(.fadeInNext):not(.fadeInPrev),
+.schedule.onlyShow.tuesday .friday:not(.fadeInNext):not(.fadeInPrev) {
   display: none !important;
 }
-.schedule.onlyShow.wednesday .monday,
-.schedule.onlyShow.wednesday .tuesday,
-.schedule.onlyShow.wednesday .thursday,
-.schedule.onlyShow.wednesday .friday {
+.schedule.onlyShow.wednesday .monday:not(.fadeInNext):not(.fadeInPrev),
+.schedule.onlyShow.wednesday .tuesday:not(.fadeInNext):not(.fadeInPrev),
+.schedule.onlyShow.wednesday .thursday:not(.fadeInNext):not(.fadeInPrev),
+.schedule.onlyShow.wednesday .friday:not(.fadeInNext):not(.fadeInPrev) {
   display: none !important;
 }
-.schedule.onlyShow.thursday .monday,
-.schedule.onlyShow.thursday .tuesday,
-.schedule.onlyShow.thursday .wednesday,
-.schedule.onlyShow.thursday .friday {
+.schedule.onlyShow.thursday .monday:not(.fadeInNext):not(.fadeInPrev),
+.schedule.onlyShow.thursday .tuesday:not(.fadeInNext):not(.fadeInPrev),
+.schedule.onlyShow.thursday .wednesday:not(.fadeInNext):not(.fadeInPrev),
+.schedule.onlyShow.thursday .friday:not(.fadeInNext):not(.fadeInPrev) {
   display: none !important;
 }
-.schedule.onlyShow.friday .monday,
-.schedule.onlyShow.friday .tuesday,
-.schedule.onlyShow.friday .wednesday,
-.schedule.onlyShow.friday .thursday {
+.schedule.onlyShow.friday .monday:not(.fadeInNext):not(.fadeInPrev),
+.schedule.onlyShow.friday .tuesday:not(.fadeInNext):not(.fadeInPrev),
+.schedule.onlyShow.friday .wednesday:not(.fadeInNext):not(.fadeInPrev),
+.schedule.onlyShow.friday .thursday:not(.fadeInNext):not(.fadeInPrev) {
   display: none !important;
 }
 

@@ -108,7 +108,8 @@ self.addEventListener("push", (event) => {
 
 async function updateCurrentlyOpenedPages() {
     const windows = await self.clients.matchAll({
-        type: "window"
+        type: "window",
+        includeUncontrolled: true
     });
     for (const window of windows) {
         window.postMessage({
@@ -132,6 +133,7 @@ async function updateNotReadNotificationList(notificationsToAdd: any[]) {
 }
 
 async function updateBadgeCount(numberToAdd: number) {
+    console.log(numberToAdd);
     if (!navigator.setAppBadge) return;
     const badgeCount = await Utils.loadFromDB("NotificationStorage", "notifications", "badgeCount") ?? {};
     if (!badgeCount.value) badgeCount.value = 0;
@@ -142,32 +144,37 @@ async function updateBadgeCount(numberToAdd: number) {
 
 class Utils {
 
-
-
     public static async openDB(DB_NAME: string, STORE_NAME: string): Promise<IDBDatabase> {
         return new Promise((resolve, reject) => {
-            const request = indexedDB.open(DB_NAME, 9);
+            const request = indexedDB.open(DB_NAME, 11);
             request.onupgradeneeded = event => {
                 if (!event.target) return;
                 const db = (event.target as IDBOpenDBRequest).result;
-                if (!db.objectStoreNames.contains(STORE_NAME)) {
-                    db.createObjectStore(STORE_NAME, { keyPath: "key" });
-                }
+                // if (!db.objectStoreNames.contains(STORE_NAME)) {
+                //     db.createObjectStore(STORE_NAME);
+                // }
 
                 if (DB_NAME == "NotificationStorage") {
-                    if (!db.objectStoreNames.contains("notifications")) {
-                        db.createObjectStore("notifications", { keyPath: "key" });
+                    if (db.objectStoreNames.contains("notifications")) {
+                        db.deleteObjectStore("notifications");
                     }
+                    db.createObjectStore("notifications");
+
                 } else if (DB_NAME == "OfflineData") {
-                    if (!db.objectStoreNames.contains("OfflineAllData")) {
-                        db.createObjectStore("OfflineAllData", { keyPath: "key" });
+                    if (db.objectStoreNames.contains("OfflineAllData")) {
+                        db.deleteObjectStore("OfflineAllData");
                     }
-                    if (!db.objectStoreNames.contains("OfflineStorageOfTimetable")) {
-                        db.createObjectStore("OfflineStorageOfTimetable", { keyPath: "key" });
+                    db.createObjectStore("OfflineAllData");
+
+                    if (db.objectStoreNames.contains("OfflineStorageOfTimetable")) {
+                        db.deleteObjectStore("OfflineStorageOfTimetable");
                     }
-                    if (!db.objectStoreNames.contains("UntisHolidays")) {
-                        db.createObjectStore("UntisHolidays", { keyPath: "key" });
+                    db.createObjectStore("OfflineStorageOfTimetable");
+
+                    if (db.objectStoreNames.contains("UntisHolidays")) {
+                        db.deleteObjectStore("UntisHolidays");
                     }
+                    db.createObjectStore("UntisHolidays");
                 }
 
 
@@ -177,6 +184,7 @@ class Utils {
             request.onerror = () => reject(request.error);
         });
     }
+
 
     public static async contains(DB_NAME: string, STORE_NAME: string): Promise<boolean> {
         return new Promise((resolve, reject) => {
@@ -206,8 +214,7 @@ class Utils {
             // Add data
             const tx = db.transaction(STORE_NAME, "readwrite");
             const store = tx.objectStore(STORE_NAME);
-            offlineData.key = key;
-            store.put(offlineData);
+            store.put(offlineData, key);
 
             tx.oncomplete = () => resolve();
             tx.onerror = (e) => reject(e);
