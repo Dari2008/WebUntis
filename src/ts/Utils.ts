@@ -3,6 +3,7 @@ import StartToastifyInstance from "toastify-js";
 import { v4 } from "uuid";
 import type { CompiledLesson } from "./@types/Schedule";
 import { UserManagement } from "./userManagement/UserManagement";
+import dayjs from "dayjs";
 
 
 declare class Toastify {
@@ -76,7 +77,8 @@ export default class Utils {
             gravity: "bottom",
             style: {
                 background: "linear-gradient(135deg, #83ff73ff, #54f554ff)",
-                boxShadow: "0 3px 6px -1px rgba(0, 0, 0, 0.12), 0 10px 36px -4px rgba(90, 232, 77, 0.3)"
+                boxShadow: "0 3px 6px -1px rgba(0, 0, 0, 0.12), 0 10px 36px -4px rgba(90, 232, 77, 0.3)",
+                color: "#000"
             }
         });
         toast.showToast();
@@ -99,7 +101,11 @@ export default class Utils {
 
     static checkForExam(lesson: CompiledLesson): boolean {
         const date = this.parseDate(lesson.date);
-        return UserManagement.ALL_DATA!.exams.some(exam => (exam.sign === (lesson.studentGroup ? lesson.studentGroup : lesson.sg)) && exam.date === date);
+        return UserManagement.ALL_DATA!.exams.some(exam => (
+            exam.sign == (lesson.studentGroup ?? lesson.subjectShortName ?? lesson.sg)
+            &&
+            dayjs(exam.date, "DD.MM.YYYY").isSame(dayjs(date, "DD.MM.YYYY"), "days")
+        ));
     }
 
 
@@ -109,7 +115,7 @@ export default class Utils {
         const month = dateString.substring(4, 6);
         const year = dateString.substring(0, 4);
         if (year !== new Date().getFullYear().toString()) return "";
-        return `${day}.${month}`;
+        return `${day}.${month}.${year}`;
     }
 
 
@@ -144,7 +150,7 @@ export default class Utils {
     }
 
 
-    public static async openDB(DB_NAME: string, STORE_NAME: string): Promise<IDBDatabase> {
+    public static async openDB(DB_NAME: string): Promise<IDBDatabase> {
         return new Promise((resolve, reject) => {
             const request = indexedDB.open(DB_NAME, 11);
             request.onupgradeneeded = event => {
@@ -207,7 +213,7 @@ export default class Utils {
 
             // const STORE_NAME = "OfflineStorageOfTimetable";
             // const DB_NAME = "OfflineData";
-            const db = await this.openDB(DB_NAME, STORE_NAME);
+            const db = await this.openDB(DB_NAME);
             // const db = event.target.result;
 
             // Add data
@@ -220,12 +226,23 @@ export default class Utils {
         });
     }
 
+    public static async clearDB() {
+        const db = await this.openDB("NotificationStorage");
+        db.transaction("notifications", "readwrite").objectStore("notifications").clear();
+
+        const dbOffline = await this.openDB("OfflineData");
+        const tr = dbOffline.transaction(["OfflineAllData", "OfflineStorageOfTimetable", "UntisHolidays"], "readwrite");
+        tr.objectStore("OfflineAllData").clear();
+        tr.objectStore("OfflineStorageOfTimetable").clear();
+        tr.objectStore("UntisHolidays").clear();
+    }
+
     public static async loadFromDB(DB_NAME: string, STORE_NAME: string, key: string): Promise<any> {
         return new Promise<any>(async (resolve, reject) => {
 
             // const STORE_NAME = "OfflineStorageOfTimetable";
             // const DB_NAME = "OfflineData";
-            const db = await this.openDB(DB_NAME, STORE_NAME);
+            const db = await this.openDB(DB_NAME);
 
             const tx2 = db.transaction(STORE_NAME, "readonly");
             const store2 = tx2.objectStore(STORE_NAME);
@@ -242,5 +259,30 @@ export default class Utils {
         indexedDB.deleteDatabase("OfflineData");
         indexedDB.deleteDatabase("NotificationStorage");
     }
+
+
+
+    public static createInputWithLabel(id: string | undefined, label: string, regex: RegExp, isRequired: boolean = false,): [HTMLDivElement, HTMLInputElement] {
+        const wrapper = document.createElement("div");
+        wrapper.classList.add("inputWithLabel-wrapper");
+        wrapper.setAttribute("data-label", label);
+
+        if (isRequired) {
+            const span = document.createElement("span");
+            span.classList.add("inputWithLabel-asterisk");
+            span.textContent = "*";
+            wrapper.appendChild(span);
+        }
+
+        const input = document.createElement("input");
+        input.id = id || "";
+        input.required = isRequired;
+        input.pattern = regex.source;
+        input.placeholder = "";
+
+        wrapper.appendChild(input);
+        return [wrapper, input];
+    }
+
 
 }

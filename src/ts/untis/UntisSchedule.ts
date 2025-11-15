@@ -146,7 +146,7 @@ export default class UntisSchedule {
                     slot.lessons = slot.lessons
                         .filter(lesson => lesson !== undefined)
                         .filter(l => l !== undefined)
-                        .filter(l => this.isIdContainedInSchedule(day, l, (l.studentGroup ?? l.sg ?? ""), schedule));
+                        .filter(l => this.isIdContainedInSchedule(day, l, (l.studentGroup ?? l.sg ?? l.subjectShortName ?? ""), schedule));
 
                     slot.lessons.forEach(lesson => lesson.school = this.untisAccess.school);
                 }
@@ -160,7 +160,8 @@ export default class UntisSchedule {
     private isIdContainedInSchedule(day: DayName, lesson: CompiledLesson, sign: string, schedule: ScheduleRawData): boolean {
         if (lesson.lessonCode === "UNTIS_ADDITIONAL" || lesson.cellState == "ADDITIONAL" || lesson.cellState == "EVENT") return true;
         const lessonStartString = lesson.startTimeParsed.hour.toString().padStart(2, "0") + ":" + lesson.startTimeParsed.minute.toString().padStart(2, '0');
-        const lessonSign = schedule[day][lessonStartString as TypeScheduleRawDayTimes]?.sign || [];
+        const lessonSign = schedule[day][lessonStartString as TypeScheduleRawDayTimes]?.sign;
+        if (!lessonSign) return false;
         return lessonSign == sign;
     }
 

@@ -16,7 +16,7 @@ import { HolidayLoader } from "./untis/HolidayLoader";
 import type { UntisAccess } from "./@types/UntisAccess";
 import { WalkThroughs } from "./walkThrough/WalkThroughs";
 import dayjs from "dayjs";
-// import { HolidayLoader } from "./untis/HolidayLoader";
+import type { AllData } from "./@types/UserManagement";
 
 window.addEventListener("online", () => {
     document.documentElement.classList.remove("offlineMode");
@@ -60,6 +60,32 @@ export class UntisCombiner {
     private static htmlTableManagers: HTMLTableManager[] = [];
     private static timeSchedule: HTMLElement;
 
+    public static async reloadSchedules() {
+        if (!navigator.onLine) {
+            Utils.error("You are offline and can't reload the Schedule!");
+            return;
+        }
+        if (UntisCombiner.timeSchedule) {
+            UntisCombiner.timeSchedule.classList.add("animate");
+            UntisCombiner.timeSchedule.classList.add("dropDownForReload");
+            UntisCombiner.timeSchedule.addEventListener("animationend", (e) => {
+                console.log(e);
+                if (e.animationName == "dropDown") {
+                    UntisCombiner.timeSchedule.classList.remove("dropDownForReload");
+                } else if (e.animationName == "dropUp") {
+                    UntisCombiner.timeSchedule.classList.remove("animate");
+                }
+            });
+            UntisCombiner.timeSchedule.classList.add("showReload");
+        }
+
+        await UntisCombiner.loadSchedules();
+        if (UntisCombiner.timeSchedule) {
+            UntisCombiner.timeSchedule.classList.remove("showReload");
+        }
+        Utils.success("Successfully reloaded Schedule!");
+    }
+
     public static async loadSchedules(forceOfflineLoad: boolean = false) {
         if (forceOfflineLoad) {
             const manager = await UntisCombiner.createHtmlTableManagerForDate({
@@ -75,6 +101,7 @@ export class UntisCombiner {
             }
             return;
         }
+        UntisCombiner.timeSchedule.classList.add("showLoading");
 
         for (const date of [{ week: 0, date: new Date() }, { week: -1, date: UntisCombiner.getWeeksFriday(new Date(), -1) }, { week: 1, date: UntisCombiner.getWeeksMonday(new Date(), 1) }]) {
             if (date.week != 0) {
@@ -108,13 +135,13 @@ export class UntisCombiner {
             }
 
         }
+        UntisCombiner.timeSchedule.classList.remove("showLoading");
     }
 
     private static async loadAll(forceOfflineLoad: boolean) {
         UntisCombiner.timeSchedule = document.getElementById("timeSchedule") as HTMLElement;
         if (!UntisCombiner.timeSchedule) return;
-        const loadedData = await UserManagement.loadData(forceOfflineLoad);
-        console.log(Object.values(loadedData).length > 0);
+        const loadedData = await UserManagement.loadData(forceOfflineLoad) as AllData;
         if (Object.values(loadedData).length > 0) {
 
             UntisCombiner.UNTIS_MANAGERS = [];
@@ -218,7 +245,6 @@ export class UntisCombiner {
             }
         }
     }
-
 
     public static initGestures() {
         const timeSchedule = document.getElementById("timeSchedule");
@@ -389,6 +415,9 @@ export class UntisCombiner {
                 UntisCombiner.animateToPrevious();
             }
         };
+        swipeGesture.onSwipeDown = () => {
+            UntisCombiner.reloadSchedules();
+        };
     }
 
 
@@ -396,9 +425,11 @@ export class UntisCombiner {
         const weekIndex = UntisCombiner.currentIndexOfWeek + offset;
         return UntisCombiner.htmlTableManagers.find(e => e.week === weekIndex);
     }
+
     public static getNextTableManager() {
         return UntisCombiner.getCurrentTableManager(1);
     }
+
     public static getPreviousTableManager() {
         return UntisCombiner.getCurrentTableManager(-1);
     }
@@ -681,8 +712,9 @@ export class UntisCombiner {
         logoutQuestion.querySelector(".no")?.addEventListener("click", () => {
             logoutQuestion.classList.remove("open");
         });
-        logoutQuestion.querySelector(".yes")?.addEventListener("click", () => {
+        logoutQuestion.querySelector(".yes")?.addEventListener("click", async () => {
             logoutQuestion.classList.remove("open");
+            await Utils.clearDB();
             Utils.success("Successfully Logged out!");
             setTimeout(() => {
                 UserManagement.logout();

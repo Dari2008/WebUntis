@@ -3,7 +3,6 @@ import type { Subject, Teacher } from "../@types/Teachers";
 import { SettingsElement, type SettingsFunctionData } from "../settings/SettingsTitleElement";
 // import { TEACHER_DATABASE, TEACHER_DATABASE_ARRAY } from "../untis/TeacherDatabase";
 import { Images } from "./Images";
-import { createInputWithLabel } from "./Utils";
 import { UserManagement } from "../userManagement/UserManagement";
 import Utils from "../Utils";
 import type { UpdateDataTeachers } from "../@types/UserManagement";
@@ -287,19 +286,19 @@ export class SettingsTeacherList extends SettingsElement {
         title.classList.add("title");
         addTeacherDiv.appendChild(title);
 
-        const [teacherShortNameInputWrapper, teacherShortNameInput] = createInputWithLabel(undefined, "Short Name", /.{2,4}/, true);
+        const [teacherShortNameInputWrapper, teacherShortNameInput] = Utils.createInputWithLabel(undefined, "Short Name", /.{2,4}/, true);
         teacherShortNameInput.className = "teacher-short-name";
         addTeacherDiv.appendChild(teacherShortNameInputWrapper);
 
-        const [teacherFirstNameInputWrapper, teacherFirstNameInput] = createInputWithLabel(undefined, "First Name", /^(\s|.{2,})$/, true);
+        const [teacherFirstNameInputWrapper, teacherFirstNameInput] = Utils.createInputWithLabel(undefined, "First Name", /^(\s|.{2,})$/, true);
         teacherFirstNameInput.className = "teacher-first-name";
         addTeacherDiv.appendChild(teacherFirstNameInputWrapper);
 
-        const [teacherSurnameInputWrapper, teacherSurnameInput] = createInputWithLabel(undefined, "Surname", /^(\s|.{2,})$/, true);
+        const [teacherSurnameInputWrapper, teacherSurnameInput] = Utils.createInputWithLabel(undefined, "Surname", /^(\s|.{2,})$/, true);
         teacherSurnameInput.className = "teacher-surname";
         addTeacherDiv.appendChild(teacherSurnameInputWrapper);
 
-        const [teacherSubjectsInputWrapper, teacherSubjectsInput] = createInputWithLabel(undefined, "Subjects (comma separated)", /^([A-Za-z0-9]{2,5})(,[A-Za-z0-9]{2,5})*$/, false);
+        const [teacherSubjectsInputWrapper, teacherSubjectsInput] = Utils.createInputWithLabel(undefined, "Subjects (comma separated)", /^([A-Za-z0-9]{2,5})(,[A-Za-z0-9]{2,5})*$/, false);
         teacherSubjectsInput.className = "teacher-subjects";
         addTeacherDiv.appendChild(teacherSubjectsInputWrapper);
 

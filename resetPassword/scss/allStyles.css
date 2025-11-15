@@ -497,7 +497,7 @@ body {
     max-width: fit-content;
   }
 }
-.login-container {
+.resetPassword-container {
   width: 30%;
   height: 40%;
   position: fixed;
@@ -513,7 +513,7 @@ body {
   grid-column-gap: 0px;
   grid-row-gap: 0px;
 }
-.login-container h1 {
+.resetPassword-container h1 {
   grid-area: 1/1/2/2;
   height: 100%;
   margin: 0;
@@ -522,40 +522,42 @@ body {
   align-items: center;
   color: white;
 }
-.login-container #loginForm {
+.resetPassword-container #resetPasswordForm {
+  display: flex;
+  flex-direction: column;
   gap: 15px;
   grid-area: 2/1/3/2;
   display: grid;
   grid-template-columns: 1fr;
-  grid-template-rows: repeat(3, 1fr) min-content min-content;
+  grid-template-rows: repeat(3, 1fr);
   grid-column-gap: 0px;
   grid-row-gap: 0px;
 }
-.login-container #loginForm .username {
+.resetPassword-container #resetPasswordForm .username {
   grid-area: 1/1/2/2;
 }
-.login-container #loginForm .password {
+.resetPassword-container #resetPasswordForm .password {
   grid-area: 2/1/3/2;
 }
-.login-container #loginForm .inputWithLabel-wrapper {
+.resetPassword-container #resetPasswordForm .inputWithLabel-wrapper {
   width: 70%;
   align-self: center;
   justify-self: center;
 }
-.login-container #loginForm .inputWithLabel-wrapper::before {
+.resetPassword-container #resetPasswordForm .inputWithLabel-wrapper::before {
   background-color: #424242;
   color: white;
 }
-.login-container #loginForm .inputWithLabel-wrapper input {
+.resetPassword-container #resetPasswordForm .inputWithLabel-wrapper input {
   width: 100%;
   background-color: #424242;
   color: white;
   outline: 1px solid #9b9b9b !important;
 }
-.login-container #loginForm .inputWithLabel-wrapper::after {
+.resetPassword-container #resetPasswordForm .inputWithLabel-wrapper::after {
   display: none;
 }
-.login-container #loginForm button {
+.resetPassword-container #resetPasswordForm button {
   padding: 10px;
   border: none;
   border-radius: 10px;
@@ -569,25 +571,8 @@ body {
   align-self: end;
   margin: 20px;
 }
-.login-container #loginForm button:hover {
+.resetPassword-container #resetPasswordForm button:hover {
   background-color: rgb(21.5, 21.5, 21.5);
-}
-.login-container #loginForm .not-registered-yet,
-.login-container #loginForm .forgotPassword {
-  color: white;
-  text-align: center;
-  padding-block: 5px;
-}
-.login-container #loginForm .not-registered-yet a,
-.login-container #loginForm .forgotPassword a {
-  color: #8383ff;
-  text-decoration: none;
-}
-.login-container #loginForm .not-registered-yet {
-  grid-area: 4/1/5/2;
-}
-.login-container #loginForm .forgotPassword {
-  grid-area: 5/1/6/2;
 }
 
 @media (width < 1200px) {

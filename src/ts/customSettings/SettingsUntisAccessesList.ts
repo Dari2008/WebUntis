@@ -2,7 +2,6 @@ import type { School } from "../@types/School";
 import { HOST } from "../ScheduleDarius_old";
 import { SettingsElement, type SettingsFunctionData } from "../settings/SettingsTitleElement";
 import { Images } from "./Images";
-import { createInputWithLabel } from "./Utils";
 import type { UntisAccess } from "../@types/UntisAccess";
 import Utils from "../Utils";
 import { UserManagement } from "../userManagement/UserManagement";
@@ -115,19 +114,19 @@ export class SettingsUntisAccessesList extends SettingsElement {
         const addUntisAccessDialog = document.createElement("div");
         addUntisAccessDialog.classList.add("dialog");
 
-        const [usernameInputWrapper, usernameInput] = createInputWithLabel(undefined, "Username", /.+/, true);
+        const [usernameInputWrapper, usernameInput] = Utils.createInputWithLabel(undefined, "Username", /.+/, true);
         usernameInput.autocomplete = "";
         usernameInput.classList.add("username");
         addUntisAccessDialog.appendChild(usernameInputWrapper);
 
-        const [passwordInputWrapper, passwordInput] = createInputWithLabel(undefined, "Password", /.+/, true);
+        const [passwordInputWrapper, passwordInput] = Utils.createInputWithLabel(undefined, "Password", /.+/, true);
         passwordInput.type = "password";
         usernameInput.autocomplete = "";
         passwordInput.classList.add("password");
         addUntisAccessDialog.appendChild(passwordInputWrapper);
 
 
-        const [classesInputWrapper, classesInput] = createInputWithLabel(undefined, "Class Names (comma seperated)", /.+/, true);
+        const [classesInputWrapper, classesInput] = Utils.createInputWithLabel(undefined, "Class Names (comma seperated)", /.+/, true);
         classesInput.autocomplete = "";
         classesInput.classList.add("classesInput");
         addUntisAccessDialog.appendChild(classesInputWrapper);

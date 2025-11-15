@@ -2,7 +2,7 @@
 @use "../../src/scss/settings/inputWithLabel.scss" as *;
 @use "../../node_modules/toastify-js/src/toastify.css" as *;
 
-.login-container {
+.resetPassword-container {
     width: 30%;
     height: 40%;
     position: fixed;
@@ -28,12 +28,14 @@
         color: white;
     }
 
-    #loginForm {
+    #resetPasswordForm {
+        display: flex;
+        flex-direction: column;
         gap: 15px;
         grid-area: 2 / 1 / 3 / 2;
         display: grid;
         grid-template-columns: 1fr;
-        grid-template-rows: repeat(3, 1fr) min-content min-content;
+        grid-template-rows: repeat(3, 1fr) min-content;
         grid-column-gap: 0px;
         grid-row-gap: 0px;
 
@@ -86,25 +88,15 @@
             }
         }
 
-        .not-registered-yet,
-        .forgotPassword {
+        .not-registered-yet {
             color: white;
             text-align: center;
-
-            padding-block: 5px;
+            grid-area: 4 / 1 / 5 / 2;
 
             a {
                 color: #8383ff;
                 text-decoration: none;
             }
-        }
-
-        .not-registered-yet {
-            grid-area: 4 / 1 / 5 / 2;
-        }
-
-        .forgotPassword {
-            grid-area: 5 / 1 / 6 / 2;
         }
     }
 

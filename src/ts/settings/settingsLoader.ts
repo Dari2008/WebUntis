@@ -49,6 +49,43 @@ export async function initSettings() {
 
     let settingOptions: SettingsData[] = [
         {
+            id: "general",
+            label: "General",
+            options: [
+                {
+                    type: "title",
+                    hnumber: 1,
+                    title: "General",
+                    name: "generalTitle",
+                    content: [
+                        {
+                            type: "button",
+                            desc: "Change Password",
+                            label: "Change Password",
+                            name: "changePassword",
+                            buttonText: "Change",
+                            onclick() {
+                                UserManagement.openChangePasswordModal(async (currentPassword, newPassword) => {
+                                    const response = await UserManagement.changePassword(currentPassword, newPassword);
+                                    if (response) {
+                                        if (response.status == "success") {
+                                            Utils.success("Password changed successfully!");
+                                        } else {
+                                            Utils.error(response.message || "Could not change password! Please check your current password.");
+                                        }
+                                    } else {
+                                        Utils.error("Could not change password! Please check your current password.");
+                                    }
+                                });
+                            }
+                        }
+                    ]
+                }
+            ],
+            elements: [],
+            selected: false
+        },
+        {
             id: "notifications",
             label: "Notifications",
             selected: false,

@@ -23,7 +23,9 @@ export default defineConfig({
             input: {
                 index: resolve(root, "index.html"),
                 login: resolve(root, "login", "index.html"),
-                register: resolve(root, "register", "index.html")
+                register: resolve(root, "register", "index.html"),
+                forgotPassword: resolve(root, "forgotPassword", "index.html"),
+                resetPassword: resolve(root, "resetPassword", "index.html")
             }
         }
     }

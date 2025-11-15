@@ -1,4 +1,5 @@
 import type { AllLessons, DayName } from "../@types/Schedule";
+import type { School } from "../@types/School";
 import UntisManager from "./UntisManager";
 import UntisSchedule from "./UntisSchedule";
 
@@ -18,7 +19,7 @@ export class AllLessonsManager {
             allLessons.push(...schedule.lessons);
         }
         allLessons.forEach(e => {
-            const sgOfE = e.studentGroup ?? e.sg;
+            const sgOfE = e.studentGroup ?? e.sg ?? e.subjectShortName;
             if (!sgOfE) return;
 
             if (e.dayName) {
@@ -50,8 +51,9 @@ export class AllLessonsManager {
         return this.ALL_LESSONS_SORTED_SIGN[sign] ?? [];
     }
 
-    public static getAllStudentGroups(): string[] {
-        return this.ALL_LESSONS.map(e => e.studentGroup ?? e.sg ?? "");
+    public static getAllStudentGroups(school?: School): string[] {
+        if (!school) return this.ALL_LESSONS.map(e => e.studentGroup ?? e.sg ?? e.subjectShortName ?? "");
+        return this.ALL_LESSONS.filter(e => e.school === school).map(e => e.studentGroup ?? e.sg ?? e.subjectShortName ?? "");
     }
 
 }

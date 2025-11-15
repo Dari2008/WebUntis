@@ -2,7 +2,8 @@ export class GestureHandler {
     private element: HTMLElement;
     private startX = 0;
     private startY = 0;
-    private threshold = 50;
+    private swipeHorizontallyThreashold = 50;
+    private swipeVerticallyThreashold = window.innerHeight / 3;
     private moved = false;
 
     public static IS_DARGGING_CURRENTLY = false;
@@ -35,7 +36,7 @@ export class GestureHandler {
         const deltaY = clientY - this.startY;
 
         if (Math.abs(deltaX) > Math.abs(deltaY)) {
-            if (Math.abs(deltaX) > this.threshold) {
+            if (Math.abs(deltaX) > this.swipeHorizontallyThreashold) {
                 this.moved = true;
                 GestureHandler.IS_DARGGING_CURRENTLY = true;
                 if (deltaX > 0) {
@@ -51,7 +52,7 @@ export class GestureHandler {
                 GestureHandler.IS_DARGGING_CURRENTLY = false;
             }
         } else {
-            if (Math.abs(deltaY) > this.threshold) {
+            if (Math.abs(deltaY) > this.swipeVerticallyThreashold) {
                 this.moved = true;
                 GestureHandler.IS_DARGGING_CURRENTLY = true;
                 if (deltaY > 0) {

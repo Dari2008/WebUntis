@@ -405,7 +405,7 @@ export class SettingsScheduleList extends SettingsElement {
         const signSuggestion = document.createElement("ul");
         signSuggestion.classList.add("signSuggestion");
 
-        AllLessonsManager.getAllStudentGroups().forEach(e => {
+        AllLessonsManager.getAllStudentGroups(this.school as School).forEach(e => {
             const option = document.createElement("li");
             option.innerText = e;
             option.classList.add("option");

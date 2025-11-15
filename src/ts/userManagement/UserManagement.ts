@@ -27,6 +27,7 @@ export class UserManagement {
     public static allowedUntil = 0;
     public static validJwt = false;
     public static ALL_DATA: AllData | undefined;
+    public static LOADED_FROM_SERVER = false;
 
     public static init() {
         const goToLogin = () => {
@@ -84,12 +85,13 @@ export class UserManagement {
         }
         if (this.ALL_DATA && !this.wasLastOfflineLoad) return this.ALL_DATA;
         this.wasLastOfflineLoad = false;
-        const result = await this.request(HOST + "/users/data/getData.php", { "jwt": this.jwt, dataType: "allData" });
+        const result = await this.request(HOST + "/users/data/getData.php", { jwt: this.jwt, dataType: "allData" });
         if (!result) return false;
         const all = result as AllData;
         this.compileAll(all);
         this.ALL_DATA = all;
-        Utils.saveInDB("OfflineData", "OfflineAllData", "OFFLINE_ALL_DATA", this.ALL_DATA);
+        this.LOADED_FROM_SERVER = true;
+        document.documentElement.classList.add("loadedFromServer");
         return all;
     }
 
@@ -209,61 +211,63 @@ export class UserManagement {
 
 
     public static async getUntisAccesses(): Promise<UntisAccess[] | boolean> {
-        const result = await this.request(HOST + "/users/data/getData.php", { "jwt": this.jwt, dataType: "untisAccesses" });
+        const result = await this.request(HOST + "/users/data/getData.php", { jwt: this.jwt, dataType: "untisAccesses" });
         if (!result) return false;
         return result as UntisAccess[];
     }
 
     public static async getBreaks(): Promise<BreaksRawByDay | boolean> {
-        const result = await this.request(HOST + "/users/data/getData.php", { "jwt": this.jwt, dataType: "breaks" });
+        const result = await this.request(HOST + "/users/data/getData.php", { jwt: this.jwt, dataType: "breaks" });
         if (!result) return false;
         return result as BreaksRawByDay;
     }
 
     public static async getTeachers(): Promise<TeacherDatabase | boolean> {
-        const result = await this.request(HOST + "/users/data/getData.php", { "jwt": this.jwt, dataType: "teachers" });
+        const result = await this.request(HOST + "/users/data/getData.php", { jwt: this.jwt, dataType: "teachers" });
         if (!result) return false;
         return result as TeacherDatabase;
     }
 
     public static async getSchedule(): Promise<ScheduleRawData | boolean> {
-        const result = await this.request(HOST + "/users/data/getData.php", { "jwt": this.jwt, dataType: "schedule" });
+        const result = await this.request(HOST + "/users/data/getData.php", { jwt: this.jwt, dataType: "schedule" });
         if (!result) return false;
         return result as ScheduleRawData;
     }
 
 
     public static async getIllDates(): Promise<UntisAccess[] | boolean> {
-        const result = await this.request(HOST + "/users/data/getData.php", { "jwt": this.jwt, dataType: "illDates" });
+        const result = await this.request(HOST + "/users/data/getData.php", { jwt: this.jwt, dataType: "illDates" });
         if (!result) return false;
         return result as UntisAccess[];
     }
 
     public static async getExams(): Promise<ExamList | boolean> {
-        const result = await this.request(HOST + "/users/data/getData.php", { "jwt": this.jwt, dataType: "exams" });
+        const result = await this.request(HOST + "/users/data/getData.php", { jwt: this.jwt, dataType: "exams" });
         if (!result) return false;
         return result as ExamList;
     }
 
-    private static async request(url: string, payload: any): Promise<boolean | any> {
+    private static async request(url: string, payload: any, throwError: boolean = true): Promise<boolean | any> {
         const result = await (await fetch(url + "?noCache", {
             body: JSON.stringify(payload),
             mode: "cors",
             method: "post"
         })).json() as RequestResponse;
-
-        if (result.status == "error") {
-            if (result.errorMessage) Utils.error(result.errorMessage);
-            else Utils.error("Error loading Data");
-            return false;
-        } else {
-            return result ?? {};
+        if (throwError) {
+            if (result.status == "error") {
+                if (result.errorMessage) Utils.error(result.errorMessage);
+                else Utils.error("Error loading Data");
+                return false;
+            } else {
+                return result ?? {};
+            }
         }
+        return result;
     }
 
     public static async updateUntisAccesses(updateMethod: UpdateMethod, data: UpdateDataUntisAccess): Promise<boolean> {
         const result = await this.request(HOST + "/users/data/updateData.php", {
-            "jwt": this.jwt,
+            jwt: this.jwt,
             dataType: "untisAccesses",
             data: data,
             updateMethod: updateMethod
@@ -280,7 +284,7 @@ export class UserManagement {
 
     public static async updateBreaks(updateMethod: UpdateMethod, data: UpdateDataBreaks): Promise<boolean> {
         const result = await this.request(HOST + "/users/data/updateData.php", {
-            "jwt": this.jwt,
+            jwt: this.jwt,
             dataType: "breaks",
             data: data,
             updateMethod: updateMethod
@@ -291,7 +295,7 @@ export class UserManagement {
 
     public static async updateTeachers(updateMethod: UpdateMethod, data: UpdateDataTeachers): Promise<boolean> {
         const result = await this.request(HOST + "/users/data/updateData.php", {
-            "jwt": this.jwt,
+            jwt: this.jwt,
             dataType: "teachers",
             data: data,
             updateMethod: updateMethod
@@ -302,7 +306,7 @@ export class UserManagement {
 
     public static async updateSchedule(updateMethod: UpdateMethod, data: UpdateDataSchedule): Promise<boolean> {
         const result = await this.request(HOST + "/users/data/updateData.php", {
-            "jwt": this.jwt,
+            jwt: this.jwt,
             dataType: "schedule",
             data: data,
             updateMethod: updateMethod
@@ -313,7 +317,7 @@ export class UserManagement {
 
     public static async updateExams(updateMethod: UpdateMethod, data: UpdateDataExams): Promise<boolean> {
         const result = await this.request(HOST + "/users/data/updateData.php", {
-            "jwt": this.jwt,
+            jwt: this.jwt,
             dataType: "exams",
             data: data,
             updateMethod: updateMethod
@@ -324,7 +328,7 @@ export class UserManagement {
 
     public static async updateIllDays(updateMethod: UpdateMethod | "update", data: UpdateDataIllDays): Promise<boolean> {
         const result = await this.request(HOST + "/users/data/updateData.php", {
-            "jwt": this.jwt,
+            jwt: this.jwt,
             dataType: "illDates",
             data: data,
             updateMethod: updateMethod
@@ -335,12 +339,75 @@ export class UserManagement {
 
     public static async updatePreferences(data: UpdateDataPreferences): Promise<boolean> {
         const result = await this.request(HOST + "/users/data/updateData.php", {
-            "jwt": this.jwt,
+            jwt: this.jwt,
             dataType: "preferences",
             data: data
         }) as UpdateResponse;
         if (!result) return false;
         return result.success;
     }
+
+
+    public static async changePassword(currentPassword: string, newPassword: string): Promise<false | RequestResponse> {
+        const result = await this.request(HOST + "/users/changePassword.php", {
+            jwt: this.jwt,
+            currentPassword: currentPassword,
+            newPassword: newPassword
+        }, false) as RequestResponse;
+        if (!result) return false;
+        return result;
+    }
+
+
+    public static async openChangePasswordModal(callback: (currentPassword: string, newPassword: string) => void) {
+        const changePasswordDialogWrapper = document.createElement("div");
+        changePasswordDialogWrapper.classList.add("changePasswordDialogWrapper");
+
+        const changePasswordDialog = document.createElement("div");
+        changePasswordDialog.classList.add("changePasswordDialog");
+
+
+        const title = document.createElement("h2");
+        title.innerText = "Change Password";
+        changePasswordDialog.appendChild(title);
+
+        const [currentPasswordWrapper, currentPasswordInput] = Utils.createInputWithLabel("currentPassword", "Current Password", /.+/gm, true);
+        currentPasswordInput.type = "password";
+        currentPasswordWrapper.classList.add("currentPassword");
+        currentPasswordInput.autofocus = true;
+        changePasswordDialog.appendChild(currentPasswordWrapper);
+
+        const [newPasswordWrapper, newPasswordInput] = Utils.createInputWithLabel("newPassword", "New Password", /.+/gm, true);
+        newPasswordInput.type = "password";
+        newPasswordWrapper.classList.add("newPassword");
+        newPasswordInput.autofocus = true;
+        changePasswordDialog.appendChild(newPasswordWrapper);
+
+        const cancelBtn = document.createElement("button");
+        cancelBtn.innerText = "Cancel";
+        cancelBtn.classList.add("cancel");
+        cancelBtn.onclick = () => {
+            document.body.removeChild(changePasswordDialogWrapper);
+        };
+        changePasswordDialog.appendChild(cancelBtn);
+
+        const changeBtn = document.createElement("button");
+        changeBtn.innerText = "Change";
+        changeBtn.classList.add("change");
+        changeBtn.onclick = async () => {
+            const currentPassword = currentPasswordInput.value;
+            const newPassword = newPasswordInput.value;
+            document.body.removeChild(changePasswordDialogWrapper);
+            callback(currentPassword, newPassword);
+        };
+
+        changePasswordDialog.appendChild(changeBtn);
+
+        changePasswordDialogWrapper.appendChild(changePasswordDialog);
+
+        document.body.appendChild(changePasswordDialogWrapper);
+
+    }
+
 
 }

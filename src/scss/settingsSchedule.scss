@@ -1,7 +1,8 @@
 @use "./Variables.scss" as vars;
 
 
-html.offlineMode .settings-schedule .addlessonButton {
+html.offlineMode .settings-schedule .addlessonButton,
+html:not(.loadedFromServer) .settings-schedule .addlessonButton {
     display: none;
 }
 

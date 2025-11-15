@@ -1215,7 +1215,8 @@ body {
   grid-template-columns: 44.5% 44.5%;
 }
 
-.settings-textField-input {
+.settings-textField-input,
+.settings-button-input {
   outline: none;
   height: 30%;
   width: 90%;
@@ -1231,15 +1232,18 @@ body {
   letter-spacing: 2px;
 }
 
-.settings-textField-input:hover {
+.settings-textField-input:hover,
+.settings-button-input:hover {
   background-color: #2f2f2f;
 }
 
-.settings-textField-input:focus {
+.settings-textField-input:focus,
+.settings-button-input:focus {
   background-color: rgb(53.25, 53.25, 53.25);
 }
 
 .settings-input,
+.settings-button-input,
 .settings-textField-input {
   grid-area: 1/2/4/3;
   padding-left: 10px;
@@ -1601,7 +1605,7 @@ body[lang=es] #touapp a {
 .settings-inputOnlyGridWrapper:has(.settings-current-color) {
   display: flex;
   flex-direction: row;
-  gap: 10px;
+  justify-content: space-evenly;
 }
 
 .settings-color-dialog::backdrop {
@@ -1754,6 +1758,10 @@ body[lang=es] #touapp a {
     height: auto;
   }
 }
+.settings-button-input {
+  cursor: pointer;
+}
+
 .spinnerInput {
   position: relative;
   display: flex;
@@ -2112,21 +2120,38 @@ body[lang=es] #touapp a {
 }
 
 /* autoprefixer: on */
-.offlineMode .settings-exam-list .examButton,
-.offlineMode .settings-break-list .breakButton,
-.offlineMode .settings-untis-accesses-list .untisAccessButton,
-.offlineMode .settings-teacher-list .addTeacherBtn {
+html.offlineMode .settings-exam-list .examButton,
+html.offlineMode .settings-break-list .breakButton,
+html.offlineMode .settings-untis-accesses-list .untisAccessButton,
+html.offlineMode .settings-teacher-list .addTeacherBtn,
+html.offlineMode .settings-tools-excuse-system-element .illDayAddBtn,
+html:not(.loadedFromServer) .settings-exam-list .examButton,
+html:not(.loadedFromServer) .settings-break-list .breakButton,
+html:not(.loadedFromServer) .settings-untis-accesses-list .untisAccessButton,
+html:not(.loadedFromServer) .settings-teacher-list .addTeacherBtn,
+html:not(.loadedFromServer) .settings-tools-excuse-system-element .illDayAddBtn {
   pointer-events: none;
   color: transparent;
 }
-.offlineMode .settings-current-color-reset {
+html.offlineMode .settings-current-color-reset,
+html:not(.loadedFromServer) .settings-current-color-reset {
   display: none;
   pointer-events: none;
 }
-.offlineMode .settings-current-color {
+html.offlineMode .settings-schedule,
+html:not(.loadedFromServer) .settings-schedule {
   pointer-events: none;
 }
-.offlineMode .settings-input .switch {
+html.offlineMode .settings-schedule div:not(.lessonLoaded):not(.header):not(.lesson-time-slot) button,
+html:not(.loadedFromServer) .settings-schedule div:not(.lessonLoaded):not(.header):not(.lesson-time-slot) button {
+  display: none !important;
+}
+html.offlineMode .settings-current-color,
+html:not(.loadedFromServer) .settings-current-color {
+  pointer-events: none;
+}
+html.offlineMode .settings-input .switch,
+html:not(.loadedFromServer) .settings-input .switch {
   pointer-events: none;
 }
 
@@ -2838,6 +2863,9 @@ html:not(.menuOpen) #notificationsBell {
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s ease-in-out;
+  min-width: fit-content;
+  max-width: 400px;
+  text-align: center;
 }
 #logoutQuestion span {
   grid-area: 1/1/2/3;
@@ -2885,7 +2913,8 @@ html:not(.menuOpen) #notificationsBell {
   background-color: rgb(40.5, 40.5, 40.5);
 }
 
-html.offlineMode .settings-schedule .addlessonButton {
+html.offlineMode .settings-schedule .addlessonButton,
+html:not(.loadedFromServer) .settings-schedule .addlessonButton {
   display: none;
 }
 
@@ -3342,6 +3371,70 @@ html.offlineMode .settings-schedule .addlessonButton {
   grid-area: 2/3/3/4;
 }
 
+#timeSchedule.animate.dropDownForReload {
+  animation: dropDown 0.2s ease-in-out 0ms 1 forwards;
+}
+#timeSchedule.animate:not(.dropDownForReload) {
+  animation: dropUp 0.2s ease-in-out 0ms 1 forwards;
+}
+#timeSchedule::after {
+  content: "Loading" !important;
+}
+#timeSchedule::before, #timeSchedule::after {
+  content: "Reloading";
+  color: white;
+  background-image: url("data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGZpbGw9IndoaXRlIiB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCI+CiAgPHBhdGggaWQ9ImNpcmNsZSIgZD0iTTE1LjY1IDQuMzVBOCA4IDAgMSAwIDE3LjQgMTNoLTIuMjJhNiA2IDAgMSAxLTEtNy4yMkwxMSA5aDdWMnoiIC8+CiAgPHN0eWxlPgogICAgI2NpcmNsZXsKICAgICAgYW5pbWF0aW9uOiBzcGluIDFzIGxpbmVhciAwbXMgaW5maW5pdGUgZm9yd2FyZHM7CiAgICAgIHRyYW5zZm9ybS1vcmlnaW46IGNlbnRlcjsKICAgIH0KCiAgICBAa2V5ZnJhbWVzIHNwaW57CiAgICAgIDAlewogICAgICAgIHRyYW5zZm9ybTogcm90YXRlKDBkZWcpOwogICAgICB9CgogICAgICAzMCV7CiAgICAgICAgdHJhbnNmb3JtOiByb3RhdGUoMTIwZGVnKTsKICAgICAgfQogICAgICA1MCV7CiAgICAgICAgdHJhbnNmb3JtOiByb3RhdGUoMjUwZGVnKTsKICAgICAgfQogICAgICAxMDAlewogICAgICAgIHRyYW5zZm9ybTogcm90YXRlKDM2MGRlZyk7CiAgICAgIH0KICAgIH0KCiAgPC9zdHlsZT4KPC9zdmc+");
+  background-repeat: no-repeat;
+  background-position: 90%;
+  background-size: auto 60%;
+  position: fixed;
+  width: 10%;
+  height: 5vh;
+  padding: 20px;
+  background-color: #212121;
+  box-shadow: 0px 0px 10px #FF7512;
+  z-index: 10000000000000;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  opacity: 1;
+  position: fixed;
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  transition: transform 0.1s ease-in-out, top 0.1s ease-in-out, opacity 0.1s linear;
+  min-width: 150px;
+  max-width: 300px;
+}
+#timeSchedule:not(.showLoading)::after {
+  transform: translate(-50%, -100%);
+  top: 0%;
+  left: 50%;
+  opacity: 0;
+}
+#timeSchedule:not(.showReload)::before {
+  transform: translate(-50%, -100%);
+  top: 0%;
+  left: 50%;
+  opacity: 0;
+}
+
+@keyframes dropUp {
+  0% {
+    top: 33%;
+  }
+  100% {
+    top: 0;
+  }
+}
+@keyframes dropDown {
+  0% {
+    top: 0;
+  }
+  100% {
+    top: 33%;
+  }
+}
 /*!
  * Toastify js 1.12.0
  * https://github.com/apvarun/toastify-js
@@ -3540,7 +3633,7 @@ html.offlineMode .settings-schedule .addlessonButton {
 }
 
 .lesson.past {
-  opacity: 0.2;
+  opacity: 0.35;
 }
 
 .lesson:not(.infoTextHidden) {
@@ -5585,4 +5678,86 @@ html:has(#settingsDialog[show]) html {
   overscroll-behavior: none;
   touch-action: none;
   -webkit-overflow-scrolling: auto;
+}
+
+.changePasswordDialogWrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000000;
+  background-color: rgba(23, 23, 23, 0.2);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.changePasswordDialogWrapper .changePasswordDialog {
+  width: 30vw;
+  height: min-content;
+  background-color: #2f2f2f;
+  padding: 20px;
+  border-radius: 20px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(3, 1fr) 0.5fr;
+  grid-column-gap: 10px;
+  grid-row-gap: 0px;
+  min-width: 250px;
+  max-width: 600px;
+}
+.changePasswordDialogWrapper .changePasswordDialog h2 {
+  grid-area: 1/1/2/3;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.changePasswordDialogWrapper .changePasswordDialog .currentPassword {
+  grid-area: 2/1/3/3;
+  height: min-content;
+}
+.changePasswordDialogWrapper .changePasswordDialog .newPassword {
+  grid-area: 3/1/4/3;
+  height: min-content;
+}
+.changePasswordDialogWrapper .changePasswordDialog .cancel {
+  grid-area: 4/1/5/2;
+}
+.changePasswordDialogWrapper .changePasswordDialog .change {
+  grid-area: 4/2/5/3;
+}
+.changePasswordDialogWrapper .changePasswordDialog .cancel,
+.changePasswordDialogWrapper .changePasswordDialog .change {
+  outline: none;
+  border: none;
+  width: 100%;
+  background-color: #424242;
+  color: white;
+  border-radius: 12px;
+  padding: 5px;
+}
+.changePasswordDialogWrapper .changePasswordDialog .cancel:hover,
+.changePasswordDialogWrapper .changePasswordDialog .change:hover {
+  background-color: #676767;
+}
+.changePasswordDialogWrapper .changePasswordDialog .cancel:active,
+.changePasswordDialogWrapper .changePasswordDialog .change:active {
+  background-color: #9b9b9b;
+}
+.changePasswordDialogWrapper .changePasswordDialog input {
+  width: 100%;
+  outline: none;
+  border: none;
+  background-color: #2f2f2f;
+  color: white;
+  border-radius: 10px;
+  padding-inline: 10px;
+  padding: 5px;
+  justify-self: center;
+}
+.changePasswordDialogWrapper .changePasswordDialog .inputWithLabel-wrapper::before {
+  color: white;
+  background-color: #2f2f2f;
 }/*# sourceMappingURL=allStyles.css.map */

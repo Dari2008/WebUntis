@@ -1,10 +1,12 @@
-.offlineMode {
+html.offlineMode,
+html:not(.loadedFromServer) {
 
 
     .settings-exam-list .examButton,
     .settings-break-list .breakButton,
     .settings-untis-accesses-list .untisAccessButton,
-    .settings-teacher-list .addTeacherBtn {
+    .settings-teacher-list .addTeacherBtn,
+    .settings-tools-excuse-system-element .illDayAddBtn {
         pointer-events: none;
         color: transparent;
     }
@@ -13,6 +15,18 @@
         display: none;
         pointer-events: none;
     }
+
+    .settings-schedule {
+        pointer-events: none;
+
+        div:not(.lessonLoaded):not(.header):not(.lesson-time-slot) {
+            button {
+                display: none !important;
+            }
+        }
+
+    }
+
 
     .settings-current-color {
         pointer-events: none;

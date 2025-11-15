@@ -28,7 +28,8 @@ async function init() {
     const loginBtn = document.getElementById('loginBtn') as HTMLButtonElement;
     const username = document.getElementById("username") as HTMLInputElement;
     const password = document.getElementById("password") as HTMLInputElement;
-    loginBtn.addEventListener('click', async () => {
+
+    const login = async () => {
         const valueUsername = username.value;
         const valuePassword = password.value;
 
@@ -68,7 +69,15 @@ async function init() {
             Utils.error("Client error! Please try again later");
         }
 
+    };
+
+    username.addEventListener("keyup", (e) => {
+        if (e.key == "Enter") login();
     });
+    password.addEventListener("keyup", (e) => {
+        if (e.key == "Enter") login();
+    });
+    loginBtn.addEventListener('click', login);
 }
 
 init();

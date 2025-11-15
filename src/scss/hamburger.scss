@@ -425,6 +425,9 @@ html:not(.menuOpen) #notificationsBell {
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.3s ease-in-out;
+    min-width: fit-content;
+    max-width: 400px;
+    text-align: center;
 
     span {
         grid-area: 1 / 1 / 2 / 3;

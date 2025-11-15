@@ -1,0 +1,85 @@
+@use "./Variables.scss" as vars;
+
+
+#timeSchedule {
+    &.animate {
+        &.dropDownForReload {
+            animation: dropDown 0.2s ease-in-out 0ms 1 forwards;
+        }
+
+        &:not(.dropDownForReload) {
+            animation: dropUp 0.2s ease-in-out 0ms 1 forwards;
+        }
+    }
+
+    &::after {
+        content: "Loading" !important;
+    }
+
+    &::before,
+    &::after {
+        content: "Reloading";
+        color: white;
+        background-image: url("data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGZpbGw9IndoaXRlIiB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCI+CiAgPHBhdGggaWQ9ImNpcmNsZSIgZD0iTTE1LjY1IDQuMzVBOCA4IDAgMSAwIDE3LjQgMTNoLTIuMjJhNiA2IDAgMSAxLTEtNy4yMkwxMSA5aDdWMnoiIC8+CiAgPHN0eWxlPgogICAgI2NpcmNsZXsKICAgICAgYW5pbWF0aW9uOiBzcGluIDFzIGxpbmVhciAwbXMgaW5maW5pdGUgZm9yd2FyZHM7CiAgICAgIHRyYW5zZm9ybS1vcmlnaW46IGNlbnRlcjsKICAgIH0KCiAgICBAa2V5ZnJhbWVzIHNwaW57CiAgICAgIDAlewogICAgICAgIHRyYW5zZm9ybTogcm90YXRlKDBkZWcpOwogICAgICB9CgogICAgICAzMCV7CiAgICAgICAgdHJhbnNmb3JtOiByb3RhdGUoMTIwZGVnKTsKICAgICAgfQogICAgICA1MCV7CiAgICAgICAgdHJhbnNmb3JtOiByb3RhdGUoMjUwZGVnKTsKICAgICAgfQogICAgICAxMDAlewogICAgICAgIHRyYW5zZm9ybTogcm90YXRlKDM2MGRlZyk7CiAgICAgIH0KICAgIH0KCiAgPC9zdHlsZT4KPC9zdmc+");
+        background-repeat: no-repeat;
+        background-position: 90%;
+        background-size: auto 60%;
+        position: fixed;
+        width: 10%;
+        height: 5vh;
+        padding: 20px;
+        background-color: vars.$gray-800;
+        box-shadow: 0px 0px 10px vars.$themeColor;
+        z-index: 10000000000000;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        opacity: 1;
+        position: fixed;
+        top: 10%;
+        left: 50%;
+        transform: translateX(-50%);
+        transition: transform 0.1s ease-in-out, top 0.1s ease-in-out, opacity 0.1s linear;
+        min-width: 150px;
+        max-width: 300px;
+    }
+
+    &:not(.showLoading) {
+        &::after {
+            transform: translate(-50%, -100%);
+            top: 0%;
+            left: 50%;
+            opacity: 0;
+        }
+    }
+
+    &:not(.showReload) {
+        &::before {
+            transform: translate(-50%, -100%);
+            top: 0%;
+            left: 50%;
+            opacity: 0;
+        }
+    }
+}
+
+@keyframes dropUp {
+    0% {
+        top: 33%;
+    }
+
+    100% {
+        top: 0;
+    }
+}
+
+
+@keyframes dropDown {
+    0% {
+        top: 0;
+    }
+
+    100% {
+        top: 33%;
+    }
+}

@@ -1,3 +1,4 @@
+import { SettingsButtonElement, type SettingsButtonData } from "./SettingsButtonElement";
 import { SettingsColorSelectorElement, type SettingsColorSelectorData } from "./SettingsColorSelectorElement";
 import { SettingsFoldableSectionElement, type SettingsFoldableSectionData } from "./SettingsFoldableSectionElement";
 import { SETTINGS_ELEMENTS } from "./SettingsGenerator";
@@ -54,8 +55,8 @@ export abstract class SettingsElement {
 
 }
 
-export type SettingsContentElement = SettingsTitleElement | SettingsToggleElement | SettingsNumberSelectorElelement | SettingsColorSelectorElement | SettingsTextElement | SettingsFoldableSectionElement | SettingsTextFieldElement | SettingsElement;
-export type SettingsContentData = SettingsTitleData | SettingsToggleData | SettingsNumberSelectorData | SettingsColorSelectorData | SettingsTextData | SettingsFoldableSectionData | SettingsTextFieldData | SettingsFunctionData;
+export type SettingsContentElement = SettingsTitleElement | SettingsToggleElement | SettingsNumberSelectorElelement | SettingsColorSelectorElement | SettingsTextElement | SettingsFoldableSectionElement | SettingsTextFieldElement | SettingsButtonElement | SettingsElement;
+export type SettingsContentData = SettingsTitleData | SettingsToggleData | SettingsNumberSelectorData | SettingsColorSelectorData | SettingsTextData | SettingsFoldableSectionData | SettingsTextFieldData | SettingsButtonData | SettingsFunctionData;
 
 export class SettingsTitleElement {
 
@@ -141,6 +142,11 @@ export class SettingsTitleElement {
                 SETTINGS_ELEMENTS.push(classElement);
             } else if (element.type === "textField") {
                 let classElement = new SettingsTextFieldElement(element);
+                this.contentElement.appendChild(classElement.getElement());
+                this.elements.push(classElement);
+                SETTINGS_ELEMENTS.push(classElement);
+            } else if (element.type === "button") {
+                let classElement = new SettingsButtonElement(element);
                 this.contentElement.appendChild(classElement.getElement());
                 this.elements.push(classElement);
                 SETTINGS_ELEMENTS.push(classElement);

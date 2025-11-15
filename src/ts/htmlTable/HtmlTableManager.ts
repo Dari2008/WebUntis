@@ -10,7 +10,6 @@ import { GestureHandler } from "../gestures/gestures";
 
 export class HTMLTableManager {
 
-
     public static CURRENT_LESSON_OPEN: CompiledLesson | undefined = undefined;
 
     public tableElement: HTMLDivElement | undefined;
@@ -81,7 +80,6 @@ export class HTMLTableManager {
                 const dateMonth = dateDayObj.format("MMM");
 
                 const dateDayE = document.createElement("span");
-                console.log(dateDay);
                 dateDayE.innerText = dateDay != "01" ? (dateDay + ".") : (dateDay + ". " + dateMonth);
                 dateDayE.classList.add("doNotRemove");
                 dateDayE.classList.add("dateDay");
@@ -483,8 +481,6 @@ export class HTMLTableManager {
             }
         }
 
-        console.log(holidaysOnDays);
-
         const pairedIfPossibleLessonsResult = [];
 
 
@@ -627,8 +623,6 @@ export class HTMLTableManager {
             }
         });
 
-        console.log("---------------------------------------------------");
-
         for (const lessonSlotData of pairedIfPossibleLessonsCompiled) {
             if (lessonSlotData && lessonSlotData.lessonSlotExample) {
                 const start = lessonSlotData.startTime;
@@ -644,6 +638,10 @@ export class HTMLTableManager {
                         cell.classList.add(day);
 
                         const isExam = Utils.checkForExam(lesson);
+
+                        if (lesson.teacherShortName == "Wi") {
+                            console.log("sss", lesson);
+                        }
 
                         this.insertLessonIntoDiv(cell, lesson, isExam);
                         this.addOpenAndInfoDialog(cell, lesson, isExam);
@@ -836,9 +834,10 @@ export class HTMLTableManager {
         div.addEventListener("click", () => {
             if (GestureHandler.IS_DARGGING_CURRENTLY) return;
 
+            const scrollY = document.querySelector("#timeSchedule")?.scrollTop ?? 0;
             const position = div.getBoundingClientRect();
-            div.style.setProperty("--left", position.left + "px");
-            div.style.setProperty("--top", position.top + "px");
+            div.style.setProperty("--left", (position.left - 10) + "px");
+            div.style.setProperty("--top", (position.top + scrollY - 10) + "px");
 
             div.style.setProperty("--width", position.width + "px");
             div.style.setProperty("--height", position.height + "px");
@@ -868,9 +867,11 @@ export class HTMLTableManager {
         div.addEventListener("click", () => {
             if (GestureHandler.IS_DARGGING_CURRENTLY) return;
 
+            const scrollY = document.querySelector("#timeSchedule")?.scrollTop ?? 0;
+
             const position = div.getBoundingClientRect();
-            div.style.setProperty("--left", position.left - 10 + "px");
-            div.style.setProperty("--top", position.top - 10 + "px");
+            div.style.setProperty("--left", (position.left - 10) + "px");
+            div.style.setProperty("--top", (position.top + scrollY - 10) + "px");
 
             div.style.setProperty("--width", position.width + "px");
             div.style.setProperty("--height", position.height + "px");

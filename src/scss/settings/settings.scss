@@ -192,7 +192,8 @@ $border-height: 4px;
     grid-template-columns: 44.5% 44.5%;
 }
 
-.settings-textField-input {
+.settings-textField-input,
+.settings-button-input {
     outline: none;
     height: 30%;
     width: 90%;
@@ -208,15 +209,18 @@ $border-height: 4px;
     letter-spacing: 2px;
 }
 
-.settings-textField-input:hover {
+.settings-textField-input:hover,
+.settings-button-input:hover {
     background-color: $gray-700;
 }
 
-.settings-textField-input:focus {
+.settings-textField-input:focus,
+.settings-button-input:focus {
     background-color: darken($gray-600, 5%);
 }
 
 .settings-input,
+.settings-button-input,
 .settings-textField-input {
     grid-area: 1 / 2 / 4 / 3;
     padding-left: 10px;
@@ -642,7 +646,7 @@ body[lang="es"] #touapp a {
 .settings-inputOnlyGridWrapper:has(.settings-current-color) {
     display: flex;
     flex-direction: row;
-    gap: 10px;
+    justify-content: space-evenly;
 }
 
 .settings-color-dialog::backdrop {
@@ -857,4 +861,9 @@ body[lang="es"] #touapp a {
     100% {
         height: auto;
     }
+}
+
+
+.settings-button-input {
+    cursor: pointer;
 }

@@ -7,7 +7,6 @@ import Utils from "../Utils";
 import type { IllDate, IllDayDefinition, ToExcuseLessons } from "../@types/UserManagement";
 import { RangePlugin } from "@easepick/range-plugin";
 import { AmpPlugin, DateTime, easepick, LockPlugin, TimePlugin } from "@easepick/bundle";
-import { createInputWithLabel } from "./Utils";
 import { HOST } from "../ScheduleDarius_old";
 import b from "./excuseSystem/GrootmoorBoxes.json";
 dayjs.extend(customParseFormat);
@@ -224,15 +223,15 @@ export class SettingsToolsExcuseSystemGrootmoor extends SettingsElement {
         titleE.innerHTML = "Add Ill Day";
         addIllDayDialog.appendChild(titleE);
 
-        const [nameWrapper, nameInput] = createInputWithLabel("", "Name / Stufe", /.*/g, false);
+        const [nameWrapper, nameInput] = Utils.createInputWithLabel("", "Name / Stufe", /.*/g, false);
         nameInput.classList.add("labelInput");
         addIllDayDialog.appendChild(nameWrapper);
 
-        const [teacherClassWrapper, teacherClass] = createInputWithLabel("", "Turtor/in", /.*/g, false);
+        const [teacherClassWrapper, teacherClass] = Utils.createInputWithLabel("", "Turtor/in", /.*/g, false);
         teacherClass.classList.add("labelInput");
         addIllDayDialog.appendChild(teacherClassWrapper);
 
-        const [reasonWrapper, reasonInput] = createInputWithLabel("", "Reason", /.*/g, false);
+        const [reasonWrapper, reasonInput] = Utils.createInputWithLabel("", "Reason", /.*/g, false);
         reasonInput.classList.add("labelInput");
         addIllDayDialog.appendChild(reasonWrapper);
 
@@ -605,7 +604,7 @@ export class SettingsToolsExcuseSystemGrootmoor extends SettingsElement {
         titleE.innerHTML = "Add Lesson to Excuse";
         addIllDayDialog.appendChild(titleE);
 
-        const [lessonNameWrapper, lessonNameInput] = createInputWithLabel("", "Lesson Name", /.*/g, false);
+        const [lessonNameWrapper, lessonNameInput] = Utils.createInputWithLabel("", "Lesson Name", /.*/g, false);
         lessonNameInput.classList.add("labelInput");
         addIllDayDialog.appendChild(lessonNameWrapper);
 
