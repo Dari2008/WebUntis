@@ -103,6 +103,7 @@ export class SettingsUntisAccessesList extends SettingsElement {
     private addUntisAccess(callback: (selected: SchoolData, classesLast: string[], username: string, password: string) => void) {
         let SELECTED: SchoolData | null = null;
         const addUntisAccessDialogWrapper = document.createElement("div");
+        addUntisAccessDialogWrapper.classList.add("untisAccessDialogWrapper");
         addUntisAccessDialogWrapper.classList.add("dialogWrapper");
 
         let CURRENT_POSSIBLE_CLASS_PREDICTIONS: string[] = [];
@@ -112,6 +113,7 @@ export class SettingsUntisAccessesList extends SettingsElement {
         } = {};
 
         const addUntisAccessDialog = document.createElement("div");
+        addUntisAccessDialog.classList.add("untisAccessDialog");
         addUntisAccessDialog.classList.add("dialog");
 
         const [usernameInputWrapper, usernameInput] = Utils.createInputWithLabel(undefined, "Username", /.+/, true);

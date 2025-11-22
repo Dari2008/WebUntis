@@ -4,7 +4,7 @@ import type { BreaksRawByDay, DayName, LessonRaw, LessonTime, LessonTimes, Lesso
 import type { School } from "../@types/School";
 import type { TeacherDatabase } from "../@types/Teachers";
 import type { UntisAccess } from "../@types/UntisAccess";
-import type { AllData, SchoolTimes, UpdateDataBreaks, UpdateDataExams, UpdateDataIllDays, UpdateDataPreferences, UpdateDataSchedule, UpdateDataTeachers, UpdateDataUntisAccess, UpdateMethod } from "../@types/UserManagement";
+import type { AllData, SchoolTimes, UpdateDataBreaks, UpdateDataExams, UpdateDataIllDays, UpdateDataPreferences, UpdateDataSchedule, UpdateDataTeachers, UpdateDataUntisAccess, UpdateGrades, UpdateMethod } from "../@types/UserManagement";
 import { HOST } from "../ScheduleDarius_old";
 import UntisManager from "../untis/UntisManager";
 import Utils from "../Utils";
@@ -92,6 +92,9 @@ export class UserManagement {
         this.ALL_DATA = all;
         this.LOADED_FROM_SERVER = true;
         document.documentElement.classList.add("loadedFromServer");
+
+        localStorage.setItem("lastTimeDataFetched", (new Date()).getTime() + "");
+
         return all;
     }
 
@@ -356,6 +359,17 @@ export class UserManagement {
         }, false) as RequestResponse;
         if (!result) return false;
         return result;
+    }
+
+    public static async updateGrades(updateMethod: UpdateMethod, data: UpdateGrades): Promise<boolean> {
+        const result = await this.request(HOST + "/users/data/updateData.php", {
+            jwt: this.jwt,
+            dataType: "grades",
+            data: data,
+            updateMethod: updateMethod
+        }) as UpdateResponse;
+        if (!result) return false;
+        return result.success;
     }
 
 

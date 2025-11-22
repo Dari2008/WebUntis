@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import type { CompiledLesson, DayName, LessonSlot, ScheduleBreak, Time } from "../@types/Schedule";
+import type { BreaksRawByDay, CompiledLesson, DayName, LessonSlot, ScheduleBreak, Time } from "../@types/Schedule";
 import type { School } from "../@types/School";
 import { getColumnForSchool } from "../untis/TeacherDatabase";
 import UntisManager from "../untis/UntisManager";
@@ -419,14 +419,6 @@ export class HTMLTableManager {
             isMultiple: boolean;
         }[] = [];
 
-        const moreThanOneLessonPerSlot: number[] = [];
-
-        // for (const schedule of schedules) {
-        //     for (const lessonSlot of schedule.getAllLessonSlots()) {
-        //         lessonsPerSlot[lessonSlot.]
-        //     }
-        // }
-
         const holidaysOnDays: {
             [key in DayName]?: false | HolidayScheduleDay
         } = {};
@@ -438,11 +430,6 @@ export class HTMLTableManager {
                     if (lesson) {
                         let key = (lesson.studentGroup ? lesson.studentGroup : (lessonSlot.lessons.length > 1 ? "" : lesson.lessonNumber)) + lesson.dayName! + lesson.cellState! + (lesson.multipleTeachers ? (lesson.cTeachers?.map(e => e.short).join(",")) : lesson.teacherShortName!) + lesson.roomShortName! + lesson.subjectShortName! + lesson.lessonCode!;
                         if (lessonSlot.lessons.length == 0) continue;
-                        if (lessonSlot.lessons.length > 1) {
-                            const id = lessonSlot.lessons.map(l => l.lessonNumber || l.id).reduce((a, b) => a + b);
-                            moreThanOneLessonPerSlot.push(id);
-                            key += id;
-                        }
                         if (!pairedIfPossibleLessons[key]) {
                             pairedIfPossibleLessons[key] = [];
                         }
@@ -482,7 +469,6 @@ export class HTMLTableManager {
         }
 
         const pairedIfPossibleLessonsResult = [];
-
 
         for (const lessonSlots of Object.values(pairedIfPossibleLessons)) {
 
@@ -623,7 +609,24 @@ export class HTMLTableManager {
             }
         });
 
+        const SORT_STATUS_ARRAY = [
+            "cancelled",
+            "roomSubstitution",
+            "teacherAbsent",
+            "teacherSubstitution",
+            "additional",
+            "regular",
+        ];
+
         for (const lessonSlotData of pairedIfPossibleLessonsCompiled) {
+
+            if (lessonSlotData && lessonSlotData.lessonSlotExample) {
+                lessonSlotData.lessonSlotExample.lessons = lessonSlotData.lessonSlotExample.lessons.sort((a, b) => {
+                    const indexOne = SORT_STATUS_ARRAY.indexOf(this.getStatus(a));
+                    const indexTwo = SORT_STATUS_ARRAY.indexOf(this.getStatus(b));
+                    return indexTwo - indexOne;
+                });
+            }
             if (lessonSlotData && lessonSlotData.lessonSlotExample) {
                 const start = lessonSlotData.startTime;
                 const end = lessonSlotData.endTime;
@@ -638,10 +641,6 @@ export class HTMLTableManager {
                         cell.classList.add(day);
 
                         const isExam = Utils.checkForExam(lesson);
-
-                        if (lesson.teacherShortName == "Wi") {
-                            console.log("sss", lesson);
-                        }
 
                         this.insertLessonIntoDiv(cell, lesson, isExam);
                         this.addOpenAndInfoDialog(cell, lesson, isExam);
@@ -670,6 +669,7 @@ export class HTMLTableManager {
                 if (position) {
                     const cell = this.insertCellInto(position.rowStart, position.column + UserManagement.ALL_DATA!.schools.length, position.rowSpan);
                     if (cell) {
+
                         const lessons = lessonSlotData.lessonSlotExample?.lessons;
                         if (!lessons) continue;
                         cell.classList.add("moreLessons");
@@ -712,39 +712,70 @@ export class HTMLTableManager {
         }
 
 
-        for (const day of Object.keys(UserManagement.ALL_DATA!.breaks)) {
-            if (day == "others") continue;
-            if (holidaysOnDays[day as DayName] != false) continue;
-            for (const br of UserManagement.ALL_DATA!.breaks[day as DayName]) {
+        const filteredBreaks: BreaksRawByDay = {
+            monday: [],
+            tuesday: [],
+            wednesday: [],
+            thursday: [],
+            friday: []
+        };
+
+        for (const day of Object.keys(UserManagement.ALL_DATA!.breaks) as DayName[]) {
+            filteredBreaks[day] = UserManagement.ALL_DATA!.breaks[day].filter(e => {
+                const breakStartTime = UntisManager.parseTime(e.start);
+                const breakStartMinute = breakStartTime.hour * 60 + breakStartTime.minute;
+                const breakEndTime = UntisManager.parseTime(e.end);
+                const breakEndMinute = breakEndTime.hour * 60 + breakEndTime.minute;
+                for (const br of UserManagement.ALL_DATA!.breaks[day]) {
+                    if (br.uuid == e.uuid) continue;
+                    const startTime = UntisManager.parseTime(br.start);
+                    const startM = startTime.hour * 60 + startTime.minute;
+                    const endTime = UntisManager.parseTime(br.end);
+                    const endM = endTime.hour * 60 + endTime.minute;
+                    if (breakStartMinute >= startM && breakStartMinute <= endM && breakEndMinute <= endM && breakEndMinute >= startM) {
+                        return false;
+                    }
+                }
+                return true;
+            });
+        }
+
+        for (const day of Object.keys(filteredBreaks)) {
+            // if (day == "others") continue;
+            // if (holidaysOnDays[day as DayName] != false) continue;
+            for (const br of filteredBreaks[day as DayName]) {
                 const breakStartTime = UntisManager.parseTime(br.start);
                 const breakEndTime = UntisManager.parseTime(br.end);
 
                 const position = HTMLTableManager.getGridPositionOfTime(breakStartTime, breakEndTime, day as DayName, UserManagement.ALL_DATA!.START_TIME);
                 if (position && position.rowSpan > 0 && position.column != -1 && position.rowEnd != -1 && position.rowStart != -1) {
                     const cell = this.insertCellInto(position.rowStart, position.column + UserManagement.ALL_DATA!.schools.length, position.rowSpan);
-                    if (cell) {
-                        cell.classList.add("break");
-                        cell.classList.add(br.school.replaceAll(" ", "_").toLowerCase());
-                        cell.classList.add(day);
+                    cell.classList.add("break");
+                    cell.classList.add(br.school.replaceAll(" ", "_").toLowerCase());
+                    cell.classList.add(day);
 
-                        const getTimeDistance = (start: Time, end: Time): number => {
-                            const startMinutes = start.hour * 60 + start.minute;
-                            const endMinutes = end.hour * 60 + end.minute;
-                            return endMinutes - startMinutes;
-                        };
+                    const getTimeDistance = (start: Time, end: Time): number => {
+                        const startMinutes = start.hour * 60 + start.minute;
+                        const endMinutes = end.hour * 60 + end.minute;
+                        return endMinutes - startMinutes;
+                    };
 
-                        const spanBreak = document.createElement("span");
-                        spanBreak.classList.add("breakLabel");
-                        const timeDist = getTimeDistance(breakStartTime, breakEndTime);
-                        spanBreak.textContent = (timeDist >= 60 ? Math.floor(timeDist / 60) + " h " : "") + timeDist % 60 + " min";
+                    const spanBreak = document.createElement("span");
+                    spanBreak.classList.add("breakLabel");
+                    const timeDist = getTimeDistance(breakStartTime, breakEndTime);
+                    spanBreak.textContent = (timeDist >= 60 ? Math.floor(timeDist / 60) + " h " : "") + timeDist % 60 + " min";
 
-                        cell.appendChild(spanBreak);
+                    cell.appendChild(spanBreak);
 
 
-                        this.addBreakHoverEffect(cell, br);
+                    this.addBreakHoverEffect(cell, br);
 
-                        this.tableElement.appendChild(cell);
+                    this.tableElement.appendChild(cell);
+                    if (day == "others") {
+                        cell.classList.add("other");
+                        cell.classList.add("monday");
                     }
+                    console.log(day, cell);
                 }
             }
         }
@@ -814,7 +845,7 @@ export class HTMLTableManager {
         return undefined;
     }
 
-    private insertCellInto(row: number, column: number, span: number): HTMLDivElement | undefined {
+    private insertCellInto(row: number, column: number, span: number): HTMLDivElement {
 
         const maxRows = this.rowCount + 1; // Because of Header
         const maxRowsEnd = this.rowCount + 2; // Because of Header + 1 because its end
@@ -938,8 +969,6 @@ export class HTMLTableManager {
 
 
     private addMultiHoverEffect(div: HTMLDivElement, lessons: CompiledLesson[], lessonData: {
-        lessonSlotExample?: LessonSlot;
-        secondSlotExample?: LessonSlot;
         startTime: Time;
         endTime: Time;
     }) {
@@ -953,8 +982,6 @@ export class HTMLTableManager {
     }
 
     private addHoverEffect(div: HTMLDivElement, lesson: CompiledLesson, lessonData: {
-        lessonSlotExample?: LessonSlot;
-        secondSlotExample?: LessonSlot;
         startTime: Time;
         endTime: Time;
     }) {
@@ -1544,6 +1571,30 @@ export class HTMLTableManager {
             hour: parseInt(hour),
             minute: parseInt(minute)
         }
+    }
+
+
+    private getStatus(lesson: CompiledLesson) {
+        let status = "regular";
+
+        if (lesson.teacherStatus == "SUBSTITUTED") {
+            status = "teacherSubstitution";
+        } else if (lesson.teacherStatus == "ABSENT") {
+            status = "teacherAbsent";
+        }
+
+        if (lesson.cellState == "ROOMSUBSTITUTION") {
+            status = "roomSubstitution";
+        }
+
+        if (lesson.cellState == "CANCEL") {
+            status = "cancelled";
+        }
+
+        if (lesson.lessonCode == "UNTIS_ADDITIONAL" || lesson.cellState == "ADDITIONAL" || lesson.cellState == "EVENT") {
+            status = "additional";
+        }
+        return status;
     }
 
 }

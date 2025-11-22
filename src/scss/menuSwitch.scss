@@ -1,0 +1,20 @@
+html:not([data-menu-selected]),
+html[data-menu-selected="timetable"] {
+    main #timeSchedule {
+        display: block;
+    }
+
+    main #grades {
+        display: none;
+    }
+}
+
+html[data-menu-selected="grades"] {
+    main #timeSchedule {
+        display: none;
+    }
+
+    main #grades {
+        display: block;
+    }
+}

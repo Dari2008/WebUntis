@@ -135,8 +135,7 @@ export const BREAKS_PRESETS: {
                 end: "15:00",
                 uuid: ""
             }
-        ],
-        others: []
+        ]
     },
 
     "Meiendorf": {
@@ -270,7 +269,6 @@ export const BREAKS_PRESETS: {
                 end: "16:00",
                 uuid: ""
             }
-        ],
-        others: []
+        ]
     }
 };

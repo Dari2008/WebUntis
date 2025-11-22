@@ -17,6 +17,7 @@ import type { UntisAccess } from "./@types/UntisAccess";
 import { WalkThroughs } from "./walkThrough/WalkThroughs";
 import dayjs from "dayjs";
 import type { AllData } from "./@types/UserManagement";
+import { GradeManager } from "./grades/GradeManager";
 
 window.addEventListener("online", () => {
     document.documentElement.classList.remove("offlineMode");
@@ -65,28 +66,34 @@ export class UntisCombiner {
             Utils.error("You are offline and can't reload the Schedule!");
             return;
         }
-        if (UntisCombiner.timeSchedule) {
-            UntisCombiner.timeSchedule.classList.add("animate");
-            UntisCombiner.timeSchedule.classList.add("dropDownForReload");
-            UntisCombiner.timeSchedule.addEventListener("animationend", (e) => {
+        const main = document.querySelector("main");
+        if (main) {
+            main.classList.add("animate");
+            main.classList.add("dropDownForReload");
+            const callback = (e: Event) => {
                 console.log(e);
-                if (e.animationName == "dropDown") {
-                    UntisCombiner.timeSchedule.classList.remove("dropDownForReload");
-                } else if (e.animationName == "dropUp") {
-                    UntisCombiner.timeSchedule.classList.remove("animate");
+                if ((e as AnimationEvent).animationName == "dropDown") {
+                    main.classList.remove("dropDownForReload");
+                } else if ((e as AnimationEvent).animationName == "dropUp") {
+                    main.classList.remove("animate");
+                    main.removeEventListener("animationend", callback);
                 }
-            });
-            UntisCombiner.timeSchedule.classList.add("showReload");
+            };
+            main.addEventListener("animationend", callback);
+            main.classList.add("showReload");
         }
 
         await UntisCombiner.loadSchedules();
-        if (UntisCombiner.timeSchedule) {
-            UntisCombiner.timeSchedule.classList.remove("showReload");
-        }
+        main?.classList.remove("showReload");
         Utils.success("Successfully reloaded Schedule!");
     }
 
     public static async loadSchedules(forceOfflineLoad: boolean = false) {
+        UntisCombiner.currentIndexOfWeek = 0;
+        UntisCombiner.MIN_LIMIT_TABLES = 0;
+        UntisCombiner.MAX_LIMIT_TABLES = 0;
+        UntisCombiner.MIN_LIMIT_SET = false;
+        UntisCombiner.MAX_LIMIT_SET = false;
         if (forceOfflineLoad) {
             const manager = await UntisCombiner.createHtmlTableManagerForDate({
                 date: new Date(),
@@ -101,7 +108,6 @@ export class UntisCombiner {
             }
             return;
         }
-        UntisCombiner.timeSchedule.classList.add("showLoading");
 
         for (const date of [{ week: 0, date: new Date() }, { week: -1, date: UntisCombiner.getWeeksFriday(new Date(), -1) }, { week: 1, date: UntisCombiner.getWeeksMonday(new Date(), 1) }]) {
             if (date.week != 0) {
@@ -135,7 +141,6 @@ export class UntisCombiner {
             }
 
         }
-        UntisCombiner.timeSchedule.classList.remove("showLoading");
     }
 
     private static async loadAll(forceOfflineLoad: boolean) {
@@ -156,7 +161,9 @@ export class UntisCombiner {
                 UserManagement.ALL_DATA.holidays = await HOLIDAY_LOADER.getHolidays();
             }
 
+            document.querySelector("main")?.classList.add("showLoading");
             await UntisCombiner.loadSchedules(forceOfflineLoad);
+            document.querySelector("main")?.classList.remove("showLoading");
 
         } else {
             if (!forceOfflineLoad) {
@@ -176,17 +183,23 @@ export class UntisCombiner {
         UserManagement.init(); // Check if User logged in
 
         UntisCombiner.initWindowSize();
+        UntisCombiner.initMenu();
 
         await UntisCombiner.loadAll(true);
+        const cancelShowLastUpdated = UntisCombiner.showLastUpdated();
 
         loadingDialog?.close();
 
         await UntisCombiner.loadAll(false);
+        cancelShowLastUpdated();
+        UntisCombiner.showLastUpdated();
 
         if (UserManagement.ALL_DATA) {
             SWManager.install(UserManagement.ALL_DATA!.preferences.notificationsEnabled);
             NotificationManager.initNotificationManager();
         }
+
+        GradeManager.init();
 
 
         UntisCombiner.initGestures();
@@ -474,7 +487,7 @@ export class UntisCombiner {
             prevSchedule?.classList.remove("previousSchedule");
             prevSchedule?.classList.remove("animateToCurrent");
             if (currentSchedule) {
-                UntisCombiner.timeSchedule.removeChild(currentSchedule);
+                if (UntisCombiner.timeSchedule.contains(currentSchedule)) UntisCombiner.timeSchedule.removeChild(currentSchedule);
                 currentSchedule.classList.remove("onlyShow");
                 for (const day of ["monday", "tuesday", "wednesday", "thuesday", "friday"]) {
                     currentSchedule.classList.remove(day);
@@ -526,7 +539,7 @@ export class UntisCombiner {
             nextSchedule?.classList.remove("nextSchedule");
             nextSchedule?.classList.remove("animateToCurrent");
             if (currentSchedule) {
-                UntisCombiner.timeSchedule.removeChild(currentSchedule);
+                if (UntisCombiner.timeSchedule.contains(currentSchedule)) UntisCombiner.timeSchedule.removeChild(currentSchedule);
                 currentSchedule.classList.remove("onlyShow");
                 for (const day of ["monday", "tuesday", "wednesday", "thuesday", "friday"]) {
                     currentSchedule.classList.remove(day);
@@ -618,7 +631,8 @@ export class UntisCombiner {
             for (const manager of UntisCombiner.UNTIS_MANAGERS) {
                 for (const CLASS_NAME of manager.getClassNames()) {
                     const lessons = await manager.getLessonForWeekCompiledViaProxy(CLASS_NAME, date);
-                    if (!lessons) continue;
+                    console.log(manager.getSchool(), formatDate(monday, "yyyyMMMdd"), lessons);
+                    if (!lessons || !Array.isArray(lessons)) continue;
                     const id = manager.getUntis().uuid ?? v4();
                     const mappedLesson = lessons.map(l => {
                         const tmp = l as TempLesson;
@@ -669,7 +683,7 @@ export class UntisCombiner {
             }
 
             UntisCombiner.lessonsLoaded[formatDate(monday, "yyyyMMMdd")] = schedules;
-
+            console.log(formatDate(monday, "yyyyMMMdd"), schedules);
             return schedules;
         } else {
             const schedules = [];
@@ -720,6 +734,89 @@ export class UntisCombiner {
                 UserManagement.logout();
             }, 1000);
         });
+    }
+
+    private static initMenu() {
+        const timetableMenuBtn = document.querySelector("#timetableMenuBtn") as HTMLButtonElement;
+        const gradesMenuBtn = document.querySelector("#gradesMenuBtn") as HTMLButtonElement;
+        timetableMenuBtn?.addEventListener("click", () => {
+            document.documentElement.setAttribute("data-menu-selected", "timetable");
+        });
+
+        gradesMenuBtn?.addEventListener("click", () => {
+            document.documentElement.setAttribute("data-menu-selected", "grades");
+        });
+
+    }
+
+    private static showLastUpdated(): () => void {
+
+        const lastUpdatedElement = document.createElement("div");
+        lastUpdatedElement.id = "lastUpdated";
+        lastUpdatedElement.classList.add("show");
+
+        const lastUpdated = localStorage.getItem("lastTimeDataFetched");
+        if (!lastUpdated) return () => { };
+        let displayString = "";
+        try {
+            const timeParsed = parseInt(lastUpdated);
+            const dateLastUpdated = dayjs(new Date(timeParsed));
+            const timeSpanBetweenLastUpdateAndToday = dateLastUpdated.diff(dayjs(), "seconds");
+            const minutes = Math.floor(timeSpanBetweenLastUpdateAndToday / 60);
+            const hours = Math.floor(minutes / 60);
+            const days = Math.floor(hours / 24);
+            const weeks = Math.floor(days / 7);
+            if (timeSpanBetweenLastUpdateAndToday == 1) {
+                displayString = "Just now";
+            } else if (timeSpanBetweenLastUpdateAndToday < 60) {
+                displayString = "a few seconds ago";
+            } else if (minutes == 1) {
+                displayString = "a minute ago";
+            } else if (minutes < 60) {
+                displayString = "a few minutes ago";
+            } else if (hours == 1) {
+                displayString = "an hour ago";
+            } else if (hours < 24) {
+                displayString = "a few hours ago";
+            } else if (days == 1) {
+                displayString = "a day ago";
+            } else if (days < 7) {
+                displayString = "a few days ago";
+            } else if (weeks == 1) {
+                displayString = "a week ago";
+            } else {
+                displayString = "a few weeks ago";
+            }
+        } catch (ex) {
+            return () => { };
+        }
+
+        if (!displayString) return () => { };
+        lastUpdatedElement.innerHTML = "Last Updated: " + displayString;
+
+        let removeNextTransitionEnd = false;
+        lastUpdatedElement.addEventListener("transitionend", () => {
+            if (!removeNextTransitionEnd) {
+                lastUpdatedElement.classList.remove("show");
+                removeNextTransitionEnd = true;
+                return;
+            }
+            if (lastUpdatedElement.parentElement)
+                document.body.removeChild(lastUpdatedElement);
+        });
+
+        document.body.appendChild(lastUpdatedElement);
+        const unregister = () => {
+            removeNextTransitionEnd = true;
+            lastUpdatedElement.classList.remove("show");
+            clearTimeout(timeout);
+        };
+
+        const timeout = setTimeout(() => {
+            unregister();
+        }, 2000);
+
+        return unregister;
     }
 
 }

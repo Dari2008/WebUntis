@@ -1,6 +1,7 @@
 // import type { LessonTimes, LessonTimesString } from "../ScheduleDarius_old";
 import type { CompiledHoliday } from "../untis/HolidayLoader";
 import type { ExamList } from "./Exam";
+import type { GradeWeight, Points, Subject } from "./Grades";
 import type { BreaksRawByDay, DayName, LessonTimes, LessonTimesString, ScheduleBreak, ScheduleRawData, ScheduleRawDay, Time } from "./Schedule";
 import type { School } from "./School";
 import type { TeacherDatabase } from "./Teachers";
@@ -19,6 +20,7 @@ export type UpdateDataSchedule = {
 } | string[];
 export type UpdateDataExams = ExamList | string[];
 export type UpdateDataIllDays = IllDate[] | string[];
+export type UpdateGrades = GradeType[] | string[];
 export type UpdateDataPreferences = {
     [key in keyof Preferences]?: string | boolean | number | NotificationMessageLayouts | NotificationMessageEnabledLayouts;
 } | string[];
@@ -104,6 +106,7 @@ export type AllData = {
     schoolTimes: SchoolTimes;
     preferences: Preferences;
     illDates: IllDate[];
+    grades: GradeType[];
 
     holidays: {
         [key: string]: CompiledHoliday[];
@@ -114,6 +117,13 @@ export type AllData = {
     END_TIME: Time;
 
 }
+
+export type GradeType = {
+    subject: Subject;
+    points: Points;
+    weight: GradeWeight;
+    uuid: string;
+};
 
 export type SchoolTimes = {
     [key: string]: {

@@ -522,3 +522,156 @@ $defaultBorder: lighten(#000000, 30%);
         min-height: 50px;
     }
 }
+
+@media(width < 900px) {
+    // #grades {
+    // .add-grade-btn {
+    //     bottom: 10px;
+    //     left: 10px;
+    //     top: unset !important;
+    //     right: unset !important;
+    // }
+    // }
+
+    #grades {
+        .convertGrades {
+            position: static !important;
+        }
+
+        .add-grade-btn {
+            position: static !important;
+        }
+
+        .gradeButtonWrapper {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            padding: 10px;
+            left: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-direction: row;
+            gap: 10px;
+            background-color: vars.$gray-800;
+            height: 61px
+        }
+
+        height: calc(100% - 50px) !important;
+    }
+}
+
+@media (width < 600px) {
+    #grades {
+        .currentFinalGradeWrapper {
+
+            .averageGrade,
+            .percentGood {
+                display: none !important;
+            }
+        }
+    }
+}
+
+@media (width < 370px) {
+    #grades {
+        .currentFinalGradeWrapper {
+            position: relative;
+            // .totalPoints,
+            // .gradeDeviation {
+            //     display: none !important;
+            // }
+
+            .gradeCircleWrapper {
+                height: 80% !important;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%) !important;
+            }
+
+            .totalPoints .gradeDisplay::after,
+            .gradeDeviation .gradeDisplay::after,
+            .currentGrade .gradeDisplay::after {
+                font-size: clampW(0.5em, 3em, 100px, 400px) !important;
+            }
+
+            justify-content: center !important;
+            aspect-ratio: 1/1 !important;
+
+            .totalPoints {
+                animation: fadeInOut 15s linear 0ms infinite;
+                opacity: 0;
+            }
+
+            .gradeDeviation {
+                animation: fadeInOut 15s linear 5s infinite;
+                opacity: 0;
+            }
+
+            .currentGrade {
+                animation: fadeInOut 15s linear 10s infinite;
+                opacity: 0;
+            }
+
+        }
+    }
+
+    @keyframes fadeInOut {
+        0% {
+            opacity: 0;
+        }
+
+        3% {
+            opacity: 1;
+        }
+
+        33% {
+            opacity: 1;
+        }
+
+        36% {
+            opacity: 0;
+        }
+    }
+
+}
+
+@media (width < 450px) {
+    #grades {
+        table td {
+            font-size: clampW(0.2em, 0.6em, 100px, 450px);
+        }
+    }
+}
+
+@media (width < 300px) {
+    #grades {
+        .convertGrades {
+            position: static !important;
+            width: 100%;
+        }
+
+        .add-grade-btn {
+            position: static !important;
+            width: 100%;
+        }
+
+        .gradeButtonWrapper {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            padding: 10px;
+            left: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 10px;
+            background-color: vars.$gray-800;
+            height: 125px
+        }
+
+        height: calc(100% - 125px) !important;
+    }
+}

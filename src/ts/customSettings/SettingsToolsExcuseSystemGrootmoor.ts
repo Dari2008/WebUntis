@@ -214,9 +214,11 @@ export class SettingsToolsExcuseSystemGrootmoor extends SettingsElement {
 
         const addIllDayDialogWrapper = document.createElement("div");
         addIllDayDialogWrapper.classList.add("addIllDayDialogWrapper");
+        addIllDayDialogWrapper.classList.add("dialogWrapper");
 
         const addIllDayDialog = document.createElement("div");
         addIllDayDialog.classList.add("addIllDayDialog");
+        addIllDayDialog.classList.add("dialog");
 
 
         const titleE = document.createElement("h2");
@@ -354,9 +356,11 @@ export class SettingsToolsExcuseSystemGrootmoor extends SettingsElement {
 
         const addIllDayDialogWrapper = document.createElement("div");
         addIllDayDialogWrapper.classList.add("addIllDayDialogWrapper");
+        addIllDayDialogWrapper.classList.add("dialogWrapper");
 
         const addIllDayDialog = document.createElement("div");
         addIllDayDialog.classList.add("addIllDayDialog");
+        addIllDayDialog.classList.add("dialog");
 
         const titleE = document.createElement("h2");
         titleE.innerHTML = "Add Time Span";

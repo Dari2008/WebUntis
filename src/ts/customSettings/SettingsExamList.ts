@@ -238,9 +238,11 @@ export class SettingsExamsList extends SettingsElement {
 
         const addExamDialogWrapper = document.createElement("div");
         addExamDialogWrapper.classList.add("addExamDialogWrapper");
+        addExamDialogWrapper.classList.add("dialogWrapper");
 
         const addExamDialog = document.createElement("div");
         addExamDialog.id = "addExamDialog";
+        addExamDialog.classList.add("dialog");
 
         const title = document.createElement("h2");
         title.innerText = "Add Exam";

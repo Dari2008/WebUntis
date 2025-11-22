@@ -201,7 +201,6 @@ export type BreaksRawByDay = {
     "wednesday": ScheduleBreak[];
     "thursday": ScheduleBreak[];
     "friday": ScheduleBreak[];
-    "others": ScheduleBreak[];
 }
 
 export type ScheduleBreak = {

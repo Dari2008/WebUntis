@@ -263,9 +263,11 @@ export class SettingsBreakList extends SettingsElement {
 
         const addBreakDialogWrapper = document.createElement("div");
         addBreakDialogWrapper.id = "addBreakDialogWrapper";
+        addBreakDialogWrapper.classList.add("dialogWrapper");
 
         const addBreakDialog = document.createElement("div");
         addBreakDialog.id = "addBreakDialog";
+        addBreakDialog.classList.add("dialog");
 
         const title = document.createElement("h2");
         title.innerText = "Add Break";

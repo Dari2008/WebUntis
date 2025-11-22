@@ -1,8 +1,13 @@
 @use "./Variables.scss" as vars;
 
-
-#timeSchedule {
+main {
     &.animate {
+        position: relative;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+
         &.dropDownForReload {
             animation: dropDown 0.2s ease-in-out 0ms 1 forwards;
         }
@@ -24,7 +29,6 @@
         background-repeat: no-repeat;
         background-position: 90%;
         background-size: auto 60%;
-        position: fixed;
         width: 10%;
         height: 5vh;
         padding: 20px;
@@ -39,7 +43,7 @@
         top: 10%;
         left: 50%;
         transform: translateX(-50%);
-        transition: transform 0.1s ease-in-out, top 0.1s ease-in-out, opacity 0.1s linear;
+        transition: transform 0.1s ease-in-out, top 0.1s ease-in-out, opacity 0.1s linear !important;
         min-width: 150px;
         max-width: 300px;
     }

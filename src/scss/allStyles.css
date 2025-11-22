@@ -1005,6 +1005,114 @@ body {
     min-height: 50px;
   }
 }
+@media (width < 900px) {
+  #grades {
+    height: calc(100% - 50px) !important;
+  }
+  #grades .convertGrades {
+    position: static !important;
+  }
+  #grades .add-grade-btn {
+    position: static !important;
+  }
+  #grades .gradeButtonWrapper {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    padding: 10px;
+    left: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row;
+    gap: 10px;
+    background-color: #212121;
+    height: 61px;
+  }
+}
+@media (width < 600px) {
+  #grades .currentFinalGradeWrapper .averageGrade,
+  #grades .currentFinalGradeWrapper .percentGood {
+    display: none !important;
+  }
+}
+@media (width < 370px) {
+  #grades .currentFinalGradeWrapper {
+    position: relative;
+    justify-content: center !important;
+    aspect-ratio: 1/1 !important;
+  }
+  #grades .currentFinalGradeWrapper .gradeCircleWrapper {
+    height: 80% !important;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) !important;
+  }
+  #grades .currentFinalGradeWrapper .totalPoints .gradeDisplay::after,
+  #grades .currentFinalGradeWrapper .gradeDeviation .gradeDisplay::after,
+  #grades .currentFinalGradeWrapper .currentGrade .gradeDisplay::after {
+    font-size: clamp(0.5em, 1.3333333333em + 13.3333333333vw, 3em) !important;
+  }
+  #grades .currentFinalGradeWrapper .totalPoints {
+    animation: fadeInOut 15s linear 0ms infinite;
+    opacity: 0;
+  }
+  #grades .currentFinalGradeWrapper .gradeDeviation {
+    animation: fadeInOut 15s linear 5s infinite;
+    opacity: 0;
+  }
+  #grades .currentFinalGradeWrapper .currentGrade {
+    animation: fadeInOut 15s linear 10s infinite;
+    opacity: 0;
+  }
+  @keyframes fadeInOut {
+    0% {
+      opacity: 0;
+    }
+    3% {
+      opacity: 1;
+    }
+    33% {
+      opacity: 1;
+    }
+    36% {
+      opacity: 0;
+    }
+  }
+}
+@media (width < 450px) {
+  #grades table td {
+    font-size: clamp(0.2em, 0.3142857143em + 1.8285714286vw, 0.6em);
+  }
+}
+@media (width < 300px) {
+  #grades {
+    height: calc(100% - 125px) !important;
+  }
+  #grades .convertGrades {
+    position: static !important;
+    width: 100%;
+  }
+  #grades .add-grade-btn {
+    position: static !important;
+    width: 100%;
+  }
+  #grades .gradeButtonWrapper {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    padding: 10px;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 10px;
+    background-color: #212121;
+    height: 125px;
+  }
+}
 #loadingAnimation {
   position: fixed;
   top: 50%;
@@ -2284,6 +2392,13 @@ html:not(.loadedFromServer) .settings-input .switch {
   visibility: visible;
   opacity: 1;
 }
+.settings-tools-excuse-system-element table tbody tr:not(.lessonsToExcuse):nth-of-type(2n) {
+  background-color: #2f2f2f;
+}
+.settings-tools-excuse-system-element table thead td:last-of-type {
+  width: 5%;
+  min-width: 30px;
+}
 
 table {
   border-collapse: collapse;
@@ -2293,13 +2408,7 @@ table thead {
   top: 0;
   background-color: #424242;
   height: 4vh;
-}
-table thead td:last-of-type {
-  width: 5%;
-  min-width: 30px;
-}
-table tbody tr:not(.lessonsToExcuse):nth-of-type(2n) {
-  background-color: #2f2f2f;
+  z-index: 10000;
 }
 table td {
   padding-block: 10px;
@@ -2678,9 +2787,9 @@ header.hamburger::after,
   width: min(1.8vw, 1.8vh, 30px);
   height: min(1.8vw, 1.8vh, 30px);
   max-width: 30px;
-  min-width: 10px;
+  min-width: 17.5px;
   max-height: 30px;
-  min-height: 10px;
+  min-height: 17.5px;
   color: white;
   box-shadow: -3px 3px 5px #2e2e2e;
   opacity: 1;
@@ -3371,23 +3480,29 @@ html:not(.loadedFromServer) .settings-schedule .addlessonButton {
   grid-area: 2/3/3/4;
 }
 
-#timeSchedule.animate.dropDownForReload {
+main.animate {
+  position: relative;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+main.animate.dropDownForReload {
   animation: dropDown 0.2s ease-in-out 0ms 1 forwards;
 }
-#timeSchedule.animate:not(.dropDownForReload) {
+main.animate:not(.dropDownForReload) {
   animation: dropUp 0.2s ease-in-out 0ms 1 forwards;
 }
-#timeSchedule::after {
+main::after {
   content: "Loading" !important;
 }
-#timeSchedule::before, #timeSchedule::after {
+main::before, main::after {
   content: "Reloading";
   color: white;
   background-image: url("data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGZpbGw9IndoaXRlIiB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCI+CiAgPHBhdGggaWQ9ImNpcmNsZSIgZD0iTTE1LjY1IDQuMzVBOCA4IDAgMSAwIDE3LjQgMTNoLTIuMjJhNiA2IDAgMSAxLTEtNy4yMkwxMSA5aDdWMnoiIC8+CiAgPHN0eWxlPgogICAgI2NpcmNsZXsKICAgICAgYW5pbWF0aW9uOiBzcGluIDFzIGxpbmVhciAwbXMgaW5maW5pdGUgZm9yd2FyZHM7CiAgICAgIHRyYW5zZm9ybS1vcmlnaW46IGNlbnRlcjsKICAgIH0KCiAgICBAa2V5ZnJhbWVzIHNwaW57CiAgICAgIDAlewogICAgICAgIHRyYW5zZm9ybTogcm90YXRlKDBkZWcpOwogICAgICB9CgogICAgICAzMCV7CiAgICAgICAgdHJhbnNmb3JtOiByb3RhdGUoMTIwZGVnKTsKICAgICAgfQogICAgICA1MCV7CiAgICAgICAgdHJhbnNmb3JtOiByb3RhdGUoMjUwZGVnKTsKICAgICAgfQogICAgICAxMDAlewogICAgICAgIHRyYW5zZm9ybTogcm90YXRlKDM2MGRlZyk7CiAgICAgIH0KICAgIH0KCiAgPC9zdHlsZT4KPC9zdmc+");
   background-repeat: no-repeat;
   background-position: 90%;
   background-size: auto 60%;
-  position: fixed;
   width: 10%;
   height: 5vh;
   padding: 20px;
@@ -3402,17 +3517,17 @@ html:not(.loadedFromServer) .settings-schedule .addlessonButton {
   top: 10%;
   left: 50%;
   transform: translateX(-50%);
-  transition: transform 0.1s ease-in-out, top 0.1s ease-in-out, opacity 0.1s linear;
+  transition: transform 0.1s ease-in-out, top 0.1s ease-in-out, opacity 0.1s linear !important;
   min-width: 150px;
   max-width: 300px;
 }
-#timeSchedule:not(.showLoading)::after {
+main:not(.showLoading)::after {
   transform: translate(-50%, -100%);
   top: 0%;
   left: 50%;
   opacity: 0;
 }
-#timeSchedule:not(.showReload)::before {
+main:not(.showReload)::before {
   transform: translate(-50%, -100%);
   top: 0%;
   left: 50%;
@@ -3435,6 +3550,450 @@ html:not(.loadedFromServer) .settings-schedule .addlessonButton {
     top: 33%;
   }
 }
+html:not([data-menu-selected]) main #timeSchedule,
+html[data-menu-selected=timetable] main #timeSchedule {
+  display: block;
+}
+html:not([data-menu-selected]) main #grades,
+html[data-menu-selected=timetable] main #grades {
+  display: none;
+}
+
+html[data-menu-selected=grades] main #timeSchedule {
+  display: none;
+}
+html[data-menu-selected=grades] main #grades {
+  display: block;
+}
+
+#grades {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+#grades button {
+  padding: 10px;
+  color: white;
+  background-color: #424242;
+  border-radius: 10px;
+  font-size: 110%;
+  cursor: pointer;
+}
+#grades button:hover {
+  background-color: rgb(91.5, 91.5, 91.5);
+}
+#grades button:active {
+  background-color: rgb(40.5, 40.5, 40.5);
+}
+#grades .add-grade-btn {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+}
+#grades .currentFinalGradeWrapper {
+  width: 100%;
+  aspect-ratio: 6/1;
+  max-height: 400px;
+  min-height: 100px;
+  background-color: #212121;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+}
+#grades .currentFinalGradeWrapper .gradeCircleWrapper {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  /* Grade 1 */
+  /* Grade 2 */
+  /* Grade 3 */
+  /* Grade 4 */
+  /* Grade 5 */
+  /* Grade 6 */
+}
+#grades .currentFinalGradeWrapper .gradeCircleWrapper.averageGrade, #grades .currentFinalGradeWrapper .gradeCircleWrapper.percentGood {
+  transform: scale(0.6);
+  padding-inline: 0px;
+}
+#grades .currentFinalGradeWrapper .gradeCircleWrapper.totalPoints, #grades .currentFinalGradeWrapper .gradeCircleWrapper.gradeDeviation {
+  transform: scale(0.8);
+}
+#grades .currentFinalGradeWrapper .gradeCircleWrapper.totalPoints, #grades .currentFinalGradeWrapper .gradeCircleWrapper.averageGrade {
+  transform-origin: right center;
+}
+#grades .currentFinalGradeWrapper .gradeCircleWrapper.gradeDeviation, #grades .currentFinalGradeWrapper .gradeCircleWrapper.percentGood {
+  transform-origin: left center;
+}
+#grades .currentFinalGradeWrapper .gradeCircleWrapper .gradeDisplay[data-grade-css=veryGood] {
+  background-color: #2ecc71;
+}
+#grades .currentFinalGradeWrapper .gradeCircleWrapper .gradeDisplay[data-grade-css=good] {
+  background-color: #1e8348;
+}
+#grades .currentFinalGradeWrapper .gradeCircleWrapper .gradeDisplay[data-grade-css=satisfactory] {
+  background-color: #f1c40f;
+}
+#grades .currentFinalGradeWrapper .gradeCircleWrapper .gradeDisplay[data-grade-css=passing] {
+  background-color: #e67e22;
+}
+#grades .currentFinalGradeWrapper .gradeCircleWrapper .gradeDisplay[data-grade-css=poor] {
+  background-color: #e74c3c;
+}
+#grades .currentFinalGradeWrapper .gradeCircleWrapper .gradeDisplay[data-grade-css=failing] {
+  background-color: #c0392b;
+}
+#grades .currentFinalGradeWrapper .gradeCircleWrapper .gradeDisplay[data-couldnotcalc] {
+  background-color: #424242;
+}
+#grades .currentFinalGradeWrapper .gradeCircleWrapper .gradeDisplay {
+  height: 80%;
+  aspect-ratio: 1/1;
+  border-radius: 100%;
+  position: relative;
+  transition: background-color 1s ease-in-out;
+  margin-inline: 20px;
+  margin-bottom: 5px;
+}
+#grades .currentFinalGradeWrapper .gradeCircleWrapper .gradeDisplay::after {
+  content: attr(data-points);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #212121;
+  width: 90%;
+  aspect-ratio: 1/1;
+  border-radius: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: clamp(0.5em, 0.6578947368em + 2.5263157895vw, 3.5em);
+  animation: gradeTransition 5s linear 0ms infinite forwards;
+}
+#grades .currentFinalGradeWrapper .gradeCircleWrapper .gradeDisplay[data-couldnotcalc]::after {
+  content: "-----" !important;
+  color: white;
+  animation: none !important;
+}
+#grades .currentFinalGradeWrapper .gradeCircleWrapper .gradeDisplay[data-onlyValue]::after {
+  content: attr(data-value) !important;
+  color: white;
+  animation: none !important;
+}
+#grades .currentFinalGradeWrapper .gradeCircleWrapper .subtitle {
+  color: white;
+  height: 15%;
+  font-size: clamp(0.5em, 0.5526315789em + 0.8421052632vw, 1.5em);
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-wrap: nowrap;
+  margin-bottom: 5%;
+}
+#grades table {
+  width: calc(100% - 40px);
+  margin-left: 20px;
+  color: white;
+  border-collapse: collapse;
+}
+#grades table thead tr td:last-of-type {
+  width: 5%;
+  min-width: 20px;
+  max-width: 70px;
+}
+#grades table tbody tr:not(.detailsForSubject):nth-of-type(2n) {
+  background-color: #2f2f2f;
+}
+#grades table .dropDownDivLeft,
+#grades table .dropDownDivRight {
+  position: relative;
+}
+#grades table .dropDownDivLeft::after,
+#grades table .dropDownDivRight::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  font-size: 200%;
+}
+#grades table .dropDownDivLeft::after {
+  content: ">";
+  transform: translate(-50%, -50%) rotate(0deg);
+  transition: transform 0.2s ease-in-out;
+}
+#grades table .dropDownDivRight::after {
+  content: ">";
+  transform: translate(-50%, -50%) rotate(180deg);
+  transition: transform 0.2s ease-in-out;
+}
+#grades table .detailsForSubject {
+  transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out;
+  visibility: collapse;
+  opacity: 0;
+}
+@supports (-webkit-touch-callout: none) and (-webkit-appearance: none) {
+  #grades table .detailsForSubject {
+    display: none;
+  }
+}
+#grades table tr:has(+ .detailsForSubject) .dropDownDivLeft,
+#grades table tr:has(+ .detailsForSubject) .dropDownDivRight {
+  cursor: pointer;
+}
+#grades table .detailsForSubject .additionalExcuse {
+  background-color: color-mix(in srgb, #FF7512 25%, #212121 75%) !important;
+}
+#grades table .detailsForSubject > td {
+  margin: 0;
+  padding: 0;
+}
+#grades table .detailsForSubject table {
+  margin-inline: 5%;
+  width: 90%;
+}
+#grades table .detailsForSubject table tbody tr:nth-of-type(2n) {
+  background-color: rgb(40.625, 40.625, 40.625);
+}
+#grades table .detailsForSubject table tbody tr:nth-of-type(2n+1) {
+  background-color: rgb(59.625, 59.625, 59.625);
+}
+#grades table .detailsForSubject table .lessonCountCell {
+  text-align: center;
+}
+#grades table .detailsForSubject table td.very-strong {
+  color: #e74c3c;
+}
+#grades table .detailsForSubject table td.strong {
+  color: #e67e22;
+}
+#grades table .detailsForSubject table td.medium {
+  color: #f1c40f;
+}
+#grades table .detailsForSubject table td.low {
+  color: #1e8348;
+}
+#grades table .detailsForSubject table td.very-low {
+  color: #2ecc71;
+}
+#grades table tr.open .dropDownDivLeft::after {
+  transition: transform 0.2s ease-in-out;
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+#grades table tr.open .dropDownDivRight::after {
+  transition: transform 0.2s ease-in-out;
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+#grades table tr.open + .detailsForSubject {
+  transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out;
+  visibility: visible;
+  opacity: 1;
+}
+@supports (-webkit-touch-callout: none) and (-webkit-appearance: none) {
+  #grades table tr.open + .detailsForSubject {
+    display: table-row;
+  }
+}
+#grades .convertGrades {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+}
+
+@keyframes gradeTransition {
+  0% {
+    content: attr(data-points);
+    color: transparent;
+  }
+  5% {
+    content: attr(data-points);
+    color: white;
+  }
+  45% {
+    content: attr(data-points);
+    color: white;
+  }
+  49% {
+    content: attr(data-points);
+    color: transparent;
+  }
+  51% {
+    content: attr(data-grade);
+    color: transparent;
+  }
+  55% {
+    content: attr(data-grade);
+    color: white;
+  }
+  95% {
+    content: attr(data-grade);
+    color: white;
+  }
+  100% {
+    content: attr(data-grade);
+    color: transparent;
+  }
+}
+.converterWrapper .converterDialog {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: 1fr auto 0.5fr;
+  grid-column-gap: 10px;
+  grid-row-gap: 10px;
+  min-width: min-content;
+  max-width: 600px;
+}
+.converterWrapper .converterDialog .gradeInputWrapper {
+  grid-area: 4/1/5/3;
+  height: min-content;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.converterWrapper .converterDialog .gradeInputWrapper input {
+  width: 100%;
+}
+.converterWrapper .converterDialog button,
+.converterWrapper .converterDialog input,
+.converterWrapper .converterDialog select {
+  color: white;
+  outline: none;
+  border: none;
+  border-radius: 10px;
+}
+.converterWrapper .converterDialog .inputWithLabel-wrapper {
+  height: min-content;
+  flex-grow: 1;
+}
+.converterWrapper .converterDialog .inputWithLabel-wrapper::before {
+  background-color: #2f2f2f;
+}
+.converterWrapper .converterDialog input {
+  background-color: #2f2f2f;
+}
+.converterWrapper .converterDialog button {
+  background-color: #212121;
+  cursor: pointer;
+}
+.converterWrapper .converterDialog button:hover {
+  background-color: rgb(58.5, 58.5, 58.5);
+}
+.converterWrapper .converterDialog button:active {
+  background-color: rgb(7.5, 7.5, 7.5);
+}
+.converterWrapper .converterDialog .title {
+  grid-area: 1/1/2/3;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.converterWrapper .converterDialog .gradeInputWrapper {
+  grid-area: 2/1/3/3;
+}
+.converterWrapper .converterDialog .closeBtn {
+  grid-area: 3/2/4/3;
+}
+
+.addGradeDialog {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: 1fr 1fr auto auto 0.5fr;
+  grid-column-gap: 10px;
+  grid-row-gap: 20px;
+  min-width: min-content;
+  max-width: 600px;
+}
+.addGradeDialog .title {
+  grid-area: 1/1/2/3;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.addGradeDialog .subject {
+  grid-area: 2/1/3/3;
+  max-height: 50px;
+  min-height: min-content;
+  background-color: #424242;
+  outline: none;
+  border: none;
+}
+.addGradeDialog .weightInputWrapper {
+  grid-area: 3/1/4/3;
+}
+.addGradeDialog .gradeInputWrapper {
+  grid-area: 4/1/5/3;
+  height: min-content;
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.addGradeDialog .cancelBtn {
+  grid-area: 5/1/6/2;
+}
+.addGradeDialog .addBtn {
+  grid-area: 5/2/6/3;
+}
+.addGradeDialog .weightInputWrapper input,
+.addGradeDialog .inputWithLabel-wrapper input {
+  width: 100%;
+}
+.addGradeDialog button,
+.addGradeDialog input,
+.addGradeDialog select {
+  color: white;
+  outline: none;
+  border: none;
+  border-radius: 10px;
+}
+.addGradeDialog .inputWithLabel-wrapper {
+  height: min-content;
+  flex-grow: 1;
+}
+.addGradeDialog .inputWithLabel-wrapper::before {
+  background-color: #2f2f2f;
+}
+.addGradeDialog input {
+  background-color: #2f2f2f;
+}
+.addGradeDialog button {
+  background-color: #212121;
+  cursor: pointer;
+}
+.addGradeDialog button:hover {
+  background-color: rgb(58.5, 58.5, 58.5);
+}
+.addGradeDialog button:active {
+  background-color: rgb(7.5, 7.5, 7.5);
+}
+
+#lastUpdated {
+  position: fixed;
+  max-width: 100vw;
+  min-width: 100px;
+  height: auto;
+  padding: 10px;
+  border-radius: 10px;
+  border-top-right-radius: 10px;
+  border-top-right-radius: 0px;
+  color: white;
+  font-size: 60%;
+  background-color: rgb(171, 71.4303797468, 0);
+  box-shadow: -1px 1px 5px 2px rgb(222, 92.7341772152, 0);
+  top: 0;
+  right: 10px;
+  transform: translateY(-150%);
+  transition: transform 0.2s ease-in-out, top 0.2s ease-in-out;
+}
+
+#lastUpdated.show {
+  transition: transform 0.2s ease-in-out, top 0.2s ease-in-out;
+  top: 10px;
+  right: 10px;
+  transform: none;
+}
+
 /*!
  * Toastify js 1.12.0
  * https://github.com/apvarun/toastify-js
@@ -4707,9 +5266,9 @@ html:not(.loadedFromServer) .settings-schedule .addlessonButton {
   scrollbar-width: thin;
   scrollbar-color: #424242 transparent;
   display: grid;
-  grid-template-columns: auto repeat(2, auto);
-  grid-template-rows: repeat(4, auto) 1fr min-content;
-  grid-column-gap: 5px;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: repeat(6, auto);
+  grid-column-gap: 10px;
   grid-row-gap: 7.5px;
   padding: 10px;
 }
@@ -4721,25 +5280,25 @@ html:not(.loadedFromServer) .settings-schedule .addlessonButton {
   width: calc(100% - 40px) !important;
 }
 #addExamDialog h2 {
-  grid-area: 1/1/2/4;
+  grid-area: 1/1/2/3;
 }
 #addExamDialog .subjectInput {
-  grid-area: 2/1/3/4;
+  grid-area: 2/1/3/3;
 }
 #addExamDialog #datePickerInput {
-  grid-area: 3/1/4/4;
+  grid-area: 3/1/4/3;
 }
 #addExamDialog .search {
-  grid-area: 4/1/5/4;
+  grid-area: 4/1/5/3;
 }
 #addExamDialog .lessonPickerList {
-  grid-area: 5/1/6/4;
+  grid-area: 5/1/6/3;
 }
 #addExamDialog .addBtn {
-  grid-area: 6/2/7/3;
+  grid-area: 6/1/7/2;
 }
 #addExamDialog .cancelbtn {
-  grid-area: 6/3/7/4;
+  grid-area: 6/2/7/3;
 }
 #addExamDialog .addBtn,
 #addExamDialog .cancelbtn {
@@ -4832,36 +5391,9 @@ html:not(.loadedFromServer) .settings-schedule .addlessonButton {
   background: #676767;
 }
 
-.addExamDialogWrapper {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 10000000;
-  background: rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(4px);
-}
-
-#addBreakDialogWrapper {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 1000000;
-  background-color: rgba(23, 23, 23, 0.2);
-  backdrop-filter: blur(4px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
 #addBreakDialogWrapper #addBreakDialog {
   width: 30vw;
   height: 60vh;
-  background-color: #2f2f2f;
-  padding: 20px;
-  border-radius: 20px;
   display: grid;
   grid-template-columns: repeat(3, auto);
   grid-template-rows: repeat(6, 1fr);
@@ -5047,50 +5579,33 @@ html:not(.loadedFromServer) .settings-schedule .addlessonButton {
   background-color: #676767;
 }
 
-.dialogWrapper {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000000;
-  background-color: rgba(23, 23, 23, 0.2);
-  backdrop-filter: blur(4px);
-}
-.dialogWrapper .dialog {
+.untisAccessDialogWrapper .untisAccessDialog {
   width: 30vw;
   height: 60vh;
-  background-color: #2f2f2f;
-  color: white;
-  border-radius: 10px;
-  padding: 20px;
   display: grid;
   grid-template-columns: auto repeat(2, max(55px, 20%));
   grid-template-rows: 15% repeat(4, 7.5%) calc(45% - 60px) 10%;
   grid-column-gap: 10px;
   grid-row-gap: 10px;
 }
-.dialogWrapper .dialog div:has(.username)::before,
-.dialogWrapper .dialog div:has(.password)::before,
-.dialogWrapper .dialog div:has(.classesInput)::before {
+.untisAccessDialogWrapper .untisAccessDialog div:has(.username)::before,
+.untisAccessDialogWrapper .untisAccessDialog div:has(.password)::before,
+.untisAccessDialogWrapper .untisAccessDialog div:has(.classesInput)::before {
   top: 35%;
   height: calc(90% - 15px);
   background-color: #2f2f2f;
 }
-.dialogWrapper .dialog div:has(.username) .inputWithLabel-asterisk, .dialogWrapper .dialog div:has(.username)::after,
-.dialogWrapper .dialog div:has(.password) .inputWithLabel-asterisk,
-.dialogWrapper .dialog div:has(.password)::after,
-.dialogWrapper .dialog div:has(.classesInput) .inputWithLabel-asterisk,
-.dialogWrapper .dialog div:has(.classesInput)::after {
+.untisAccessDialogWrapper .untisAccessDialog div:has(.username) .inputWithLabel-asterisk, .untisAccessDialogWrapper .untisAccessDialog div:has(.username)::after,
+.untisAccessDialogWrapper .untisAccessDialog div:has(.password) .inputWithLabel-asterisk,
+.untisAccessDialogWrapper .untisAccessDialog div:has(.password)::after,
+.untisAccessDialogWrapper .untisAccessDialog div:has(.classesInput) .inputWithLabel-asterisk,
+.untisAccessDialogWrapper .untisAccessDialog div:has(.classesInput)::after {
   top: 35%;
 }
-.dialogWrapper .dialog .school,
-.dialogWrapper .dialog .username,
-.dialogWrapper .dialog .password,
-.dialogWrapper .dialog .classesInput {
+.untisAccessDialogWrapper .untisAccessDialog .school,
+.untisAccessDialogWrapper .untisAccessDialog .username,
+.untisAccessDialogWrapper .untisAccessDialog .password,
+.untisAccessDialogWrapper .untisAccessDialog .classesInput {
   width: 100%;
   outline: none;
   border: none;
@@ -5101,10 +5616,10 @@ html:not(.loadedFromServer) .settings-schedule .addlessonButton {
   padding: 5px;
   justify-self: center;
 }
-.dialogWrapper .dialog .selected {
+.untisAccessDialogWrapper .untisAccessDialog .selected {
   position: relative;
 }
-.dialogWrapper .dialog .selected::after {
+.untisAccessDialogWrapper .untisAccessDialog .selected::after {
   content: "";
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23019225'%3E%3Cpath d='M20.285 6.709l-11.025 11.025-5.285-5.285 1.414-1.414 3.871 3.871 9.611-9.611z'/%3E%3C/svg%3E");
   background-size: contain;
@@ -5118,46 +5633,46 @@ html:not(.loadedFromServer) .settings-schedule .addlessonButton {
   height: 90%;
   aspect-ratio: 1/1;
 }
-.dialogWrapper .dialog .school:focus {
+.untisAccessDialogWrapper .untisAccessDialog .school:focus {
   background-color: #676767;
 }
-.dialogWrapper .dialog .schoolTable thead {
+.untisAccessDialogWrapper .untisAccessDialog .schoolTable thead {
   position: sticky;
   top: 0;
   background-color: #424242;
 }
-.dialogWrapper .dialog .schoolTable {
+.untisAccessDialogWrapper .untisAccessDialog .schoolTable {
   width: 100%;
   height: auto;
   border-collapse: collapse;
 }
-.dialogWrapper .dialog .schoolTable tbody {
+.untisAccessDialogWrapper .untisAccessDialog .schoolTable tbody {
   font-size: 0.8em;
 }
-.dialogWrapper .dialog .schoolTable tr td.error {
+.untisAccessDialogWrapper .untisAccessDialog .schoolTable tr td.error {
   text-align: center;
 }
-.dialogWrapper .dialog .schoolTable tbody tr:nth-of-type(2n) {
+.untisAccessDialogWrapper .untisAccessDialog .schoolTable tbody tr:nth-of-type(2n) {
   background-color: #424242;
 }
-.dialogWrapper .dialog .schoolTable td {
+.untisAccessDialogWrapper .untisAccessDialog .schoolTable td {
   padding: 10px;
 }
-.dialogWrapper .dialog .schoolTable tr:hover {
+.untisAccessDialogWrapper .untisAccessDialog .schoolTable tr:hover {
   background-color: #212121 !important;
   cursor: pointer;
 }
-.dialogWrapper .dialog .schoolTable tr:active {
+.untisAccessDialogWrapper .untisAccessDialog .schoolTable tr:active {
   background-color: #676767 !important;
 }
-.dialogWrapper .dialog .schoolTable tr.selected {
+.untisAccessDialogWrapper .untisAccessDialog .schoolTable tr.selected {
   background-color: #676767 !important;
 }
-.dialogWrapper .dialog .tableWrapper {
+.untisAccessDialogWrapper .untisAccessDialog .tableWrapper {
   overflow-y: auto;
 }
-.dialogWrapper .dialog .addBtn,
-.dialogWrapper .dialog .cancelBtn {
+.untisAccessDialogWrapper .untisAccessDialog .addBtn,
+.untisAccessDialogWrapper .untisAccessDialog .cancelBtn {
   outline: none;
   border: none;
   width: 100%;
@@ -5168,43 +5683,43 @@ html:not(.loadedFromServer) .settings-schedule .addlessonButton {
   color: white;
   border-radius: 12px;
 }
-.dialogWrapper .dialog .addBtn:hover,
-.dialogWrapper .dialog .cancelBtn:hover {
+.untisAccessDialogWrapper .untisAccessDialog .addBtn:hover,
+.untisAccessDialogWrapper .untisAccessDialog .cancelBtn:hover {
   background-color: #676767;
 }
-.dialogWrapper .dialog .addBtn:active,
-.dialogWrapper .dialog .cancelBtn:active {
+.untisAccessDialogWrapper .untisAccessDialog .addBtn:active,
+.untisAccessDialogWrapper .untisAccessDialog .cancelBtn:active {
   background-color: #2f2f2f;
 }
-.dialogWrapper .dialog h2 {
+.untisAccessDialogWrapper .untisAccessDialog h2 {
   margin: 0;
   padding: 0;
   display: flex;
   justify-content: center;
   align-items: center;
 }
-.dialogWrapper .dialog h2 {
+.untisAccessDialogWrapper .untisAccessDialog h2 {
   grid-area: 1/1/2/4;
 }
-.dialogWrapper .dialog div:has(.username) {
+.untisAccessDialogWrapper .untisAccessDialog div:has(.username) {
   grid-area: 2/1/3/4;
 }
-.dialogWrapper .dialog div:has(.password) {
+.untisAccessDialogWrapper .untisAccessDialog div:has(.password) {
   grid-area: 3/1/4/4;
 }
-.dialogWrapper .dialog div:has(.classesInput) {
+.untisAccessDialogWrapper .untisAccessDialog div:has(.classesInput) {
   grid-area: 4/1/5/4;
 }
-.dialogWrapper .dialog .school {
+.untisAccessDialogWrapper .untisAccessDialog .school {
   grid-area: 5/1/6/4;
 }
-.dialogWrapper .dialog .tableWrapper {
+.untisAccessDialogWrapper .untisAccessDialog .tableWrapper {
   grid-area: 6/1/7/4;
 }
-.dialogWrapper .dialog .cancelBtn {
+.untisAccessDialogWrapper .untisAccessDialog .cancelBtn {
   grid-area: 7/2/8/3;
 }
-.dialogWrapper .dialog .addBtn {
+.untisAccessDialogWrapper .untisAccessDialog .addBtn {
   grid-area: 7/3/8/4;
 }
 
@@ -5230,29 +5745,13 @@ html:not(.loadedFromServer) .settings-schedule .addlessonButton {
   cursor: pointer;
 }
 
-.settings-teachers-bgWrapper {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: all;
-  z-index: 1000000;
-  backdrop-filter: blur(4px);
-  background-color: rgba(23, 23, 23, 0.2);
-}
 .settings-teachers-bgWrapper .settings-teachers-addTeacherDiv {
-  position: absolute;
   display: flex;
   flex-direction: column;
-  background-color: #424242;
   padding: 20px;
   border-radius: 20px;
-  top: 50%;
-  left: 50%;
   height: 40vh;
   width: 30vw;
-  transform: translate(-50%, -50%);
 }
 .settings-teachers-bgWrapper .settings-teachers-addTeacherDiv * {
   flex-grow: 1;
@@ -5579,8 +6078,8 @@ html:not(.loadedFromServer) .settings-schedule .addlessonButton {
   grid-column-start: calc(var(--animateToSchoolsShownCount, 1) + 1) !important;
   grid-column-end: calc(var(--totalSchoolCount, 1) + 5 + 1) !important;
 }
-.schedule.onlyShow.animate .fadeInNext,
-.schedule.onlyShow.animate .fadeInPrev {
+.schedule.onlyShow.animate .fadeInNext:not(.moreLessons),
+.schedule.onlyShow.animate .fadeInPrev:not(.moreLessons) {
   display: grid !important;
 }
 .schedule.onlyShow.animate .fadeInNext {
@@ -5598,34 +6097,34 @@ html:not(.loadedFromServer) .settings-schedule .addlessonButton {
 
 @keyframes slideToLeft-MoveOut {
   0% {
-    transform: translate(0%);
+    transform: translate(0vw);
   }
   100% {
-    transform: translate(-120%);
+    transform: translate(-120vw);
   }
 }
 @keyframes slideToLeft-MoveIn {
   0% {
-    transform: translate(120%);
+    transform: translate(120vw);
   }
   100% {
-    transform: translate(0%);
+    transform: translate(0vw);
   }
 }
 @keyframes slideToRight-MoveOut {
   0% {
-    transform: translate(0%);
+    transform: translate(0vw);
   }
   100% {
-    transform: translate(120%);
+    transform: translate(120vw);
   }
 }
 @keyframes slideToRight-MoveIn {
   0% {
-    transform: translate(-120%);
+    transform: translate(-120vw);
   }
   100% {
-    transform: translate(0%);
+    transform: translate(0vw);
   }
 }
 .schedule.onlyShow .schoolTimesBackground {
@@ -5680,25 +6179,9 @@ html:has(#settingsDialog[show]) html {
   -webkit-overflow-scrolling: auto;
 }
 
-.changePasswordDialogWrapper {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 1000000;
-  background-color: rgba(23, 23, 23, 0.2);
-  backdrop-filter: blur(4px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
 .changePasswordDialogWrapper .changePasswordDialog {
   width: 30vw;
   height: min-content;
-  background-color: #2f2f2f;
-  padding: 20px;
-  border-radius: 20px;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   grid-template-rows: repeat(3, 1fr) 0.5fr;
@@ -5760,4 +6243,24 @@ html:has(#settingsDialog[show]) html {
 .changePasswordDialogWrapper .changePasswordDialog .inputWithLabel-wrapper::before {
   color: white;
   background-color: #2f2f2f;
+}
+
+.dialogWrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10000000;
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.dialogWrapper .dialog {
+  color: white;
+  background-color: #2f2f2f;
+  padding: 20px;
+  border-radius: 20px;
 }/*# sourceMappingURL=allStyles.css.map */

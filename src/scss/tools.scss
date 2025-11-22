@@ -177,8 +177,21 @@
 
         }
 
+
+        tbody tr:not(.lessonsToExcuse):nth-of-type(2n) {
+            background-color: vars.$gray-700;
+        }
+
+        thead td:last-of-type {
+            width: 5%;
+            min-width: 30px;
+        }
     }
+
+
 }
+
+
 
 table {
     border-collapse: collapse;
@@ -188,15 +201,7 @@ table {
         top: 0;
         background-color: vars.$gray-600;
         height: 4vh;
-    }
-
-    thead td:last-of-type {
-        width: 5%;
-        min-width: 30px;
-    }
-
-    tbody tr:not(.lessonsToExcuse):nth-of-type(2n) {
-        background-color: vars.$gray-700;
+        z-index: 10000;
     }
 
     // tbody tr td:last-of-type {
@@ -221,7 +226,6 @@ table {
         padding-left: 20px;
     }
 }
-
 
 .trash {
     display: flex;

@@ -278,8 +278,10 @@ export class SettingsTeacherList extends SettingsElement {
 
     private addTeacher(callback: (short: string, firstName: string, surname: string, subjects: Subject[]) => void) {
         const bgWrapper = document.createElement("div");
+        bgWrapper.classList.add("dialogWrapper");
 
         const addTeacherDiv = document.createElement("div");
+        addTeacherDiv.classList.add("dialog");
 
         const title = document.createElement("h2");
         title.innerHTML = "Add Teacher";

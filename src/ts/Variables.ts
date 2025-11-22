@@ -11,8 +11,7 @@ export let BREAKS: BreaksRawByDay = {
     tuesday: [],
     wednesday: [],
     thursday: [],
-    friday: [],
-    others: []
+    friday: []
 };
 
 export let TEACHERS: {

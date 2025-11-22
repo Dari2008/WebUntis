@@ -1,0 +1,27 @@
+@use "./Variables.scss" as vars;
+
+#lastUpdated {
+    position: fixed;
+    max-width: 100vw;
+    min-width: 100px;
+    height: auto;
+    padding: 10px;
+    border-radius: 10px;
+    border-top-right-radius: 10px;
+    border-top-right-radius: 0px;
+    color: white;
+    font-size: 60%;
+    background-color: vars.$themeColor-20-Dark;
+    box-shadow: -1px 1px 5px 2px vars.$themeColor-10-Dark;
+    top: 0;
+    right: 10px;
+    transform: translateY(-150%);
+    transition: transform 0.2s ease-in-out, top 0.2s ease-in-out;
+}
+
+#lastUpdated.show {
+    transition: transform 0.2s ease-in-out, top 0.2s ease-in-out;
+    top: 10px;
+    right: 10px;
+    transform: none;
+}

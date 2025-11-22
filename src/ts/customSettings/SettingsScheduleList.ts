@@ -391,9 +391,11 @@ export class SettingsScheduleList extends SettingsElement {
 
         const addScheduleDialogWrapper = document.createElement("div");
         addScheduleDialogWrapper.id = "addScheduleDialogWrapper";
+        addScheduleDialogWrapper.classList.add("dialogWrapper");
 
         const addScheduleDialog = document.createElement("div");
         addScheduleDialog.id = "addScheduleDialog";
+        addScheduleDialog.classList.add("dialog");
 
         const title = document.createElement("h2");
         title.innerText = "Set Lesson";
