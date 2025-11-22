@@ -943,7 +943,7 @@ export class HTMLTableManager {
         const timeElementsToHighlight: HTMLDivElement[] = [];
         const tableElementCopy = this.tableElement;
 
-        for (const time of this.tableElement!.querySelectorAll(`.lessonTime${(school ? ("." + school) : (""))}`)) {
+        for (const time of this.tableElement!.querySelectorAll(`.lessonTime${(school ? ("." + school.toLowerCase()) : (""))}`)) {
             const startTime = time.querySelector("span.start")?.getAttribute("data-timestart");
             const endTime = time.querySelector("span.end")?.getAttribute("data-timeend");
             const parsedStart = this.parseLessonTime(startTime!);
